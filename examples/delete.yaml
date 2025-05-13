@@ -1,0 +1,52 @@
+# Example configuration for NumberRangeStrategy with relations
+column_name:
+  - id
+  - name
+  - email
+
+num_of_rows: 100
+shuffle: false
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/delete.csv
+
+configs:
+  # Base age range
+  - names:
+      - id
+    strategy:
+      name: SERIES_STRATEGY
+      params:
+        start: 1
+        step: 1
+
+    
+  - names:
+      - name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+
+    
+  # Bonus based on age
+  - names:
+      - email
+    strategy:
+      name: CONCAT_STRATEGY
+      params:
+        lhs_cols:
+          - name
+        rhs_cols:
+          - id
+        separator: "-"
+        prefix: ""
+        suffix: "@email.com"
+
+
+  - names:
+      - id
+    strategy:
+      name: DELETE_STRATEGY
+      params:
+        mask: "id < 30"

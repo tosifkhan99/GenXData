@@ -1,0 +1,11 @@
+*.ipynb
+__pycache__
+.ipynb_checkpoints
+config.json
+output.csv
+*.csv
+*temp*
+*tmp*
+*untitled*
+*Untitled*
+TODO

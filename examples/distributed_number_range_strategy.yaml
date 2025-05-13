@@ -1,0 +1,42 @@
+column_name:
+  - salary
+  - department
+
+num_of_rows: 100
+shuffle: false
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/distributed_salary.csv
+
+configs:
+  - names:
+      - salary
+    strategy:
+      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+      params:
+        ranges:
+          - lowerbound: 30000
+            upperbound: 50000
+            distribution: 30
+          - lowerbound: 50001
+            upperbound: 80000
+            distribution: 45
+          - lowerbound: 80001
+            upperbound: 120000
+            distribution: 20
+          - lowerbound: 120001
+            upperbound: 200000
+            distribution: 5
+
+  - names:
+      - department
+    strategy:
+      name: DISTRIBUTED_CHOICE_STRATEGY
+      params:
+        choices:
+          Engineering: 40
+          Marketing: 20
+          Sales: 25
+          HR: 15 

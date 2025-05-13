@@ -1,0 +1,9 @@
+{
+    "csv" : "csvWriter",
+    "excel" : "excelWriter",
+    "json" : "jsonWriter",
+    "parquet": "parquetWriter",
+    "sqlite": "sqliteWriter",
+    "html": "htmlWriter",
+    "feather": "featherWriter"
+}

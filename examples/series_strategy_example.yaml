@@ -1,0 +1,43 @@
+# Example configuration for SeriesStrategy
+column_name:
+  - id
+  - sequence
+  - negative_sequence
+
+num_of_rows: 10
+shuffle: true
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/series_strategy.csv
+
+configs:
+  # Basic ID sequence
+  - names:
+      - id
+    strategy:
+      name: SERIES_STRATEGY
+      params:
+        start: 1000
+
+    
+  # Custom sequence with step
+  - names:
+      - sequence
+    strategy:
+      name: SERIES_STRATEGY
+      params:
+        start: 5
+        step: 5
+
+    
+  # Negative sequence
+  - names:
+      - negative_sequence
+    strategy:
+      name: SERIES_STRATEGY
+      params:
+        start: 0
+        step: -2
+        

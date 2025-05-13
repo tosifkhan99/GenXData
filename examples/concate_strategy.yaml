@@ -1,0 +1,55 @@
+# Example configuration for NumberRangeStrategy with relations
+column_name:
+  - first_name
+  - last_name
+  - full_name
+  - email
+
+num_of_rows: 100
+shuffle: true
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/concat_strategy.csv
+
+configs:
+  # Base age range
+  - names:
+      - first_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+    
+  # Base score range
+  - names:
+      - last_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+    
+  # Bonus based on age
+  - names:
+      - full_name
+    strategy:
+      name: CONCAT_STRATEGY
+      params:
+        lhs_cols:
+          - first_name
+        rhs_cols:
+          - last_name
+        separator: " "
+        prefix: ""
+        suffix: ""
+    
+  # Adjusted score based on score
+  - names:
+      - email
+    strategy:
+      name: CONCAT_STRATEGY
+      params:
+        lhs_cols:
+          - first_name
+        rhs_cols:
+          - last_name
+        separator: "."
+        prefix: ""
+        suffix: "@email.com"

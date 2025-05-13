@@ -1,0 +1,18 @@
+et-xmlfile==1.1.0
+names==0.3.0
+numpy==1.24.3
+openpyxl==3.1.2
+pandas==2.0.1
+python-dateutil==2.8.2
+pytz==2023.3
+rstr==3.2.1
+six==1.16.0
+tzdata==2023.3
+# For YAML support
+pyyaml==6.0.1
+# For Parquet files
+pyarrow==14.0.2
+# For Feather files
+pyarrow==14.0.2
+# For improved performance
+fastparquet==2023.10.1

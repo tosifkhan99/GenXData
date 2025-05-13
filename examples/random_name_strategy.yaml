@@ -1,0 +1,48 @@
+column_name:
+  - first_name
+  - last_name
+  - email
+  - department
+
+num_of_rows: 100
+shuffle: false
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/employee_data.csv
+
+configs:
+  - names:
+      - first_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params: {}
+
+  - names:
+      - last_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params: {}
+
+  - names:
+      - email
+    strategy:
+      name: CONCAT_STRATEGY
+      params:
+        lhs_cols: ["first_name"]
+        rhs_cols: ["last_name"]
+        separator: "."
+        suffix: "@company.com"
+
+  - names:
+      - department
+    strategy:
+      name: DISTRIBUTED_CHOICE_STRATEGY
+      params:
+        choices:
+          Engineering: 35
+          Marketing: 20
+          Sales: 25
+          HR: 10
+          Finance: 10 

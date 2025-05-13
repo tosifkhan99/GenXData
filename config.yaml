@@ -1,0 +1,91 @@
+# Main configuration
+column_name: ["id", "random_number", "distributed_number", "date", "pattern", "series", "choice", "time", "replacement", "concat"]
+file_writer: "CSV_WRITER"
+num_of_rows: 1000
+shuffle: true
+
+# Strategy configurations
+configs:
+  # Random Number Range Strategy
+  - names: ["random_number"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        range:
+          lowerbound: 1
+          upperbound: 100
+
+  # Distributed Number Range Strategy
+  - names: ["distributed_number"]
+    strategy:
+      name: "DISTRIBUTED_NUMBER_RANGE_STRATEGY"
+      params:
+        ranges:
+          - lowerbound: 1
+            upperbound: 50
+            distribution: 70
+          - lowerbound: 51
+            upperbound: 100
+            distribution: 30
+
+  # Date Generator Strategy
+  - names: ["date"]
+    strategy:
+      name: "DATE_GENERATOR_STRATEGY"
+      params:
+        start_date: "2024-01-01"
+        end_date: "2024-12-31"
+        format: "%Y-%m-%d"
+
+  # Pattern Strategy
+  - names: ["pattern"]
+    strategy:
+      name: "PATTERN_STRATEGY"
+      params:
+        regex: "[A-Z]{2}[0-9]{3}"
+
+  # Series Strategy
+  - names: ["series"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  # Distributed Choices Strategy
+  - names: ["choice"]
+    strategy:
+      name: "DISTRIBUTED_CHOICE_STRATEGY"
+      params:
+        choices:
+          "Option A": 40
+          "Option B": 30
+          "Option C": 30
+
+  # Time Range Strategy
+  - names: ["time"]
+    strategy:
+      name: "TIME_RANGE_STRATEGY"
+      params:
+        start_time: "09:00:00"
+        end_time: "17:00:00"
+        format: "%H:%M:%S"
+
+  # Replacement Strategy
+  - names: ["replacement"]
+    strategy:
+      name: "REPLACEMENT_STRATEGY"
+      params:
+        from_value: "old_value"
+        to_value: "new_value"
+
+  # Concat Strategy
+  - names: ["concat"]
+    strategy:
+      name: "CONCAT_STRATEGY"
+      params:
+        lhs_cols: ["first_name", "last_name"]
+        rhs_cols: ["email"]
+        separator: " "
+        prefix: "User: "
+        suffix: "@example.com" 
