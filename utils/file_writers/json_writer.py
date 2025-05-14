@@ -1,4 +1,5 @@
 import logging
+import os
 
 logger = logging.getLogger("data_generator.writers.json")
 
@@ -18,6 +19,11 @@ def jsonWriter(df, params):
         if not path:
             raise ValueError("Missing 'path_or_buf' parameter for JSON writer")
             
+        # Ensure the file has .json extension
+        if not path.endswith('.json'):
+            path = os.path.splitext(path)[0] + '.json'
+            params['path_or_buf'] = path
+            
         # Set defaults if not provided
         if 'orient' not in params:
             params['orient'] = 'records'
@@ -26,6 +32,7 @@ def jsonWriter(df, params):
             params['date_format'] = 'iso'
             
         logger.info(f"Writing DataFrame with {len(df)} rows to JSON file: {path}")
+
         df.to_json(**params)
         logger.info(f"Successfully wrote JSON file: {path}")
         

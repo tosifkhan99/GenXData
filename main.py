@@ -93,28 +93,19 @@ def ensure_output_dir(output_path):
 
 def load_writers_and_mappings():
     """
-    Load writer definitions and mappings, trying YAML first then falling back to JSON.
+    Load writer definitions and mappings.
     
     Returns:
         tuple: (writers, mappings) dictionaries
     """
-    logger = logging.getLogger("data_generator")
+    logger = logging.getLogger("data_generator")    
+
+    writers = read_yaml("configs/WRITERS_IMPLEMENTATIONS.yaml")
+    logger.info("Loaded writers from YAML config")
     
-    # Try to load YAML files first
-    try:
-        writers = read_yaml("configs/WRITERS.yaml")
-        logger.info("Loaded writers from YAML config")
-    except FileNotFoundError:
-        writers = read_json("configs/WRITERS.json")
-        logger.info("Loaded writers from JSON config")
-        
-    try:
-        mappings = read_yaml("configs/WRITERS_MAPPING.yaml")
-        logger.info("Loaded writer mappings from YAML config")
-    except FileNotFoundError:
-        mappings = read_json("configs/WRITERS_MAPPING.json")
-        logger.info("Loaded writer mappings from JSON config")
-        
+    mappings = read_yaml("configs/WRITERS_MAPPING.yaml")
+    logger.info("Loaded writer mappings from YAML config")
+
     return writers, mappings
 
 def process_config(config_path, debug_mode=False, perf_report=False):

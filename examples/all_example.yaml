@@ -1,0 +1,148 @@
+# Comprehensive example combining multiple strategies with relations
+column_name:
+  - employee_id
+  - first_name
+  - last_name
+  - email
+  - phone
+  - department
+  - join_date
+  - salary
+  - performance_rating
+  - bonus
+  - project_code
+
+num_of_rows: 100
+shuffle: false
+
+file_writer:
+  - type: JSON_WRITER
+    params:
+      path_or_buf: ./output/all_example.json
+      orient: "records"
+      date_format: "iso"
+      indent: 2
+
+configs:
+  # Base sequence for employee ID
+  - names:
+      - employee_id
+    strategy:
+      name: SERIES_STRATEGY
+      params:
+        start: 1000
+        step: 1
+
+  # Name generation
+  - names:
+      - first_name
+      - last_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: "full"
+
+  # Email based on name
+  - names:
+      - email
+    strategy:
+      name: CONCAT_STRATEGY
+      params:
+        lhs_cols:
+          - first_name
+        rhs_cols:
+          - last_name
+        separator: "."
+        suffix: "@company.com"
+
+  # Phone number with pattern
+  - names:
+      - phone
+    strategy:
+      name: PATTERN_STRATEGY
+      params:
+        regex: '\+1-[0-9]{3}-[0-9]{3}-[0-9]{4}'
+
+  # Department with distribution
+  - names:
+      - department
+    strategy:
+      name: DISTRIBUTED_CHOICE_STRATEGY
+      params:
+        choices:
+          Engineering: 30
+          Marketing: 20
+          Sales: 25
+          HR: 15
+          Finance: 10
+
+  # Join date
+  - names:
+      - join_date
+    strategy:
+      name: DATE_GENERATOR_STRATEGY
+      params:
+        start_date: "2020-01-01"
+        end_date: "2024-03-15"
+        format: "%Y-%m-%d"
+        output_format: "%Y-%m-%d"
+
+  # Salary based on department and join date
+  - names:
+      - salary
+    strategy:
+      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+      params:
+        ranges:
+          - lowerbound: 50000
+            upperbound: 75000
+            distribution: 40
+          - lowerbound: 75001
+            upperbound: 100000
+            distribution: 35
+          - lowerbound: 100001
+            upperbound: 150000
+            distribution: 20
+          - lowerbound: 150001
+            upperbound: 200000
+            distribution: 5
+      mask: "department == 'Engineering' or department == 'Finance'"
+
+  # Performance rating
+  - names:
+      - performance_rating
+    strategy:
+      name: DISTRIBUTED_CHOICE_STRATEGY
+      params:
+        choices:
+          Outstanding: 10
+          Excellent: 20
+          Good: 40
+          Average: 20
+          Needs_Improvement: 10
+
+  # Bonus based on performance and salary
+  - names:
+      - bonus
+    strategy:
+      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+      params:
+        ranges:
+          - lowerbound: 5000
+            upperbound: 10000
+            distribution: 40
+          - lowerbound: 10001
+            upperbound: 20000
+            distribution: 35
+          - lowerbound: 20001
+            upperbound: 50000
+            distribution: 25
+      mask: "performance_rating == 'Outstanding' or performance_rating == 'Excellent'"
+
+  # Project code with pattern
+  - names:
+      - project_code
+    strategy:
+      name: PATTERN_STRATEGY
+      params:
+        regex: "[A-Z]{2}[0-9]{3}-[A-Z]{2}" 

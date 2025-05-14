@@ -1,9 +1,0 @@
-{
-    "csv" : "utils/file_writers/csv_writer.py",
-    "excel" : "utils/file_writers/excel_writer.py",
-    "json": "utils/file_writers/json_writer.py",
-    "parquet": "utils/file_writers/parquet_writer.py",
-    "sqlite": "utils/file_writers/sqlite_writer.py",
-    "html": "utils/file_writers/html_writer.py",
-    "feather": "utils/file_writers/feather_writer.py"
-}
