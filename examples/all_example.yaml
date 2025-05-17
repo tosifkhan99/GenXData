@@ -1,4 +1,12 @@
-# Comprehensive example combining multiple strategies with relations
+metadata:
+  name: all_example
+  description: Example of all strategies combined
+  version: 1.0.0
+  author: Tosif Khan
+  github: https://github.com/tosifkhan99
+  email: khantosif94@gmail.com
+  license: Apache-2.0
+
 column_name:
   - employee_id
   - first_name

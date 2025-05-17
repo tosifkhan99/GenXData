@@ -1,4 +1,12 @@
-# Example configuration for NumberRangeStrategy with relations
+metadata:
+  name: date_generator
+  description: Example of date generator strategy
+  version: 1.0.0
+  author: Tosif Khan
+  github: https://github.com/tosifkhan99
+  email: khantosif94@gmail.com
+  license: Apache-2.0
+
 column_name:
   - order_date
   - delivery_date

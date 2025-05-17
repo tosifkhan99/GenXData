@@ -1,4 +1,12 @@
-# Example configuration for NumberRangeStrategy with relations
+metadata:
+  name: concate_strategy
+  description: Example of concat strategy
+  version: 1.0.0
+  author: Tosif Khan
+  github: https://github.com/tosifkhan99
+  email: khantosif94@gmail.com
+  license: Apache-2.0
+
 column_name:
   - first_name
   - last_name
