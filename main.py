@@ -4,7 +4,8 @@ import logging
 import argparse
 import os
 from pathlib import Path
-
+ 
+import configs.GENERATOR_SETTINGS as SETTINGS
 from utils.json_loader import read_json
 from utils.yaml_loader import read_yaml
 from utils.intermediate_column import filter_intermediate_columns
@@ -108,7 +109,7 @@ def load_writers_and_mappings():
 
     return writers, mappings
 
-def process_config(config_path, debug_mode=False, perf_report=False):
+def process_config(configFile, debug_mode=False, perf_report=False):
     """
     Process a single configuration file.
     
@@ -121,22 +122,21 @@ def process_config(config_path, debug_mode=False, perf_report=False):
         pd.DataFrame: Generated data
     """
     logger = logging.getLogger("data_generator")
-    logger.info(f"Processing config file: {config_path}")
+    logger.debug(f"Processing config file: {configFile}")
+    columnName = configFile['column_name']
+    fileWriter = configFile['file_writer']
+    rows = configFile['num_of_rows']
+    write_output = configFile.get('write_output', SETTINGS.WRITE_OUTPUT)
+
+    if rows < SETTINGS.MINIMUM_ROWS_ALLOWED: 
+        rows = SETTINGS.MINIMUM_ROWS_ALLOWED
+        logger.warning(f"Row count too low, using minimum of {SETTINGS.MINIMUM_ROWS_ALLOWED} rows")
     
-    with measure_time("config_loading"):
-        configFile = load_config(config_path)
-        columnName = configFile['column_name']
-        fileWriter = configFile['file_writer']
-        rows = configFile['num_of_rows']
-        
-        if rows < 100: 
-            rows = 100
-            logger.warning(f"Row count too low, using minimum of 100 rows")
-        
-        configs = configFile['configs']
-        shuffle_data = configFile.get('shuffle', False)
-        
-        df = pd.DataFrame(columns=columnName)
+
+    configs = configFile['configs']
+    shuffle_data = configFile.get('shuffle', SETTINGS.SHUFFLE)
+    
+    df = pd.DataFrame(columns=columnName)
         
     logger.info(f"Creating dataframe with {len(columnName)} columns and {rows} rows")
     
@@ -166,7 +166,7 @@ def process_config(config_path, debug_mode=False, perf_report=False):
                                 'df': df,
                                 'col_name': col_name, 
                                 'rows': rows,
-                                'debug': cur_config.get('debug', debug_mode),
+                                'debug': cur_config.get('debug', SETTINGS.DEBUG),
                                 'intermediate': is_intermediate,
                                 'params': cur_config.get('strategy').get('params', {}),
                                 'unique': cur_config.get('strategy').get('unique', False)
@@ -194,71 +194,82 @@ def process_config(config_path, debug_mode=False, perf_report=False):
         df = filter_intermediate_columns(df)
     
     # Write output files
-    with measure_time("file_writing", rows_processed=rows):
-        WRITERS, WRITERS_MAPPING = load_writers_and_mappings()
-        
-        if len(fileWriter) != 0:
-            for i in fileWriter:
-                writer_type = normalize_writer_type(i['type'])
-                logger.info(f"Writing output using {writer_type} writer")
-                
-                try:
-                    # Use the strategy_module util to load the writer module
-                    from utils.strategy_module import load_strategy_module
-                    writer_module = load_strategy_module(WRITERS[writer_type])
-                    writer = getattr(writer_module, WRITERS_MAPPING[writer_type])
+    if write_output:
+        with measure_time("file_writing", rows_processed=rows):
+            WRITERS, WRITERS_MAPPING = load_writers_and_mappings()
+            
+            if len(fileWriter) != 0:
+                for i in fileWriter:
+                    writer_type = normalize_writer_type(i['type'])
+                    logger.info(f"Writing output using {writer_type} writer")
                     
-                    # Ensure output directory exists
-                    if 'output_path' in i.get('params', {}):
-                        ensure_output_dir(i['params']['output_path'])
-                    
-                    writer(df, i.get('params', {}))
-                    logger.info(f"Successfully wrote output with {writer_type} writer")
-                except KeyError as e:
-                    logger.error(f"Writer type '{writer_type}' not found in configuration")
-                    if debug_mode:
-                        raise
-                except Exception as e:
-                    logger.error(f"Error writing output with {writer_type} writer: {str(e)}")
-                    if debug_mode:
-                        raise
-        else:
-            logger.warning("No file writers specified in config")
+                    try:
+                        # Use the strategy_module util to load the writer module
+                        from utils.strategy_module import load_strategy_module
+                        writer_module = load_strategy_module(WRITERS[writer_type])
+                        writer = getattr(writer_module, WRITERS_MAPPING[writer_type])
+                        
+                        # Ensure output directory exists
+                        if 'output_path' in i.get('params', {}):
+                            ensure_output_dir(i['params']['output_path'])
+                        
+                        writer(df, i.get('params', {}))
+                        logger.info(f"Successfully wrote output with {writer_type} writer")
+                    except KeyError as e:
+                        logger.error(f"Writer type '{writer_type}' not found in configuration")
+                        if debug_mode:
+                            raise
+                    except Exception as e:
+                        logger.error(f"Error writing output with {writer_type} writer: {str(e)}")
+                        if debug_mode:
+                            raise
+            else:
+                logger.warning("No file writers specified in config")
     
     # Output performance report if requested
     if perf_report:
         report = get_performance_report()
         logger.info("\n" + report)
             
-    logger.info(f"Successfully processed config file: {config_path}")
+    logger.info(f"Successfully processed config file: {configFile['metadata']['name']}")
     return df
 
-def start(config_path, debug_mode=False, perf_report=False):
+def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT):
     """
     Process one or more configuration files.
-    If config_path is a directory, process all config files in it.
-    If config_path is a file, process just that file.
+    If config is a directory, process all config files in it.
+    If config is a file, process just that file.
+    If config is a dict, process just that config.
     
     Args:
-        config_path (str): Path to config file or directory
+        config (str): Path to config file or directory
         debug_mode (bool): Whether to run in debug mode
         perf_report (bool): Whether to generate a performance report
     """
     logger = setup_logging(debug_mode)
-    logger.info(f"Starting data generation with config path: {config_path}")
+    logger.debug(f"Starting data generation with config path: {config}")
     
-    # Get list of config files to process
-    config_files = get_config_files(config_path)
-    logger.info(f"Found {len(config_files)} configuration files to process")
+    if isinstance(config, str):
+        # Get list of config files to process
+        config_files = get_config_files(config)
+        logger.info(f"Found {len(config_files)} configuration files to process")
+    else:
+        config_files = [config]
     
     # Process each config file
     results = {}
     for config_file in config_files:
         try:
-            df = process_config(config_file, debug_mode, perf_report)
-            results[config_file] = df
+            if isinstance(config_file, str):
+                configFile = load_config(config_file)
+                logger.info(f"Loaded config file: {config_file}")
+            else:
+                configFile = config_file
+                
+            df = process_config(configFile, debug_mode, perf_report)
+            results['df'] = df
         except Exception as e:
-            logger.error(f"Error processing config file {config_file}: {str(e)}")
+            logger.error(f"Error processing config file {str(e)}")
             if debug_mode:
                 raise
     

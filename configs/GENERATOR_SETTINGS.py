@@ -1,0 +1,10 @@
+MINIMUM_ROWS_ALLOWED = 100
+BATCH_SIZE = 1000000
+BATCH_MODE = False
+SHUFFLE = False
+WRITE_OUTPUT = True
+DEBUG = False
+PERF_REPORT = False
+LOG_LEVEL = "INFO"
+LOG_FILE = "./logs/generator.log"
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
