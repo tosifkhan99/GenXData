@@ -26,17 +26,17 @@ configs:
       name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
       params:
         ranges:
-          - lowerbound: 30000
-            upperbound: 50000
+          - start: 30000
+            end: 50000
             distribution: 30
-          - lowerbound: 50001
-            upperbound: 80000
+          - start: 50001
+            end: 80000
             distribution: 45
-          - lowerbound: 80001
-            upperbound: 120000
+          - start: 80001
+            end: 120000
             distribution: 20
-          - lowerbound: 120001
-            upperbound: 200000
+          - start: 120001
+            end: 200000
             distribution: 5
 
   - names:

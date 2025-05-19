@@ -39,17 +39,17 @@ configs:
       name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
       params:
         ranges:
-          - lowerbound: 22
-            upperbound: 30
+          - start: 22
+            end: 30
             distribution: 30
-          - lowerbound: 31
-            upperbound: 40
+          - start: 31
+            end: 40
             distribution: 40
-          - lowerbound: 41
-            upperbound: 50
+          - start: 41
+            end: 50
             distribution: 20
-          - lowerbound: 51
-            upperbound: 65
+          - start: 51
+            end: 65
             distribution: 10
     
   # Sequence with mask based on id
@@ -59,17 +59,17 @@ configs:
       name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
       params:
         ranges:
-          - lowerbound: 50000
-            upperbound: 75000
+          - start: 50000
+            end: 75000
             distribution: 40
-          - lowerbound: 75001
-            upperbound: 100000
+          - start: 75001
+            end: 100000
             distribution: 35
-          - lowerbound: 100001
-            upperbound: 150000
+          - start: 100001
+            end: 150000
             distribution: 20
-          - lowerbound: 150001
-            upperbound: 200000
+          - start: 150001
+            end: 200000
             distribution: 5
     
   # Derived sequence based on sequence
@@ -90,13 +90,13 @@ configs:
       name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
       params:
         ranges:
-          - lowerbound: 5000
-            upperbound: 10000
+          - start: 5000
+            end: 10000
             distribution: 60
-          - lowerbound: 10001
-            upperbound: 20000
+          - start: 10001
+            end: 20000
             distribution: 30
-          - lowerbound: 20001
-            upperbound: 50000
+          - start: 20001
+            end: 50000
             distribution: 10
       mask: "experience_level == 'Senior' or experience_level == 'Lead'"

@@ -15,21 +15,21 @@ class NumberRangeStrategy(BaseStrategy):
     
     def _validate_params(self):
         """Validate strategy parameters"""
-        if 'lowerbound' not in self.params:
-            raise ValueError("Missing required parameter: lowerbound")
-        if 'upperbound' not in self.params:
-            raise ValueError("Missing required parameter: upperbound")
+        if 'start' not in self.params:
+            raise ValueError("Missing required parameter: start")
+        if 'end' not in self.params:
+            raise ValueError("Missing required parameter: end")
             
         # Validate that bounds are numeric
         try:
-            lower = float(self.params['lowerbound'])
-            upper = float(self.params['upperbound'])
+            lower = float(self.params['start'])
+            upper = float(self.params['end'])
         except ValueError:
             raise ValueError("Bounds must be numeric")
             
-        # Validate that lower bound is less than upper bound
+    # Validate that start is less than end
         if lower >= upper:
-            raise ValueError(f"Lower bound ({lower}) must be less than upper bound ({upper})")
+            raise ValueError(f"start ({lower}) must be less than end ({upper})")
     
     def generate_data(self, count: int) -> pd.Series:
         """
@@ -44,14 +44,14 @@ class NumberRangeStrategy(BaseStrategy):
         self.logger.debug(f"Generating {count} random numbers")
         
         # Get parameters
-        lower = float(self.params['lowerbound'])
-        upper = float(self.params['upperbound'])
+        lower = float(self.params['start'])
+        upper = float(self.params['end'])
         
         # Generate random numbers
         values = np.random.uniform(lower, upper, count)
         
         # Convert to integers if both bounds are integers
-        if isinstance(self.params['lowerbound'], int) and isinstance(self.params['upperbound'], int):
+        if isinstance(self.params['start'], int) and isinstance(self.params['end'], int):
             values = values.astype(int)
             
         return pd.Series(values) 

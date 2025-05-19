@@ -57,21 +57,21 @@ class NumberRangeConfig(BaseConfig):
     def validate(self) -> None:
         """Validate number range parameters"""
         if self.min_value >= self.max_value:
-            raise ValueError(f"Lower bound ({self.min_value}) must be less than upper bound ({self.max_value})")
+            raise ValueError(f"start ({self.min_value}) must be less than end ({self.max_value})")
         if not isinstance(self.min_value, (int, float)) or not isinstance(self.max_value, (int, float)):
             raise ValueError("Bounds must be numeric values")
 
 @dataclass
 class RangeItem:
     """Single range definition with distribution weight"""
-    lowerbound: int
-    upperbound: int
+    start: int
+    end: int
     distribution: int
     
     def validate(self) -> None:
         """Validate range item"""
-        if self.lowerbound >= self.upperbound:
-            raise ValueError(f"Lower bound ({self.lowerbound}) must be less than upper bound ({self.upperbound})")
+        if self.start >= self.end:
+            raise ValueError(f"start ({self.start}) must be less than end ({self.end})")
         if self.distribution <= 0 or self.distribution > 100:
             raise ValueError(f"Distribution weight ({self.distribution}) must be between 1 and 100")
 

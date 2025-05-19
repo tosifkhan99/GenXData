@@ -54,8 +54,8 @@ Example:
     "name": "RANDOM_NUMBER_RANGE_STRATEGY",
     "params": {
       "range": {
-        "upperbound": 100,
-        "lowerbound": 1
+        "end": 100,
+        "start": 1
       }
     }
   }
@@ -331,11 +331,11 @@ configs:
       name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
       params:
         ranges:
-          - lowerbound: 18
-            upperbound: 35
+          - start: 18
+            end: 35
             distribution: 40
-          - lowerbound: 36
-            upperbound: 65
+          - start: 36
+            end: 65
             distribution: 60
 
   # Generate cities based on predefined choices

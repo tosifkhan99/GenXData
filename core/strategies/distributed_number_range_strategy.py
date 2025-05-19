@@ -31,20 +31,20 @@ class DistributedNumberRangeStrategy(BaseStrategy):
                 raise ValueError(f"Range at index {i} {type(range_item)} must be a dictionary")
                 
             # Check required fields
-            for field in ['lowerbound', 'upperbound', 'distribution']:
+            for field in ['start', 'end', 'distribution']:
                 if not hasattr(range_item, field):
                     raise ValueError(f"Range at index {i} is missing required field: {field}")
             
             # Validate bounds
-            lb = range_item.lowerbound
-            ub = range_item.upperbound
+            lb = range_item.start
+            ub = range_item.end
             dist = range_item.distribution
             
             if not isinstance(lb, (int, float)) or not isinstance(ub, (int, float)):
                 raise ValueError(f"Bounds for range at index {i} must be numeric")
                 
             if lb >= ub:
-                raise ValueError(f"Lower bound ({lb}) must be less than upper bound ({ub}) for range at index {i}")
+                raise ValueError(f"start ({lb}) must be less than end ({ub}) for range at index {i}")
                 
             # Validate distribution
             if not isinstance(dist, (int, float)) or dist <= 0:
@@ -89,8 +89,8 @@ class DistributedNumberRangeStrategy(BaseStrategy):
             if range_count == 0:
                 continue
                 
-            lb = range_item.lowerbound
-            ub = range_item.upperbound
+            lb = range_item.start
+            ub = range_item.end
             
             # Handle integer vs float generation
             if isinstance(lb, int) and isinstance(ub, int):
