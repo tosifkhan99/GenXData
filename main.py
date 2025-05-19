@@ -13,14 +13,26 @@ from utils.performance_timer import measure_time, get_performance_report
 
 from core.strategy_factory import StrategyFactory
 
-def setup_logging(debug_mode=False):
-    """Set up logging configuration based on debug mode"""
-    log_level = logging.DEBUG if debug_mode else logging.INFO
-    logging.basicConfig(
-        level=log_level,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    return logging.getLogger("data_generator")
+def setup_logging(debug_mode=False, logging_enabled=True):
+    """Set up logging configuration based on debug mode and enabled status"""
+    logger = logging.getLogger("data_generator")
+
+    if not logging_enabled:
+        # If logging is disabled, add a NullHandler to this specific logger
+        # and prevent it from propagating messages to higher-level loggers.
+        logger.handlers = [logging.NullHandler()] # Clear existing and add NullHandler
+        logger.propagate = False
+    else:
+        # If logging is enabled, configure basicConfig.
+        # debug_mode controls the log level (DEBUG or INFO).
+        log_level = logging.DEBUG if debug_mode else logging.INFO
+        logging.basicConfig(
+            level=log_level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            # Consider adding force=True if Python >= 3.8 and basicConfig might be called multiple times
+            # or if the root logger has already been configured.
+        )
+    return logger
 
 def load_config(config_path):
     """
@@ -234,7 +246,7 @@ def process_config(configFile, debug_mode=False, perf_report=False):
     logger.info(f"Successfully processed config file: {configFile['metadata']['name']}")
     return df
 
-def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT):
+def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, logging_enabled=True):
     """
     Process one or more configuration files.
     If config is a directory, process all config files in it.
@@ -242,12 +254,15 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT):
     If config is a dict, process just that config.
     
     Args:
-        config (str): Path to config file or directory
-        debug_mode (bool): Whether to run in debug mode
-        perf_report (bool): Whether to generate a performance report
+        config (str or dict): Path to config file/directory or a config dictionary.
+        debug_mode (bool): Whether to run in debug mode (sets log level to DEBUG if logging_enabled).
+        perf_report (bool): Whether to generate a performance report.
+        logging_enabled (bool): Whether logging should be enabled for the application.
     """
-    logger = setup_logging(debug_mode)
-    logger.debug(f"Starting data generation with config path: {config}")
+    logger = setup_logging(debug_mode, logging_enabled=logging_enabled)
+    
+    # Log the initial state, this will be silent if logging_enabled is False
+    logger.debug(f"Starting data generation. Config: {config}, Debug mode: {debug_mode}, Perf report: {perf_report}, Logging enabled: {logging_enabled}")
     
     if isinstance(config, str):
         # Get list of config files to process
@@ -267,7 +282,7 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT):
                 configFile = config_file
                 
             df = process_config(configFile, debug_mode, perf_report)
-            results['df'] = df
+            results['df'] = df.to_dict(orient='records')
         except Exception as e:
             logger.error(f"Error processing config file {str(e)}")
             if debug_mode:
@@ -279,9 +294,10 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate synthetic data based on configuration.')
     parser.add_argument('config_path', help='Path to configuration file or directory containing config files (.json, .yaml, or .yml)')
-    parser.add_argument('--debug', action='store_true', help='Enable debug mode with verbose logging')
+    parser.add_argument('--debug', action='store_true', help='Enable debug mode with verbose logging (sets log level to DEBUG if logging is enabled)')
     parser.add_argument('--perf', action='store_true', help='Generate performance report after execution')
     parser.add_argument('--convert', choices=['json', 'yaml'], help='Convert config to specified format instead of running generation')
+    parser.add_argument('--disable-logging', action='store_true', help='Disable logging output from this application')
     args = parser.parse_args()
     
     if args.convert:
@@ -292,4 +308,4 @@ if __name__ == '__main__':
         elif args.convert == 'json':
             yaml_to_json(args.config_path)
     else:
-        start(args.config_path, args.debug, args.perf) 
+        start(args.config_path, args.debug, args.perf, logging_enabled=not args.disable_logging) 
