@@ -9,7 +9,7 @@ import random
 
 from core.base_strategy import BaseStrategy
 from utils.time_generator import timeGenerator
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class TimeRangeStrategy(BaseStrategy):
     """
     Strategy for generating random time values within a specified range.
@@ -18,9 +18,9 @@ class TimeRangeStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'start_time' not in self.params:
-            raise ValueError("Missing required parameter: start_time")
+            raise InvalidConfigParamException("Missing required parameter: start_time")
         if 'end_time' not in self.params:
-            raise ValueError("Missing required parameter: end_time")
+            raise InvalidConfigParamException("Missing required parameter: end_time")
             
         # Validate time formats if provided
         if 'input_format' in self.params:
@@ -28,7 +28,7 @@ class TimeRangeStrategy(BaseStrategy):
                 datetime.strptime(self.params['start_time'], self.params['input_format'])
                 datetime.strptime(self.params['end_time'], self.params['input_format'])
             except ValueError as e:
-                raise ValueError(f"Invalid time format: {str(e)}")
+                raise InvalidConfigParamException(f"Invalid time format: {str(e)}")
     
     def generate_data(self, count: int) -> pd.Series:
         """

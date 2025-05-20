@@ -38,7 +38,7 @@ class BaseStrategy(ABC):
     def _validate_params(self):
         """
         Validate the parameters required by this strategy.
-        Raises ValueError if required parameters are missing or invalid.
+        Raises InvalidConfigParamException if required parameters are missing or invalid.
         """
         pass
     

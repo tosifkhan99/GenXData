@@ -7,7 +7,7 @@ import numpy as np
 from typing import List, Any
 
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class NumberRangeStrategy(BaseStrategy):
     """
     Strategy for generating random numbers within a specified range.
@@ -16,20 +16,20 @@ class NumberRangeStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'start' not in self.params:
-            raise ValueError("Missing required parameter: start")
+            raise InvalidConfigParamException("Missing required parameter: start")
         if 'end' not in self.params:
-            raise ValueError("Missing required parameter: end")
+            raise InvalidConfigParamException("Missing required parameter: end")
             
         # Validate that bounds are numeric
         try:
             lower = float(self.params['start'])
             upper = float(self.params['end'])
         except ValueError:
-            raise ValueError("Bounds must be numeric")
+            raise InvalidConfigParamException("Bounds must be numeric")
             
     # Validate that start is less than end
         if lower >= upper:
-            raise ValueError(f"start ({lower}) must be less than end ({upper})")
+            raise InvalidConfigParamException(f"start ({lower}) must be less than end ({upper})")
     
     def generate_data(self, count: int) -> pd.Series:
         """

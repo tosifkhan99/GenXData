@@ -7,6 +7,7 @@ import numpy as np
 from typing import List, Any
 
 from core.base_strategy import BaseStrategy
+from exceptions.param_exceptions import InvalidConfigParamException
 
 class SeriesStrategy(BaseStrategy):
     """
@@ -16,20 +17,18 @@ class SeriesStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'start' not in self.params:
-            raise ValueError("Missing required parameter: start")
+            raise InvalidConfigParamException("Missing required parameter: start")
             
         # Validate that start is numeric
-        try:
-            float(self.params['start'])
-        except ValueError:
-            raise ValueError("Start value must be numeric")
-            
+        if not isinstance(self.params['start'], (int, float)):
+            raise InvalidConfigParamException("Start value must be numeric")
+        
         # Validate step if provided
         if 'step' in self.params:
             try:
                 float(self.params['step'])
             except ValueError:
-                raise ValueError("Step value must be numeric")
+                raise InvalidConfigParamException("Step value must be numeric")
     
     def generate_data(self, count: int) -> pd.Series:
         """

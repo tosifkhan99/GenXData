@@ -8,6 +8,7 @@ from typing import List, Dict, Any, Union
 
 from core.base_strategy import BaseStrategy
 from core.strategy_config import RangeItem
+from exceptions.param_exceptions import InvalidConfigParamException
 class DistributedNumberRangeStrategy(BaseStrategy):
     """
     Strategy for generating random numbers from multiple weighted ranges.
@@ -16,11 +17,11 @@ class DistributedNumberRangeStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'ranges' not in self.params:
-            raise ValueError("Missing required parameter: ranges")
+            raise InvalidConfigParamException("Missing required parameter: ranges")
             
         ranges = self.params['ranges']
         if not isinstance(ranges, list) or not ranges:
-            raise ValueError("Ranges must be a non-empty list")
+            raise InvalidConfigParamException("Ranges must be a non-empty list")
             
         total_distribution = 0
         
@@ -28,12 +29,12 @@ class DistributedNumberRangeStrategy(BaseStrategy):
         for i, range_item in enumerate(ranges):
             
             if not isinstance(range_item, RangeItem):
-                raise ValueError(f"Range at index {i} {type(range_item)} must be a dictionary")
+                raise InvalidConfigParamException(f"Range at index {i} {type(range_item)} must be a dictionary")
                 
             # Check required fields
             for field in ['start', 'end', 'distribution']:
                 if not hasattr(range_item, field):
-                    raise ValueError(f"Range at index {i} is missing required field: {field}")
+                    raise InvalidConfigParamException(f"Range at index {i} is missing required field: {field}")
             
             # Validate bounds
             lb = range_item.start
@@ -41,20 +42,20 @@ class DistributedNumberRangeStrategy(BaseStrategy):
             dist = range_item.distribution
             
             if not isinstance(lb, (int, float)) or not isinstance(ub, (int, float)):
-                raise ValueError(f"Bounds for range at index {i} must be numeric")
+                raise InvalidConfigParamException(f"Bounds for range at index {i} must be numeric")
                 
             if lb >= ub:
-                raise ValueError(f"start ({lb}) must be less than end ({ub}) for range at index {i}")
+                raise InvalidConfigParamException(f"start ({lb}) must be less than end ({ub}) for range at index {i}")
                 
             # Validate distribution
             if not isinstance(dist, (int, float)) or dist <= 0:
-                raise ValueError(f"Distribution for range at index {i} must be positive, got {dist}")
+                raise InvalidConfigParamException(f"Distribution for range at index {i} must be positive, got {dist}")
                 
             total_distribution += dist
             
         # Check that distributions sum to 100
         if abs(total_distribution - 100) > 0.01:  # Allow for small floating point error
-            raise ValueError(f"Distribution weights must sum to 100, got {total_distribution}")
+            raise InvalidConfigParamException(f"Distribution weights must sum to 100, got {total_distribution}")
     
     def generate_data(self, count: int) -> pd.Series:
         """

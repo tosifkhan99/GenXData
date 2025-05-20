@@ -2,7 +2,7 @@
 Mapping between strategy names, strategy classes, and configuration classes.
 """
 
-from typing import Dict, Tuple, Type
+from typing import Dict, Tuple, Type, List, Any
 
 from core.base_strategy import BaseStrategy
 from core.strategy_config import (
@@ -29,6 +29,7 @@ from core.strategies.replacement_strategy import ReplacementStrategy
 from core.strategies.concat_strategy import ConcatStrategy
 from core.strategies.random_name_strategy import RandomNameStrategy
 from core.strategies.delete_strategy import DeleteStrategy
+from exceptions.strategy_exceptions import UnsupportedStrategyException
 
 # Map strategy names to classes and their config classes
 STRATEGY_MAP: Dict[str, Tuple[Type[BaseStrategy], Type[BaseConfig]]] = {
@@ -45,6 +46,21 @@ STRATEGY_MAP: Dict[str, Tuple[Type[BaseStrategy], Type[BaseConfig]]] = {
     "DELETE_STRATEGY": (DeleteStrategy, BaseConfig),  # Uses base config since no specific params
 }
 
+def get_all_strategy_names() -> List[str]:
+    return list(STRATEGY_MAP.keys())
+
+def get_all_strategy_schemas() -> List[Dict[str, Any]]:
+    schemas = []
+    for strategy_name in get_all_strategy_names():
+        config_class = get_config_class(strategy_name)()
+        
+        schema = {
+            "name": strategy_name,
+            "config": config_class.to_dict()
+        }
+        schemas.append(schema)
+    return schemas
+
 def get_strategy_class(strategy_name: str) -> Type[BaseStrategy]:
     """
     Get the strategy class for the given strategy name.
@@ -56,10 +72,10 @@ def get_strategy_class(strategy_name: str) -> Type[BaseStrategy]:
         Strategy class
         
     Raises:
-        ValueError: If the strategy is not supported
+        UnsupportedStrategyException: If the strategy is not supported
     """
     if strategy_name not in STRATEGY_MAP:
-        raise ValueError(f"Unsupported strategy: {strategy_name}")
+        raise UnsupportedStrategyException(f"Unsupported strategy: {strategy_name}")
         
     return STRATEGY_MAP[strategy_name][0]
 
@@ -74,9 +90,9 @@ def get_config_class(strategy_name: str) -> Type[BaseConfig]:
         Configuration class
         
     Raises:
-        ValueError: If the strategy is not supported
+        UnsupportedStrategyException: If the strategy is not supported
     """
     if strategy_name not in STRATEGY_MAP:
-        raise ValueError(f"Unsupported strategy: {strategy_name}")
+        raise UnsupportedStrategyException(f"Unsupported strategy: {strategy_name}")
         
     return STRATEGY_MAP[strategy_name][1] 

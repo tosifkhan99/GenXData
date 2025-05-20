@@ -10,7 +10,7 @@ import random
 import string
 import numpy as np
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class PatternStrategy(BaseStrategy):
     """
     Strategy for generating random strings matching a regex or pattern.
@@ -19,13 +19,13 @@ class PatternStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'regex' not in self.params:
-            raise ValueError("Missing required parameter: regex")
+            raise InvalidConfigParamException("Missing required parameter: regex")
             
         # Validate that the regex pattern is valid
         try:
             re.compile(self.params['regex'])
         except re.error as e:
-            raise ValueError(f"Invalid regex pattern: {str(e)}")
+            raise InvalidConfigParamException(f"Invalid regex pattern: {str(e)}")
     
     def generate_data(self, count: int) -> pd.Series:
         """

@@ -8,7 +8,8 @@ the parameters required for that strategy.
 from abc import ABC, abstractmethod
 from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, fields, field
-
+from exceptions.param_exceptions import InvalidConfigParamException
+from exceptions.strategy_exceptions import UnsupportedStrategyException
 @dataclass(kw_only=True)
 class BaseConfig(ABC):
     """Base configuration class for all strategies"""
@@ -41,25 +42,26 @@ class BaseConfig(ABC):
     def validate(self) -> None:
         """
         Validate the configuration parameters.
-        Raises ValueError if validation fails.
+        Raises InvalidConfigParamException if validation fails.
         """
         pass
 
 @dataclass
 class NumberRangeConfig(BaseConfig):
     """Configuration for number range strategy."""
-    min_value: float
-    max_value: float
-    step: float = 1.0
+    min_value: float = 0
+    max_value: float = 99
+    step: float = 1
     precision: int = 0
     unique: bool = False
     
     def validate(self) -> None:
         """Validate number range parameters"""
         if self.min_value >= self.max_value:
-            raise ValueError(f"start ({self.min_value}) must be less than end ({self.max_value})")
+            raise InvalidConfigParamException(f"start ({self.min_value}) must be less than end ({self.max_value})")
         if not isinstance(self.min_value, (int, float)) or not isinstance(self.max_value, (int, float)):
-            raise ValueError("Bounds must be numeric values")
+            raise InvalidConfigParamException("Bounds must be numeric values")
+        
 
 @dataclass
 class RangeItem:
@@ -71,9 +73,9 @@ class RangeItem:
     def validate(self) -> None:
         """Validate range item"""
         if self.start >= self.end:
-            raise ValueError(f"start ({self.start}) must be less than end ({self.end})")
+            raise InvalidConfigParamException(f"start ({self.start}) must be less than end ({self.end})")
         if self.distribution <= 0 or self.distribution > 100:
-            raise ValueError(f"Distribution weight ({self.distribution}) must be between 1 and 100")
+            raise InvalidConfigParamException(f"Distribution weight ({self.distribution}) must be between 1 and 100")
 
 @dataclass
 class DistributedNumberRangeConfig(BaseConfig):
@@ -92,25 +94,25 @@ class DistributedNumberRangeConfig(BaseConfig):
     def validate(self) -> None:
         """Validate distributed number range parameters"""
         if not self.ranges:
-            raise ValueError("At least one range must be specified")
+            raise InvalidConfigParamException("At least one range must be specified")
             
         # Validate each range
         for i, range_item in enumerate(self.ranges):
             try:
                 range_item.validate()
-            except ValueError as e:
-                raise ValueError(f"Invalid range at index {i}: {str(e)}")
-                
+            except InvalidConfigParamException as e:
+                raise InvalidConfigParamException(f"Invalid range at index {i}: {str(e)}")
+                            
         # Check that weights sum to 100
         total_distribution = sum(r.distribution for r in self.ranges)
         if total_distribution != 100:
-            raise ValueError(f"Distribution weights must sum to 100, got {total_distribution}")
+            raise InvalidConfigParamException(f"Distribution weights must sum to 100, got {total_distribution}")
 
 @dataclass
 class DateRangeConfig(BaseConfig):
     """Configuration for date generator strategy"""
-    start_date: str
-    end_date: str
+    start_date: str = '2020-1-31'
+    end_date: str = '2020-12-31'
     format: str = "%Y-%m-%d"
     output_format: str = "%Y-%m-%d"
     
@@ -130,16 +132,16 @@ class DateRangeConfig(BaseConfig):
                 end = self.end_date
             
             if start >= end:
-                raise ValueError(f"Start date ({self.start_date}) must be before end date ({self.end_date})")
+                raise InvalidConfigParamException(f"Start date ({self.start_date}) must be before end date ({self.end_date})")
         except ValueError as e:
             if "unconverted data remains" in str(e) or "does not match format" in str(e):
-                raise ValueError(f"Invalid date format. Expected {self.format}")
+                raise InvalidConfigParamException(f"Invalid date format. Expected {self.format}")
             raise e
 
 @dataclass
 class PatternConfig(BaseConfig):
     """Configuration for pattern strategy"""
-    regex: str
+    regex: str = r'^[A-Za-z0-9]+$'
     
     def validate(self) -> None:
         """Validate pattern parameters"""
@@ -148,7 +150,7 @@ class PatternConfig(BaseConfig):
         try:
             re.compile(self.regex)
         except re.error:
-            raise ValueError(f"Invalid regular expression: {self.regex}")
+            raise InvalidConfigParamException(f"Invalid regular expression: {self.regex}")
 
 @dataclass
 class SeriesConfig(BaseConfig):
@@ -159,7 +161,7 @@ class SeriesConfig(BaseConfig):
     def validate(self) -> None:
         """Validate series parameters"""
         if not isinstance(self.start, (int, float)) or not isinstance(self.step, (int, float)):
-            raise ValueError("Start and step must be numeric values")
+            raise InvalidConfigParamException("Start and step must be numeric values")
 
 @dataclass
 class ChoiceItem:
@@ -175,18 +177,18 @@ class DistributedChoiceConfig(BaseConfig):
     def validate(self) -> None:
         """Validate distributed choice parameters"""
         if not self.choices:
-            raise ValueError("At least one choice must be specified")
+            raise InvalidConfigParamException("At least one choice must be specified")
             
         # Validate weights
         for choice, weight in self.choices.items():
             if weight <= 0:
-                raise ValueError(f"Weight for choice '{choice}' must be positive, got {weight}")
+                raise InvalidConfigParamException(f"Weight for choice '{choice}' must be positive, got {weight}")
 
 @dataclass
 class TimeRangeConfig(BaseConfig):
     """Configuration for time range strategy"""
-    start_time: str
-    end_time: str
+    start_time: str = '00:00:00'
+    end_time: str = '23:59:59'
     format: str = "%H:%M:%S"
     
     def validate(self) -> None:
@@ -198,17 +200,17 @@ class TimeRangeConfig(BaseConfig):
             end = datetime.strptime(self.end_time, self.format)
             
             if start >= end:
-                raise ValueError(f"Start time ({self.start_time}) must be before end time ({self.end_time})")
+                raise InvalidConfigParamException(f"Start time ({self.start_time}) must be before end time ({self.end_time})")
         except ValueError as e:
             if "unconverted data remains" in str(e) or "does not match format" in str(e):
-                raise ValueError(f"Invalid time format. Expected {self.format}")
+                raise InvalidConfigParamException(f"Invalid time format. Expected {self.format}")
             raise e
 
 @dataclass
 class ReplacementConfig(BaseConfig):
     """Configuration for replacement strategy"""
-    from_value: Any
-    to_value: Any
+    from_value: Any = 'a'
+    to_value: Any = 'b'
     
     def validate(self) -> None:
         """Validate replacement parameters"""
@@ -227,7 +229,7 @@ class ConcatConfig(BaseConfig):
     def validate(self) -> None:
         """Validate concatenation parameters"""
         if not self.lhs_cols and not self.rhs_cols:
-            raise ValueError("At least one column must be specified for concatenation")
+            raise InvalidConfigParamException("At least one column must be specified for concatenation")
 
 @dataclass
 class DeleteConfig(BaseConfig):
@@ -247,7 +249,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
         Configuration object for the strategy
         
     Raises:
-        ValueError: If the strategy is not supported
+        UnsupportedStrategyException: If the strategy is not supported
     """
     strategy_config_map = {
         "RANDOM_NUMBER_RANGE_STRATEGY": lambda p: NumberRangeConfig.from_dict(p.get('range', {})),
@@ -263,7 +265,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
     }
     
     if strategy_name not in strategy_config_map:
-        raise ValueError(f"Unsupported strategy: {strategy_name}")
+        raise UnsupportedStrategyException(f"Unsupported strategy: {strategy_name}")
     
     config = strategy_config_map[strategy_name](params)
     config.validate()

@@ -7,7 +7,7 @@ import pandas as pd
 from typing import List, Dict, Any
 
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException 
 class DistributedChoiceStrategy(BaseStrategy):
     """
     Strategy for generating values based on weighted choices.
@@ -16,16 +16,16 @@ class DistributedChoiceStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'choices' not in self.params:
-            raise ValueError("Missing required parameter: choices")
+            raise InvalidConfigParamException("Missing required parameter: choices")
             
         choices = self.params['choices']
         if not isinstance(choices, dict) or not choices:
-            raise ValueError("Choices must be a non-empty dictionary")
+            raise InvalidConfigParamException("Choices must be a non-empty dictionary")
             
         # Validate that weights are positive
         for choice, weight in choices.items():
             if not isinstance(weight, (int, float)) or weight <= 0:
-                raise ValueError(f"Weight for choice '{choice}' must be positive, got {weight}")
+                raise InvalidConfigParamException(f"Weight for choice '{choice}' must be positive, got {weight}")
     
     def generate_data(self, count: int) -> pd.Series:
         """

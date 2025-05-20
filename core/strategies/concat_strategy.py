@@ -6,7 +6,7 @@ import pandas as pd
 from typing import List, Any
 
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class ConcatStrategy(BaseStrategy):
     """
     Strategy for concatenating values from multiple columns.
@@ -15,9 +15,9 @@ class ConcatStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'lhs_cols' not in self.params:
-            raise ValueError("Missing required parameter: lhs_cols")
+            raise InvalidConfigParamException("Missing required parameter: lhs_cols")
         if 'rhs_cols' not in self.params:
-            raise ValueError("Missing required parameter: rhs_cols")
+            raise InvalidConfigParamException("Missing required parameter: rhs_cols")
             
         # Validate that all columns exist in the dataframe
         for col in self.params['lhs_cols'] + self.params['rhs_cols']:

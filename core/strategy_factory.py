@@ -9,6 +9,7 @@ import pandas as pd
 from core.base_strategy import BaseStrategy
 from core.strategy_config import create_config, BaseConfig
 from core.strategy_mapping import get_strategy_class, get_config_class
+from exceptions.strategy_exceptions import UnsupportedStrategyException
 from utils.intermediate_column import mark_as_intermediate
 
 logger = logging.getLogger("data_generator.strategy_factory")
@@ -37,7 +38,7 @@ class StrategyFactory:
             An instance of the strategy
             
         Raises:
-            ValueError: If the strategy cannot be created
+            UnsupportedStrategyException: If the strategy cannot be created
         """
         logger.info(f"Creating strategy: {strategy_name}")
         
@@ -62,7 +63,7 @@ class StrategyFactory:
             
         except Exception as e:
             logger.error(f"Error creating strategy {strategy_name}: {str(e)}")
-            raise ValueError(f"Could not create strategy {strategy_name}: {str(e)}")
+            raise UnsupportedStrategyException(f"Could not create strategy {strategy_name}: {str(e)}")
             
     def execute_strategy(self, strategy: BaseStrategy) -> pd.DataFrame:
         """

@@ -8,6 +8,7 @@ from datetime import datetime
 
 from core.base_strategy import BaseStrategy
 from utils.date_generator import generate_random_date
+from exceptions.param_exceptions import InvalidConfigParamException
 
 class DateGeneratorStrategy(BaseStrategy):
     """
@@ -17,9 +18,9 @@ class DateGeneratorStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'start_date' not in self.params:
-            raise ValueError("Missing required parameter: start_date")
+            raise InvalidConfigParamException("Missing required parameter: start_date")
         if 'end_date' not in self.params:
-            raise ValueError("Missing required parameter: end_date")
+            raise InvalidConfigParamException("Missing required parameter: end_date")
             
         # Validate date formats if provided
         if 'input_format' in self.params:
@@ -27,7 +28,7 @@ class DateGeneratorStrategy(BaseStrategy):
                 datetime.strptime(self.params['start_date'], self.params['input_format'])
                 datetime.strptime(self.params['end_date'], self.params['input_format'])
             except ValueError as e:
-                raise ValueError(f"Invalid date format: {str(e)}")
+                raise InvalidConfigParamException(f"Invalid date format: {str(e)}")
     
     def generate_data(self, count: int) -> pd.Series:
         """

@@ -7,7 +7,7 @@ import pandas as pd
 from typing import List, Any
 
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class DeleteStrategy(BaseStrategy):
     """
     Strategy for deleting/nullifying values in a column.
@@ -16,11 +16,11 @@ class DeleteStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'mask' not in self.params:
-            raise ValueError("Missing required parameter: mask")
+            raise InvalidConfigParamException("Missing required parameter: mask")
             
         # Validate that the mask is a string (condition)
         if not isinstance(self.params['mask'], str):
-            raise ValueError("Mask must be a string condition")
+            raise InvalidConfigParamException("Mask must be a string condition")
     
     def generate_data(self, count: int) -> pd.Series:
         """

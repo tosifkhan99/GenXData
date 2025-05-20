@@ -6,7 +6,7 @@ import pandas as pd
 from typing import List, Any, Union
 
 from core.base_strategy import BaseStrategy
-
+from exceptions.param_exceptions import InvalidConfigParamException
 class ReplacementStrategy(BaseStrategy):
     """
     Strategy for replacing specific values with other values.
@@ -15,9 +15,9 @@ class ReplacementStrategy(BaseStrategy):
     def _validate_params(self):
         """Validate strategy parameters"""
         if 'from_value' not in self.params:
-            raise ValueError("Missing required parameter: from_value")
+            raise InvalidConfigParamException("Missing required parameter: from_value")
         if 'to_value' not in self.params:
-            raise ValueError("Missing required parameter: to_value")
+            raise InvalidConfigParamException("Missing required parameter: to_value")
             
         # No specific type validation needed as values can be of any type
     
