@@ -1,0 +1,131 @@
+import type { StrategyCollection, StrategySchema } from '../types/strategy';
+
+const API_BASE_URL = 'http://localhost:8000'; // Assuming backend runs on port 8000
+
+// Define parameters for each strategy type
+const strategyParameters: Record<string, StrategySchema['parameters']> = {
+  series: [
+    {
+      name: 'start',
+      type: 'int',
+      label: 'Start Value',
+      description: 'The starting value for the series',
+      required: true,
+      default: 1
+    },
+    {
+      name: 'step',
+      type: 'int',
+      label: 'Step Value',
+      description: 'The increment between values',
+      required: true,
+      default: 1
+    }
+  ],
+  random_name: [
+    {
+      name: 'gender',
+      type: 'select',
+      label: 'Gender',
+      description: 'The gender for name generation',
+      required: false,
+      options: ['male', 'female', 'any']
+    }
+  ],
+  distributed_number_range: [
+    {
+      name: 'start',
+      type: 'int',
+      label: 'Start Value',
+      description: 'The minimum value in the range',
+      required: true
+    },
+    {
+      name: 'end',
+      type: 'int',
+      label: 'End Value',
+      description: 'The maximum value in the range',
+      required: true
+    },
+    {
+      name: 'distribution',
+      type: 'str',
+      label: 'Distribution',
+      description: 'The distribution type (e.g., uniform, normal)',
+      required: true
+    }
+  ],
+  concat: [
+    {
+      name: 'columns',
+      type: 'list[string]',
+      label: 'Columns',
+      description: 'The columns to concatenate',
+      required: true
+    },
+    {
+      name: 'separator',
+      type: 'str',
+      label: 'Separator',
+      description: 'The separator between concatenated values',
+      required: false,
+      default: ''
+    }
+  ],
+  pattern: [
+    {
+      name: 'regex',
+      type: 'str',
+      label: 'Regular Expression',
+      description: 'The regex pattern to match',
+      required: true
+    }
+  ],
+  distributed_choice: [
+    {
+      name: 'choices',
+      type: 'list[string]',
+      label: 'Choices',
+      description: 'The possible values to choose from',
+      required: true
+    },
+    {
+      name: 'distribution',
+      type: 'list[number]',
+      label: 'Distribution',
+      description: 'The probability distribution for each choice',
+      required: true
+    }
+  ]
+};
+
+export const getStrategySchemas = async (): Promise<StrategyCollection> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/get_strategy_schemas`);
+    if (!response.ok) {
+      console.error(`HTTP error fetching strategy schemas: ${response.status}`, await response.text());
+      throw new Error(`Error fetching strategy schemas: ${response.statusText}`);
+    }
+    const data = await response.json();
+    console.log('Received strategy data:', data); // Debug log
+
+    // Transform the backend response into the expected format
+    const transformedStrategies: StrategyCollection = {};
+    
+    Object.entries(data.strategies).forEach(([strategyName, description]) => {
+      transformedStrategies[strategyName] = {
+        strategy_name: strategyName,
+        description: description as string,
+        parameters: strategyParameters[strategyName] || []
+      };
+    });
+
+    console.log('Transformed strategies:', transformedStrategies); // Debug log
+    return transformedStrategies;
+  } catch (error) {
+    console.error('Failed to get strategy schemas:', error);
+    // Return a default or empty state to prevent breaking the UI
+    // The UI should handle the case where strategies are empty.
+    return {}; // Return empty object for StrategyCollection
+  }
+};
