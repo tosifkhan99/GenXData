@@ -48,10 +48,34 @@ class DistributedChoiceStrategy(BaseStrategy):
         )
         
         # Generate random choices based on weights
-        values= []
-        # more accurate than np.random.choice
-        for k, v in choices_dict.items():
-            for _ in range(int(v*(count/100))):
-                values.append(k)
+        values = []
+        
+        # Calculate total weight
+        total_weight = sum(weights)
+        
+        self.logger.debug(f"Total weight: {total_weight}, Count requested: {count}")
+        
+        # Generate values proportionally based on weights
+        for choice, weight in choices_dict.items():
+            # Calculate how many values this choice should get
+            proportion = weight / total_weight
+            num_values = int(proportion * count)
+            
+            self.logger.debug(f"Choice '{choice}': weight={weight}, proportion={proportion:.3f}, num_values={num_values}")
+            
+            # Add the values for this choice
+            for _ in range(num_values):
+                values.append(choice)
+        
+        self.logger.debug(f"Generated {len(values)} values before handling remainder")
+        
+        # Handle any remaining values due to rounding
+        while len(values) < count:
+            # Add random choice based on weights
+            choice = np.random.choice(choices, p=[w/total_weight for w in weights])
+            values.append(choice)
+        
+        self.logger.debug(f"Final generated {len(values)} values")
+
         
         return pd.Series(values) 

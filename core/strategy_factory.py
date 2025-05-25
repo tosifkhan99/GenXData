@@ -77,29 +77,11 @@ class StrategyFactory:
         """
         logger.info(f"Executing {strategy.__class__.__name__} on column '{strategy.col_name}'")
         
-        # Get mask from params, default to True (all rows)
-        mask = strategy.params.get('mask', True)
-        if isinstance(mask, str):
-            mask = strategy.df.eval(mask)
+        # Get mask from params
+        mask = strategy.params.get('mask')
         
-        if mask is True:
-            # Generate for all rows
-            count = strategy.rows
-            values = strategy.generate_data(count)
-            if strategy.shuffle:
-                values = values.sample(frac=1).reset_index(drop=True)
-            strategy.df[strategy.col_name] = values
-        else:
-            # Generate only for masked rows
-            logger.debug(f"Evaluated mask condition: {strategy.params['mask']}")
-            logger.debug(f"Mask matches: {mask.sum()} rows")
-
-            count = mask.sum()
-
-            values = strategy.generate_data(count)
-            if strategy.shuffle:
-                values = values.sample(frac=1).reset_index(drop=True)
-            strategy.df.loc[mask, strategy.col_name] = values
+        # Use the new mask evaluation from base strategy
+        strategy.df = strategy.apply_to_dataframe(strategy.df, strategy.col_name, mask)
         
         # Mark as intermediate if needed
         if strategy.is_intermediate:

@@ -10,10 +10,11 @@ from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass, fields, field
 from exceptions.param_exceptions import InvalidConfigParamException
 from exceptions.strategy_exceptions import UnsupportedStrategyException
+import pandas as pd
 @dataclass(kw_only=True)
 class BaseConfig(ABC):
     """Base configuration class for all strategies"""
-    mask: Any = True
+    mask: str = ""
     
     @classmethod
     def from_dict(cls, config_dict: Dict[str, Any]) -> 'BaseConfig':
@@ -66,9 +67,14 @@ class NumberRangeConfig(BaseConfig):
 @dataclass
 class RangeItem:
     """Single range definition with distribution weight"""
-    start: int
-    end: int
-    distribution: int
+    start: int = 10
+    end: int = 50
+    distribution: int = 100
+
+    def __init__(self, start: int, end: int, distribution: int):
+        self.start = start
+        self.end = end
+        self.distribution = distribution
     
     def validate(self) -> None:
         """Validate range item"""
@@ -220,15 +226,15 @@ class ReplacementConfig(BaseConfig):
 @dataclass
 class ConcatConfig(BaseConfig):
     """Configuration for concatenation strategy"""
-    lhs_cols: List[str] = field(default_factory=list)
-    rhs_cols: List[str] = field(default_factory=list)
+    lhs_col: str = ""
+    rhs_col: str = ""
     separator: str = ""
     suffix: str = ""
     prefix: str = ""
     
     def validate(self) -> None:
         """Validate concatenation parameters"""
-        if not self.lhs_cols and not self.rhs_cols:
+        if not self.lhs_col and not self.rhs_col:
             raise InvalidConfigParamException("At least one column must be specified for concatenation")
 
 @dataclass

@@ -50,15 +50,9 @@ def get_all_strategy_names() -> List[str]:
     return list(STRATEGY_MAP.keys())
 
 def get_all_strategy_schemas() -> List[Dict[str, Any]]:
-    schemas = []
+    schemas = {}
     for strategy_name in get_all_strategy_names():
-        config_class = get_config_class(strategy_name)()
-        
-        schema = {
-            "name": strategy_name,
-            "config": config_class.to_dict()
-        }
-        schemas.append(schema)
+        schemas[strategy_name] = STRATEGY_MAP[strategy_name][1].__doc__
     return schemas
 
 def get_strategy_class(strategy_name: str) -> Type[BaseStrategy]:
