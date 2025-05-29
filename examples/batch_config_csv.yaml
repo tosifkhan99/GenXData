@@ -1,0 +1,65 @@
+# Example batch configuration for CSV format
+# This file demonstrates batch writing in CSV format
+
+# Batch writer configuration
+batch_writer:
+  output_dir: "batch_output_csv"
+  file_prefix: "data_batch"
+  file_format: "csv"              # CSV format
+  batch_size: 500                 # Smaller batches for testing
+
+# Data generation configuration
+metadata:
+  name: "CSV Batch Writing Test"
+  description: "Configuration for testing CSV batch file writing"
+  version: "1.0"
+
+num_of_rows: 2000  # Will be split into 4 batches of 500 rows each
+shuffle: false
+write_output: false  # Disable regular file output for batch mode
+
+column_name:
+  - id
+  - name
+  - email
+  - department
+  - salary
+
+file_writer: []  # No regular file writers for batch mode
+
+configs:
+  - names: ["id"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  - names: ["name"]
+    strategy:
+      name: "RANDOM_NAME_STRATEGY"
+      params: {}
+
+  - names: ["email"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 1000000
+        end: 9999999
+
+  - names: ["department"]
+    strategy:
+      name: "DISTRIBUTED_CHOICE_STRATEGY"
+      params:
+        choices:
+          Engineering: 40
+          HR: 20
+          Sales: 25
+          Marketing: 15
+
+  - names: ["salary"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 50000
+        end: 120000 
