@@ -1,0 +1,62 @@
+# Complete streaming configuration for AMQP queue integration
+# This file contains both data generation config and AMQP streaming settings
+
+# AMQP connection and streaming configuration
+amqp:
+  url: "localhost:5672"
+  queue: "data-gen-queue"
+  username: "guest"
+  password: "guest"
+
+streaming:
+  batch_size: 50
+  include_metadata: true
+  include_batch_info: true
+
+# Data generation configuration
+metadata:
+  name: "AMQP Streaming Test"
+  description: "Simple configuration for testing AMQP messaging with streaming batches"
+  version: "1.0"
+
+num_of_rows: 250
+shuffle: false
+write_output: false  # Disable file output for streaming
+
+column_name:
+  - id
+  - name
+  - department
+  - salary
+
+file_writer: []  # No file writers for streaming
+
+configs:
+  - names: ["id"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  - names: ["name"]
+    strategy:
+      name: "RANDOM_NAME_STRATEGY"
+      params: {}
+
+  - names: ["department"]
+    strategy:
+      name: "DISTRIBUTED_CHOICE_STRATEGY"
+      params:
+        choices:
+          Engineering: 40
+          HR: 15
+          Marketing: 20
+          Sales: 25
+
+  - names: ["salary"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 50000
+        end: 120000 

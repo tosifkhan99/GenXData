@@ -1,0 +1,31 @@
+# Example streaming configuration for AMQP queue integration
+# This file contains connection details and streaming settings for any AMQP-compatible queue
+
+amqp:
+  # Connection details
+  url: "localhost:5672"
+  queue: "data-gen-queue"
+  
+  # Optional authentication
+  username: "guest"
+  password: "guest"
+  
+  # Optional connection settings
+  virtual_host: "/"
+  heartbeat: 60
+  
+  # Queue-specific settings
+  queue_durable: true
+  queue_auto_delete: false
+
+streaming:
+  # Batch size for streaming (overrides GENERATOR_SETTINGS.STREAM_BATCH_SIZE if specified)
+  batch_size: 100
+  
+  # Message format settings
+  include_metadata: true
+  include_batch_info: true
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 1.0 

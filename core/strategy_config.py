@@ -50,19 +50,18 @@ class BaseConfig(ABC):
 @dataclass
 class NumberRangeConfig(BaseConfig):
     """Configuration for number range strategy."""
-    min_value: float = 0
-    max_value: float = 99
+    start: float = 0
+    end: float = 99
     step: float = 1
     precision: int = 0
     unique: bool = False
     
     def validate(self) -> None:
         """Validate number range parameters"""
-        if self.min_value >= self.max_value:
-            raise InvalidConfigParamException(f"start ({self.min_value}) must be less than end ({self.max_value})")
-        if not isinstance(self.min_value, (int, float)) or not isinstance(self.max_value, (int, float)):
+        if self.start >= self.end:
+            raise InvalidConfigParamException(f"start ({self.start}) must be less than end ({self.end})")
+        if not isinstance(self.start, (int, float)) or not isinstance(self.end, (int, float)):
             raise InvalidConfigParamException("Bounds must be numeric values")
-        
 
 @dataclass
 class RangeItem:
@@ -258,7 +257,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
         UnsupportedStrategyException: If the strategy is not supported
     """
     strategy_config_map = {
-        "RANDOM_NUMBER_RANGE_STRATEGY": lambda p: NumberRangeConfig.from_dict(p.get('range', {})),
+        "RANDOM_NUMBER_RANGE_STRATEGY": lambda p: NumberRangeConfig.from_dict(p),
         "DISTRIBUTED_NUMBER_RANGE_STRATEGY": lambda p: DistributedNumberRangeConfig.from_dict(p),
         "DATE_GENERATOR_STRATEGY": lambda p: DateRangeConfig.from_dict(p),
         "PATTERN_STRATEGY": lambda p: PatternConfig.from_dict(p),

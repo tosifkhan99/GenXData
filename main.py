@@ -4,6 +4,7 @@ import logging
 import argparse
 import os
 from pathlib import Path
+import copy
  
 import configs.GENERATOR_SETTINGS as SETTINGS
 from utils.json_loader import read_json
@@ -12,6 +13,16 @@ from utils.intermediate_column import filter_intermediate_columns
 from utils.performance_timer import measure_time, get_performance_report
 
 from core.strategy_factory import StrategyFactory
+
+STATE_DEPENDENT_STRATEGIES = {
+    'SERIES_STRATEGY': ['start'],
+    'INCREMENTAL_STRATEGY': ['start'],
+    'TIME_RANGE_STRATEGY': ['start_time', 'end_time'],
+    'DATE_RANGE_STRATEGY': ['start_date', 'end_date'],
+    'TIME_INCREMENT_STRATEGY': ['start_time', 'end_time'],
+    'DATE_INCREMENT_STRATEGY': ['start_date', 'end_date'],
+    'TIME_INCREMENT_STRATEGY': ['start_time', 'end_time'],
+}
 
 def setup_logging(debug_mode=False, logging_enabled=True):
     """Set up logging configuration based on debug mode and enabled status"""
@@ -120,6 +131,19 @@ def load_writers_and_mappings():
     logger.info("Loaded writer mappings from YAML config")
 
     return writers, mappings
+    
+def get_batches(batch_size, rows):
+    full_batches = rows // batch_size
+    remainder = rows % batch_size
+    batches = [batch_size] * full_batches
+
+    if remainder:
+        if remainder <= 100 and batches:
+            batches[-1] += remainder
+        else:
+            batches.append(remainder)
+    
+    return batches
 
 def process_config(configFile, debug_mode=False, perf_report=False):
     """
@@ -147,14 +171,13 @@ def process_config(configFile, debug_mode=False, perf_report=False):
 
     configs = configFile['configs']
     shuffle_data = configFile.get('shuffle', SETTINGS.SHUFFLE)
-    
-    df = pd.DataFrame(columns=columnName)
-        
+    # Create DataFrame with the correct number of rows
     logger.info(f"Creating dataframe with {len(columnName)} columns and {rows} rows")
     
     # Initialize the strategy factory
     strategy_factory = StrategyFactory()
     
+    df = pd.DataFrame(index=range(rows), columns=columnName)
     with measure_time("data_generation", rows_processed=rows):
         for cur_config in configs:
             for col_name in cur_config['names']:
@@ -174,13 +197,19 @@ def process_config(configFile, debug_mode=False, perf_report=False):
                         with measure_time(f"strategy.{strategy_name}.{col_name}", rows_processed=rows):
                         
                             # Prepare parameters for the strategy
+                            strategy_params = cur_config.get('strategy').get('params', {})
+                            
+                            # Add mask to strategy params if it exists at the top level
+                            if 'mask' in cur_config:
+                                strategy_params['mask'] = cur_config['mask']
+                            
                             params = {
                                 'df': df,
                                 'col_name': col_name, 
                                 'rows': rows,
                                 'debug': cur_config.get('debug', SETTINGS.DEBUG),
                                 'intermediate': is_intermediate,
-                                'params': cur_config.get('strategy').get('params', {}),
+                                'params': strategy_params,
                                 'unique': cur_config.get('strategy').get('unique', False)
                             }
 
@@ -246,7 +275,7 @@ def process_config(configFile, debug_mode=False, perf_report=False):
     logger.info(f"Successfully processed config file: {configFile['metadata']['name']}")
     return df
 
-def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, logging_enabled=True):
+def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, logging_enabled=True, stream=None, batch=None):
     """
     Process one or more configuration files.
     If config is a directory, process all config files in it.
@@ -258,9 +287,11 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
         debug_mode (bool): Whether to run in debug mode (sets log level to DEBUG if logging_enabled).
         perf_report (bool): Whether to generate a performance report.
         logging_enabled (bool): Whether logging should be enabled for the application.
+        stream (str): Path to streaming config file containing AMQP connection details and streaming settings.
+        batch (str): Path to batch config file containing batch writing settings.
     """
     logger = setup_logging(debug_mode, logging_enabled=logging_enabled)
-    
+
     # Log the initial state, this will be silent if logging_enabled is False
     logger.debug(f"Starting data generation. Config: {config}, Debug mode: {debug_mode}, Perf report: {perf_report}, Logging enabled: {logging_enabled}")
     
@@ -273,6 +304,13 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
     
     # Process each config file
     results = {}
+    if (stream or batch) and len(config_files) > 1:
+        # todo: replace with proper error handling
+        raise ValueError("Streaming and batch modes are not supported for multiple config files")
+    
+    if stream and batch:
+        raise ValueError("Streaming and batch modes are not supported together")
+
     for config_file in config_files:
         try:
             if isinstance(config_file, str):
@@ -281,7 +319,126 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
             else:
                 configFile = config_file
                 
-            df = process_config(configFile, debug_mode, perf_report)
+            if stream:
+                # Initialize state tracking for the entire streaming session
+                strategy_states = {}
+                stream_config = load_config(stream)
+                
+                # Validate streaming configuration
+                if 'amqp' not in stream_config:
+                    raise ValueError("Streaming config must contain 'amqp' section with connection details")
+                
+                amqp_config = stream_config['amqp']
+                streaming_config = stream_config.get('streaming', {})
+                
+                # Required AMQP settings
+                if 'url' not in amqp_config or 'queue' not in amqp_config:
+                    raise ValueError("AMQP config must contain 'url' and 'queue' settings")
+                
+                # Get batch size from streaming config or use default
+                batch_size = streaming_config.get('batch_size', SETTINGS.STREAM_BATCH_SIZE)
+                batches = get_batches(batch_size, configFile['num_of_rows'])
+                
+                # Initialize AMQP producer (streaming mode only)
+                amqp_producer = None
+                try:
+                    from amqp.producer import AMQPProducer
+                    amqp_producer = AMQPProducer(amqp_config['url'], amqp_config['queue'])
+                    logger.info(f"AMQP streaming enabled - URL: {amqp_config['url']}, Queue: {amqp_config['queue']}")
+                except ImportError as e:
+                    raise ValueError(f"AMQP library not available. Install python-qpid-proton: {e}")
+                except ConnectionError as e:
+                    raise ValueError(f"Could not connect to AMQP broker: {e}")
+                
+                for batch_index, batch_size in enumerate(batches):
+                    logger.info(f"Processing batch {batch_index + 1}/{len(batches)} with {batch_size} rows")
+                    
+                    # Pre-calculate and modify config for this batch
+                    batch_config = prepare_batch_config(configFile, batch_size, batch_index, strategy_states)
+                    
+                    df = process_config(batch_config, debug_mode, perf_report)
+                    
+                    # Send batch to AMQP queue if producer is available
+                    if amqp_producer:
+                        batch_info = {
+                            'batch_index': batch_index,
+                            'batch_size': batch_size,
+                            'total_batches': len(batches),
+                            'config_name': configFile.get('metadata', {}).get('name', 'unknown'),
+                            'timestamp': pd.Timestamp.now().isoformat()
+                        }
+                        
+                        # Include additional metadata if configured
+                        if streaming_config.get('include_metadata', True):
+                            batch_info['streaming_config'] = streaming_config
+                        
+                        amqp_producer.send_dataframe(df, batch_info)
+                        logger.info(f"Sent batch {batch_index + 1} to AMQP queue")
+                
+                # Clean up AMQP producer
+                if amqp_producer:
+                    amqp_producer.close_connection()
+                    logger.info("AMQP streaming completed successfully")
+                
+                # For streaming, return the last batch as the result
+                results['df'] = df.to_dict(orient='records') if 'df' in locals() else []
+            elif batch:
+                # Initialize state tracking for the entire batch session
+                strategy_states = {}
+                batch_config = load_config(batch)
+                
+                # Validate batch configuration
+                if 'batch_writer' not in batch_config:
+                    raise ValueError("Batch config must contain 'batch_writer' section with writer settings")
+                
+                writer_config = batch_config['batch_writer']
+                
+                # Required batch writer settings
+                if 'output_dir' not in writer_config:
+                    raise ValueError("Batch writer config must contain 'output_dir' setting")
+                
+                # Get batch size from batch config or use default
+                batch_size = writer_config.get('batch_size', SETTINGS.STREAM_BATCH_SIZE)
+                batches = get_batches(batch_size, configFile['num_of_rows'])
+                
+                # Initialize batch writer
+                from writers.batch_writer import BatchWriter
+                batch_writer = BatchWriter(
+                    output_dir=writer_config['output_dir'],
+                    file_prefix=writer_config.get('file_prefix', 'batch'),
+                    file_format=writer_config.get('file_format', 'json')
+                )
+                logger.info(f"Batch mode enabled - Output: {writer_config['output_dir']}, Format: {writer_config.get('file_format', 'json')}")
+                
+                for batch_index, batch_size in enumerate(batches):
+                    logger.info(f"Processing batch {batch_index + 1}/{len(batches)} with {batch_size} rows")
+                    
+                    # Pre-calculate and modify config for this batch
+                    batch_config_item = prepare_batch_config(configFile, batch_size, batch_index, strategy_states)
+                    
+                    df = process_config(batch_config_item, debug_mode, perf_report)
+                    
+                    # Write batch to file
+                    batch_info = {
+                        'batch_index': batch_index,
+                        'batch_size': batch_size,
+                        'total_batches': len(batches),
+                        'config_name': configFile.get('metadata', {}).get('name', 'unknown'),
+                        'timestamp': pd.Timestamp.now().isoformat()
+                    }
+                    
+                    batch_writer.write_batch(df, batch_info)
+                    logger.info(f"Wrote batch {batch_index + 1} to file")
+                
+                # Get summary
+                summary = batch_writer.get_summary()
+                logger.info(f"Batch processing completed: {summary}")
+                
+                # For batch mode, return the last batch as the result
+                results['df'] = df.to_dict(orient='records') if 'df' in locals() else []
+            else:
+                df = process_config(configFile, debug_mode, perf_report)
+
             results['df'] = df.to_dict(orient='records')
         except Exception as e:
             logger.error(f"Error processing config file {str(e)}")
@@ -291,6 +448,48 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
     logger.info("Data generation completed")
     return results
 
+def prepare_batch_config(original_config, batch_size, batch_index, strategy_states):
+    """
+    Prepare config for a specific batch, adjusting parameters for state-dependent strategies.
+    """
+    batch_config = copy.deepcopy(original_config)
+    batch_config['num_of_rows'] = batch_size
+    batch_config['write_output'] = False
+    
+    # Calculate cumulative rows processed so far
+    cumulative_rows = sum(get_batches(SETTINGS.STREAM_BATCH_SIZE, original_config['num_of_rows'])[:batch_index])
+    
+    # Adjust parameters for state-dependent strategies
+    for config_item in batch_config['configs']:
+        strategy_name = config_item['strategy']['name']
+        
+        if strategy_name in STATE_DEPENDENT_STRATEGIES:
+            for col_name in config_item['names']:
+                adjust_strategy_params(config_item, col_name, cumulative_rows, strategy_states)
+    
+    return batch_config
+
+def adjust_strategy_params(config_item, col_name, cumulative_rows, strategy_states):
+    """
+    Adjust strategy parameters based on previous batches.
+    """
+    strategy_name = config_item['strategy']['name']
+    params = config_item['strategy']['params']
+    
+    if strategy_name == 'SERIES_STRATEGY':
+        # For series strategy, adjust the start value
+        original_start = params.get('start', 1)
+        step = params.get('step', 1)
+        
+        # Calculate new start value based on cumulative rows
+        new_start = original_start + (cumulative_rows * step)
+        params['start'] = new_start
+        
+        # Store state for potential future use
+        strategy_states[f"{strategy_name}_{col_name}"] = {
+            'last_value': new_start + (config_item.get('batch_size', 100) * step) - step
+        }
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Generate synthetic data based on configuration.')
     parser.add_argument('config_path', help='Path to configuration file or directory containing config files (.json, .yaml, or .yml)')
@@ -298,6 +497,9 @@ if __name__ == '__main__':
     parser.add_argument('--perf', action='store_true', help='Generate performance report after execution')
     parser.add_argument('--convert', choices=['json', 'yaml'], help='Convert config to specified format instead of running generation')
     parser.add_argument('--disable-logging', action='store_true', help='Disable logging output from this application')
+    parser.add_argument('--stream', type=str, metavar='CONFIG_FILE', help='Enable streaming mode with AMQP configuration file (YAML/JSON format)')
+    parser.add_argument('--batch', type=str, metavar='CONFIG_FILE', help='Enable batch mode - write output to multiple batch files (YAML/JSON format)')
+    
     args = parser.parse_args()
     
     if args.convert:
@@ -308,4 +510,4 @@ if __name__ == '__main__':
         elif args.convert == 'json':
             yaml_to_json(args.config_path)
     else:
-        start(args.config_path, args.debug, args.perf, logging_enabled=not args.disable_logging) 
+        start(args.config_path, args.debug, args.perf, logging_enabled=not args.disable_logging, stream=args.stream, batch=args.batch) 
