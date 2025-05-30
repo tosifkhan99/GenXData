@@ -35,6 +35,7 @@ configs:
       - name
     strategy:
       name: RANDOM_NAME_STRATEGY
+      params: {}
 
     
   # Bonus based on age
@@ -43,10 +44,8 @@ configs:
     strategy:
       name: CONCAT_STRATEGY
       params:
-        lhs_cols:
-          - name
-        rhs_cols:
-          - id
+        lhs_col: name
+        rhs_col: id
         separator: "-"
         prefix: ""
         suffix: "@email.com"

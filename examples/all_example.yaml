@@ -1,6 +1,6 @@
 metadata:
   name: all_example
-  description: Example of all strategies combined
+  description: Example of all generators
   version: 1.0.0
   author: Tosif Khan
   github: https://github.com/tosifkhan99
@@ -8,49 +8,86 @@ metadata:
   license: Apache-2.0
 
 column_name:
-  - employee_id
+  - id
   - first_name
   - last_name
-  - email
-  - phone
-  - department
-  - join_date
+  - age
   - salary
+  - email
+  - department
+  - hire_date
+  - product_code
   - performance_rating
-  - bonus
-  - project_code
 
 num_of_rows: 100
-shuffle: false
+shuffle: true
 
 file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: ./output/all_example.csv
   - type: JSON_WRITER
     params:
-      path_or_buf: ./output/all_example.json
+      output_path: ./output/all_example.json
       orient: "records"
       date_format: "iso"
       indent: 2
 
 configs:
-  # Base sequence for employee ID
+  # Series strategy for ID
   - names:
-      - employee_id
+      - id
     strategy:
       name: SERIES_STRATEGY
       params:
         start: 1000
         step: 1
 
-  # Name generation
+  # Random name strategies
   - names:
       - first_name
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params: {}
+
+  - names:
       - last_name
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params:
-        name_type: "full"
+      params: {}
 
-  # Email based on name
+  # Distributed number range for age
+  - names:
+      - age
+    strategy:
+      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+      params:
+        ranges:
+          - start: 22
+            end: 30
+            distribution: 30
+          - start: 31
+            end: 40
+            distribution: 40
+          - start: 41
+            end: 50
+            distribution: 20
+          - start: 51
+            end: 65
+            distribution: 10
+
+  # Random number range for salary
+  - names:
+      - salary
+    strategy:
+      name: RANDOM_NUMBER_RANGE_STRATEGY
+      params:
+        start: 50000
+        end: 150000
+        step: 1000
+        precision: 0
+
+  # Concatenation strategy for email
   - names:
       - email
     strategy:
@@ -61,94 +98,47 @@ configs:
         separator: "."
         suffix: "@company.com"
 
-  # Phone number with pattern
-  - names:
-      - phone
-    strategy:
-      name: PATTERN_STRATEGY
-      params:
-        regex: '\+1-[0-9]{3}-[0-9]{3}-[0-9]{4}'
-
-  # Department with distribution
+  # Distributed choice for department
   - names:
       - department
     strategy:
       name: DISTRIBUTED_CHOICE_STRATEGY
       params:
         choices:
-          Engineering: 30
+          Engineering: 35
           Marketing: 20
           Sales: 25
-          HR: 15
+          HR: 10
           Finance: 10
 
-  # Join date
+  # Date generator for hire date
   - names:
-      - join_date
+      - hire_date
     strategy:
       name: DATE_GENERATOR_STRATEGY
       params:
         start_date: "2020-01-01"
-        end_date: "2024-03-15"
+        end_date: "2024-12-31"
         format: "%Y-%m-%d"
         output_format: "%Y-%m-%d"
 
-  # Salary based on department and join date
+  # Pattern strategy for product code
   - names:
-      - salary
+      - product_code
     strategy:
-      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+      name: PATTERN_STRATEGY
       params:
-        ranges:
-          - start: 50000
-            end: 75000
-            distribution: 40
-          - start: 75001
-            end: 100000
-            distribution: 35
-          - start: 100001
-            end: 150000
-            distribution: 20
-          - start: 150001
-            end: 200000
-            distribution: 5
-      mask: "department == 'Engineering' or department == 'Finance'"
+        regex: "[A-Z]{2}[0-9]{3}-[A-Z]{2}"
 
-  # Performance rating
+  # Time range for performance rating
   - names:
       - performance_rating
     strategy:
       name: DISTRIBUTED_CHOICE_STRATEGY
       params:
         choices:
-          Outstanding: 10
-          Excellent: 20
-          Good: 40
-          Average: 20
-          Needs_Improvement: 10
-
-  # Bonus based on performance and salary
-  - names:
-      - bonus
-    strategy:
-      name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
-      params:
-        ranges:
-          - start: 5000
-            end: 10000
-            distribution: 40
-          - start: 10001
-            end: 20000
-            distribution: 35
-          - start: 20001
-            end: 50000
-            distribution: 25
-      mask: "performance_rating == 'Outstanding' or performance_rating == 'Excellent'"
-
-  # Project code with pattern
-  - names:
-      - project_code
-    strategy:
-      name: PATTERN_STRATEGY
-      params:
-        regex: "[A-Z]{2}[0-9]{3}-[A-Z]{2}" 
+          Excellent: 15
+          Good: 35
+          Average: 35
+          Below Average: 10
+          Poor: 5 

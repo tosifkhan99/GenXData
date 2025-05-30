@@ -1,0 +1,68 @@
+# Simple RANDOM_NUMBER_RANGE_STRATEGY Example
+# This example shows basic usage patterns for generating random numbers
+
+metadata:
+  name: "Simple Random Number Range Examples"
+  description: "Basic examples of RANDOM_NUMBER_RANGE_STRATEGY for common use cases"
+  version: "1.0"
+
+num_of_rows: 100
+shuffle: false
+write_output: true
+
+column_name:
+  - id
+  - age
+  - price
+  - score
+  - quantity
+
+file_writer:
+  - type: "CSV_WRITER"
+    params:
+      output_path: "output/simple_random_numbers.csv"
+
+configs:
+  # Sequential ID for reference
+  - names: ["id"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  # Example 1: Integer range (18 to 65)
+  # Generates random integers between 18 and 65 (inclusive)
+  - names: ["age"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 18    # Minimum value (inclusive)
+        end: 65      # Maximum value (inclusive)
+
+  # Example 2: Decimal range (10.00 to 99.99)
+  # Generates random decimal numbers for prices
+  - names: ["price"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 10.00
+        end: 99.99
+
+  # Example 3: Percentage range (0 to 100)
+  # Generates random scores from 0 to 100
+  - names: ["score"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 0
+        end: 100
+
+  # Example 4: Large integer range (1 to 1000)
+  # Generates random quantities for inventory
+  - names: ["quantity"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 1
+        end: 1000 

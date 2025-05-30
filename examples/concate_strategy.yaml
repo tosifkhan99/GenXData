@@ -40,10 +40,8 @@ configs:
     strategy:
       name: CONCAT_STRATEGY
       params:
-        lhs_cols:
-          - first_name
-        rhs_cols:
-          - last_name
+        lhs_col: first_name
+        rhs_col: last_name
         separator: " "
         prefix: ""
         suffix: ""
@@ -54,10 +52,8 @@ configs:
     strategy:
       name: CONCAT_STRATEGY
       params:
-        lhs_cols:
-          - first_name
-        rhs_cols:
-          - last_name
+        lhs_col: first_name
+        rhs_col: last_name
         separator: "."
         prefix: ""
         suffix: "@email.com"
