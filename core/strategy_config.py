@@ -228,6 +228,40 @@ class TimeRangeItem:
             raise InvalidConfigParamException(f"Distribution weight ({self.distribution}) must be between 1 and 100")
 
 @dataclass
+class DateRangeItem:
+    """Single date range definition with distribution weight"""
+    start_date: str = "2020-01-01"
+    end_date: str = "2020-12-31"
+    format: str = "%Y-%m-%d"
+    output_format: str = "%Y-%m-%d"
+    distribution: int = 100
+
+    def __init__(self, start_date: str, end_date: str, format: str = "%Y-%m-%d", output_format: str = "%Y-%m-%d", distribution: int = 100):
+        self.start_date = start_date
+        self.end_date = end_date
+        self.format = format
+        self.output_format = output_format
+        self.distribution = distribution
+    
+    def validate(self) -> None:
+        """Validate date range item"""
+        from datetime import datetime
+        
+        try:
+            start_date = datetime.strptime(self.start_date, self.format)
+            end_date = datetime.strptime(self.end_date, self.format)
+            
+            if start_date >= end_date:
+                raise InvalidConfigParamException(f"Start date ({self.start_date}) must be before end date ({self.end_date})")
+        except ValueError as e:
+            if "unconverted data remains" in str(e) or "does not match format" in str(e):
+                raise InvalidConfigParamException(f"Invalid date format. Expected {self.format}")
+            raise e
+            
+        if self.distribution <= 0 or self.distribution > 100:
+            raise InvalidConfigParamException(f"Distribution weight ({self.distribution}) must be between 1 and 100")
+
+@dataclass
 class DistributedTimeRangeConfig(BaseConfig):
     """Configuration for distributed time range strategy"""
     ranges: List[TimeRangeItem] = field(default_factory=list)
@@ -252,6 +286,37 @@ class DistributedTimeRangeConfig(BaseConfig):
                 range_item.validate()
             except InvalidConfigParamException as e:
                 raise InvalidConfigParamException(f"Invalid time range at index {i}: {str(e)}")
+                            
+        # Check that weights sum to 100
+        total_distribution = sum(r.distribution for r in self.ranges)
+        if total_distribution != 100:
+            raise InvalidConfigParamException(f"Distribution weights must sum to 100, got {total_distribution}")
+
+@dataclass
+class DistributedDateRangeConfig(BaseConfig):
+    """Configuration for distributed date range strategy"""
+    ranges: List[DateRangeItem] = field(default_factory=list)
+    
+    @classmethod
+    def from_dict(cls, config_dict: Dict[str, Any]) -> 'DistributedDateRangeConfig':
+        """Create from dictionary with special handling for ranges"""
+        config = cls()
+        if 'ranges' in config_dict:
+            for range_dict in config_dict['ranges']:
+                config.ranges.append(DateRangeItem(**range_dict))
+        return config
+    
+    def validate(self) -> None:
+        """Validate distributed date range parameters"""
+        if not self.ranges:
+            raise InvalidConfigParamException("At least one date range must be specified")
+            
+        # Validate each range
+        for i, range_item in enumerate(self.ranges):
+            try:
+                range_item.validate()
+            except InvalidConfigParamException as e:
+                raise InvalidConfigParamException(f"Invalid date range at index {i}: {str(e)}")
                             
         # Check that weights sum to 100
         total_distribution = sum(r.distribution for r in self.ranges)
@@ -329,6 +394,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
         "RANDOM_NUMBER_RANGE_STRATEGY": lambda p: NumberRangeConfig.from_dict(p),
         "DISTRIBUTED_NUMBER_RANGE_STRATEGY": lambda p: DistributedNumberRangeConfig.from_dict(p),
         "DATE_GENERATOR_STRATEGY": lambda p: DateRangeConfig.from_dict(p),
+        "DISTRIBUTED_DATE_RANGE_STRATEGY": lambda p: DistributedDateRangeConfig.from_dict(p),
         "PATTERN_STRATEGY": lambda p: PatternConfig.from_dict(p),
         "SERIES_STRATEGY": lambda p: SeriesConfig.from_dict(p),
         "DISTRIBUTED_CHOICE_STRATEGY": lambda p: DistributedChoiceConfig.from_dict(p),

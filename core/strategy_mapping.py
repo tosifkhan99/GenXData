@@ -10,6 +10,7 @@ from core.strategy_config import (
     NumberRangeConfig,
     DistributedNumberRangeConfig,
     DateRangeConfig,
+    DistributedDateRangeConfig,
     PatternConfig,
     SeriesConfig,
     DistributedChoiceConfig,
@@ -22,6 +23,7 @@ from core.strategy_config import (
 from core.strategies.number_range_strategy import NumberRangeStrategy
 from core.strategies.distributed_number_range_strategy import DistributedNumberRangeStrategy
 from core.strategies.date_generator_strategy import DateGeneratorStrategy
+from core.strategies.distributed_date_range_strategy import DistributedDateRangeStrategy
 from core.strategies.pattern_strategy import PatternStrategy
 from core.strategies.series_strategy import SeriesStrategy
 from core.strategies.distributed_choice_strategy import DistributedChoiceStrategy
@@ -38,6 +40,7 @@ STRATEGY_MAP: Dict[str, Tuple[Type[BaseStrategy], Type[BaseConfig]]] = {
     "RANDOM_NUMBER_RANGE_STRATEGY": (NumberRangeStrategy, NumberRangeConfig),
     "DISTRIBUTED_NUMBER_RANGE_STRATEGY": (DistributedNumberRangeStrategy, DistributedNumberRangeConfig),
     "DATE_GENERATOR_STRATEGY": (DateGeneratorStrategy, DateRangeConfig),
+    "DISTRIBUTED_DATE_RANGE_STRATEGY": (DistributedDateRangeStrategy, DistributedDateRangeConfig),
     "PATTERN_STRATEGY": (PatternStrategy, PatternConfig),
     "SERIES_STRATEGY": (SeriesStrategy, SeriesConfig),
     "DISTRIBUTED_CHOICE_STRATEGY": (DistributedChoiceStrategy, DistributedChoiceConfig),

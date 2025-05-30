@@ -1,0 +1,96 @@
+metadata:
+  name: distributed_date_range_strategy
+  description: Example of distributed date range strategy
+  version: 1.0.0
+  author: Tosif Khan
+  github: https://github.com/tosifkhan99
+  email: khantosif94@gmail.com
+  license: Apache-2.0
+
+column_name:
+  - event_date
+  - birth_date
+  - project_start_date
+
+num_of_rows: 100
+shuffle: false
+
+file_writer:
+  - type: CSV_WRITER
+    params:
+      output_path: output/distributed_dates.csv
+
+configs:
+  # Event dates with different historical periods
+  - names:
+      - event_date
+    strategy:
+      name: DISTRIBUTED_DATE_RANGE_STRATEGY
+      params:
+        ranges:
+          - start_date: "2020-01-01"
+            end_date: "2020-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 30
+          - start_date: "2021-01-01"
+            end_date: "2021-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 40
+          - start_date: "2022-01-01"
+            end_date: "2024-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 30
+
+  # Birth dates across different generations
+  - names:
+      - birth_date
+    strategy:
+      name: DISTRIBUTED_DATE_RANGE_STRATEGY
+      params:
+        ranges:
+          - start_date: "1960-01-01"
+            end_date: "1979-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 25
+          - start_date: "1980-01-01"
+            end_date: "1999-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 35
+          - start_date: "2000-01-01"
+            end_date: "2010-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 40
+
+  # Project start dates with business cycles
+  - names:
+      - project_start_date
+    strategy:
+      name: DISTRIBUTED_DATE_RANGE_STRATEGY
+      params:
+        ranges:
+          - start_date: "2024-01-01"
+            end_date: "2024-03-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 20
+          - start_date: "2024-04-01"
+            end_date: "2024-06-30"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 30
+          - start_date: "2024-07-01"
+            end_date: "2024-09-30"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 25
+          - start_date: "2024-10-01"
+            end_date: "2024-12-31"
+            format: "%Y-%m-%d"
+            output_format: "%Y-%m-%d"
+            distribution: 25 
