@@ -1,6 +1,6 @@
 metadata:
   name: random_name_strategy
-  description: Example of random name strategy generates columns like first_name, last_name, email, department
+  description: Example of parameterized random name strategy with different name types, genders, and case formatting
   version: 1.0.0
   author: Tosif Khan
   github: https://github.com/tosifkhan99
@@ -8,8 +8,11 @@ metadata:
   license: Apache-2.0
 
 column_name:
-  - first_name
+  - first_name_male
+  - first_name_female
   - last_name
+  - full_name_upper
+  - full_name_lower
   - email
   - department
 
@@ -19,31 +22,71 @@ shuffle: false
 file_writer:
   - type: CSV_WRITER
     params:
-      output_path: output/employee_data.csv
+      output_path: output/random_names_demo.csv
 
 configs:
+  # Male first names in title case (default)
   - names:
-      - first_name
+      - first_name_male
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params: {}
+      params:
+        name_type: first
+        gender: male
+        case: title
 
+  # Female first names in title case
+  - names:
+      - first_name_female
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: first
+        gender: female
+        case: title
+
+  # Last names in title case
   - names:
       - last_name
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params: {}
+      params:
+        name_type: last
+        gender: any
+        case: title
 
+  # Full names in uppercase
+  - names:
+      - full_name_upper
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: full
+        gender: any
+        case: upper
+
+  # Full names in lowercase
+  - names:
+      - full_name_lower
+    strategy:
+      name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: full
+        gender: any
+        case: lower
+
+  # Email using concatenation with male first name and last name
   - names:
       - email
     strategy:
       name: CONCAT_STRATEGY
       params:
-        lhs_col: first_name
+        lhs_col: first_name_male
         rhs_col: last_name
         separator: "."
         suffix: "@company.com"
 
+  # Department with distribution
   - names:
       - department
     strategy:

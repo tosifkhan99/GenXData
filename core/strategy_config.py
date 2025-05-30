@@ -375,6 +375,27 @@ class DeleteConfig(BaseConfig):
     def validate(self) -> None:
         pass
 
+@dataclass
+class RandomNameConfig(BaseConfig):
+    """Configuration for random name generation strategy"""
+    name_type: str = "first"  # 'first', 'last', or 'full'
+    gender: str = "any"       # 'male', 'female', or 'any'
+    case: str = "title"       # 'title', 'upper', or 'lower'
+    
+    def validate(self) -> None:
+        """Validate random name parameters"""
+        valid_name_types = ['first', 'last', 'full']
+        if self.name_type not in valid_name_types:
+            raise InvalidConfigParamException(f"Invalid name_type: {self.name_type}. Must be one of {valid_name_types}")
+            
+        valid_genders = ['male', 'female', 'any']
+        if self.gender not in valid_genders:
+            raise InvalidConfigParamException(f"Invalid gender: {self.gender}. Must be one of {valid_genders}")
+            
+        valid_cases = ['title', 'upper', 'lower']
+        if self.case not in valid_cases:
+            raise InvalidConfigParamException(f"Invalid case: {self.case}. Must be one of {valid_cases}")
+
 # Config factory to create the appropriate config class based on strategy name
 def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
     """
@@ -402,6 +423,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
         "DISTRIBUTED_TIME_RANGE_STRATEGY": lambda p: DistributedTimeRangeConfig.from_dict(p),
         "REPLACEMENT_STRATEGY": lambda p: ReplacementConfig.from_dict(p),
         "CONCAT_STRATEGY": lambda p: ConcatConfig.from_dict(p),
+        "RANDOM_NAME_STRATEGY": lambda p: RandomNameConfig.from_dict(p),
         "DELETE_STRATEGY": lambda p: DeleteConfig.from_dict(p),
     }
     

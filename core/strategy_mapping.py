@@ -17,7 +17,8 @@ from core.strategy_config import (
     TimeRangeConfig,
     DistributedTimeRangeConfig,
     ReplacementConfig,
-    ConcatConfig
+    ConcatConfig,
+    RandomNameConfig
 )
 
 from core.strategies.number_range_strategy import NumberRangeStrategy
@@ -48,7 +49,7 @@ STRATEGY_MAP: Dict[str, Tuple[Type[BaseStrategy], Type[BaseConfig]]] = {
     "DISTRIBUTED_TIME_RANGE_STRATEGY": (DistributedTimeRangeStrategy, DistributedTimeRangeConfig),
     "REPLACEMENT_STRATEGY": (ReplacementStrategy, ReplacementConfig),
     "CONCAT_STRATEGY": (ConcatStrategy, ConcatConfig),
-    "RANDOM_NAME_STRATEGY": (RandomNameStrategy, BaseConfig),  # Uses base config since no specific params
+    "RANDOM_NAME_STRATEGY": (RandomNameStrategy, RandomNameConfig),
     "DELETE_STRATEGY": (DeleteStrategy, BaseConfig),  # Uses base config since no specific params
 }
 
