@@ -111,7 +111,5 @@ class DistributedDateRangeStrategy(BaseStrategy):
                 date_value = self._generate_random_date_in_range(range_item)
                 all_values.append(date_value)
             
-        # Shuffle the values to mix ranges
-        np.random.shuffle(all_values)
-        
+
         return pd.Series(all_values) 

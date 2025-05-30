@@ -130,7 +130,5 @@ class DistributedTimeRangeStrategy(BaseStrategy):
                 time_value = self._generate_random_time_in_range(range_item)
                 all_values.append(time_value)
             
-        # Shuffle the values to mix ranges
-        np.random.shuffle(all_values)
         
         return pd.Series(all_values) 
