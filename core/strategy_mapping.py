@@ -14,6 +14,7 @@ from core.strategy_config import (
     SeriesConfig,
     DistributedChoiceConfig,
     TimeRangeConfig,
+    DistributedTimeRangeConfig,
     ReplacementConfig,
     ConcatConfig
 )
@@ -25,6 +26,7 @@ from core.strategies.pattern_strategy import PatternStrategy
 from core.strategies.series_strategy import SeriesStrategy
 from core.strategies.distributed_choice_strategy import DistributedChoiceStrategy
 from core.strategies.time_range_strategy import TimeRangeStrategy
+from core.strategies.distributed_time_range_strategy import DistributedTimeRangeStrategy
 from core.strategies.replacement_strategy import ReplacementStrategy
 from core.strategies.concat_strategy import ConcatStrategy
 from core.strategies.random_name_strategy import RandomNameStrategy
@@ -40,6 +42,7 @@ STRATEGY_MAP: Dict[str, Tuple[Type[BaseStrategy], Type[BaseConfig]]] = {
     "SERIES_STRATEGY": (SeriesStrategy, SeriesConfig),
     "DISTRIBUTED_CHOICE_STRATEGY": (DistributedChoiceStrategy, DistributedChoiceConfig),
     "TIME_RANGE_STRATEGY": (TimeRangeStrategy, TimeRangeConfig),
+    "DISTRIBUTED_TIME_RANGE_STRATEGY": (DistributedTimeRangeStrategy, DistributedTimeRangeConfig),
     "REPLACEMENT_STRATEGY": (ReplacementStrategy, ReplacementConfig),
     "CONCAT_STRATEGY": (ConcatStrategy, ConcatConfig),
     "RANDOM_NAME_STRATEGY": (RandomNameStrategy, BaseConfig),  # Uses base config since no specific params

@@ -190,6 +190,75 @@ class DistributedChoiceConfig(BaseConfig):
                 raise InvalidConfigParamException(f"Weight for choice '{choice}' must be positive, got {weight}")
 
 @dataclass
+class TimeRangeItem:
+    """Single time range definition with distribution weight"""
+    start: str = "00:00:00"
+    end: str = "23:59:59"
+    format: str = "%H:%M:%S"
+    distribution: int = 100
+
+    def __init__(self, start: str, end: str, format: str = "%H:%M:%S", distribution: int = 100):
+        self.start = start
+        self.end = end
+        self.format = format
+        self.distribution = distribution
+    
+    def validate(self) -> None:
+        """Validate time range item"""
+        from datetime import datetime
+        
+        try:
+            start_time = datetime.strptime(self.start, self.format)
+            end_time = datetime.strptime(self.end, self.format)
+            
+            # Special handling for overnight time ranges (e.g., 22:00:00 to 06:00:00)
+            if start_time >= end_time:
+                # Check if this could be an overnight range
+                if self.start > self.end:  # String comparison for times like "22:00:00" > "06:00:00"
+                    # This is likely an overnight range, which is valid
+                    pass
+                else:
+                    raise InvalidConfigParamException(f"Start time ({self.start}) must be before end time ({self.end})")
+        except ValueError as e:
+            if "unconverted data remains" in str(e) or "does not match format" in str(e):
+                raise InvalidConfigParamException(f"Invalid time format. Expected {self.format}")
+            raise e
+            
+        if self.distribution <= 0 or self.distribution > 100:
+            raise InvalidConfigParamException(f"Distribution weight ({self.distribution}) must be between 1 and 100")
+
+@dataclass
+class DistributedTimeRangeConfig(BaseConfig):
+    """Configuration for distributed time range strategy"""
+    ranges: List[TimeRangeItem] = field(default_factory=list)
+    
+    @classmethod
+    def from_dict(cls, config_dict: Dict[str, Any]) -> 'DistributedTimeRangeConfig':
+        """Create from dictionary with special handling for ranges"""
+        config = cls()
+        if 'ranges' in config_dict:
+            for range_dict in config_dict['ranges']:
+                config.ranges.append(TimeRangeItem(**range_dict))
+        return config
+    
+    def validate(self) -> None:
+        """Validate distributed time range parameters"""
+        if not self.ranges:
+            raise InvalidConfigParamException("At least one time range must be specified")
+            
+        # Validate each range
+        for i, range_item in enumerate(self.ranges):
+            try:
+                range_item.validate()
+            except InvalidConfigParamException as e:
+                raise InvalidConfigParamException(f"Invalid time range at index {i}: {str(e)}")
+                            
+        # Check that weights sum to 100
+        total_distribution = sum(r.distribution for r in self.ranges)
+        if total_distribution != 100:
+            raise InvalidConfigParamException(f"Distribution weights must sum to 100, got {total_distribution}")
+
+@dataclass
 class TimeRangeConfig(BaseConfig):
     """Configuration for time range strategy"""
     start_time: str = '00:00:00'
@@ -264,6 +333,7 @@ def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
         "SERIES_STRATEGY": lambda p: SeriesConfig.from_dict(p),
         "DISTRIBUTED_CHOICE_STRATEGY": lambda p: DistributedChoiceConfig.from_dict(p),
         "TIME_RANGE_STRATEGY": lambda p: TimeRangeConfig.from_dict(p),
+        "DISTRIBUTED_TIME_RANGE_STRATEGY": lambda p: DistributedTimeRangeConfig.from_dict(p),
         "REPLACEMENT_STRATEGY": lambda p: ReplacementConfig.from_dict(p),
         "CONCAT_STRATEGY": lambda p: ConcatConfig.from_dict(p),
         "DELETE_STRATEGY": lambda p: DeleteConfig.from_dict(p),
