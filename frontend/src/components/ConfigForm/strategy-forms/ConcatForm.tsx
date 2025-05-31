@@ -8,14 +8,14 @@ interface ConcatFormProps {
   configIndex: number;
   currentParams: Record<string, any>;
   onParamsChange: (configIndex: number, paramName: string, value: any) => void;
-  availableColumns: string[]; // List of column names that can be concatenated
+  availableColumns?: string[]; // List of column names that can be concatenated
 }
 
 export const ConcatForm: React.FC<ConcatFormProps> = ({
   configIndex,
   currentParams,
   onParamsChange,
-  availableColumns,
+  availableColumns = [],
 }) => {
   const handleInputChange = (paramName: string, value: any) => {
     onParamsChange(configIndex, paramName, value);

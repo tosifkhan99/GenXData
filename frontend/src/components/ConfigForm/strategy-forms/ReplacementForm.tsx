@@ -1,5 +1,4 @@
 import React from 'react';
-import { Replace } from 'lucide-react';
 import FormGroup from '@/components/ui/forms/FormGroup';
 import TextInput from '@/components/ui/forms/TextInput';
 import SelectInput from '@/components/ui/forms/SelectInput';
@@ -13,13 +12,13 @@ interface ReplacementRule {
 }
 
 interface ReplacementFormProps {
-  columnId: string;
+  configIndex: number;
   currentParams: Record<string, any>;
-  onParamsChange: (columnId: string, paramName: string, value: any) => void;
+  onParamsChange: (configIndex: number, paramName: string, value: any) => void;
 }
 
 export const ReplacementForm: React.FC<ReplacementFormProps> = ({
-  columnId,
+  configIndex,
   currentParams,
   onParamsChange,
 }) => {
@@ -27,12 +26,12 @@ export const ReplacementForm: React.FC<ReplacementFormProps> = ({
 
   const handleAddRule = () => {
     const newRules = [...rules, { pattern: '', replacement: '', case_sensitive: false }];
-    onParamsChange(columnId, 'rules', newRules);
+    onParamsChange(configIndex, 'rules', newRules);
   };
 
   const handleRemoveRule = (index: number) => {
     const newRules = rules.filter((_, i) => i !== index);
-    onParamsChange(columnId, 'rules', newRules);
+    onParamsChange(configIndex, 'rules', newRules);
   };
 
   const handleRuleChange = (index: number, field: keyof ReplacementRule, value: string | boolean) => {
@@ -42,11 +41,57 @@ export const ReplacementForm: React.FC<ReplacementFormProps> = ({
       }
       return rule;
     });
-    onParamsChange(columnId, 'rules', newRules);
+    onParamsChange(configIndex, 'rules', newRules);
+  };
+
+  const handleInputChange = (paramName: string, value: any) => {
+    onParamsChange(configIndex, paramName, value);
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+      <h4 className="text-md font-semibold text-gray-700 dark:text-gray-200">Replacement Parameters</h4>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <FormGroup label="From Value" htmlFor={`config-${configIndex}-from_value`} required>
+          <TextInput
+            id={`config-${configIndex}-from_value`}
+            name="from_value"
+            type="text"
+            value={currentParams.from_value ?? 'a'}
+            onChange={(e) => handleInputChange('from_value', e.target.value)}
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Value to be replaced
+          </p>
+        </FormGroup>
+
+        <FormGroup label="To Value" htmlFor={`config-${configIndex}-to_value`} required>
+          <TextInput
+            id={`config-${configIndex}-to_value`}
+            name="to_value"
+            type="text"
+            value={currentParams.to_value ?? 'b'}
+            onChange={(e) => handleInputChange('to_value', e.target.value)}
+            required
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            Replacement value
+          </p>
+        </FormGroup>
+      </div>
+
+      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+        <h5 className="text-sm font-medium text-blue-700 dark:text-blue-300 mb-2">Usage Examples:</h5>
+        <ul className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+          <li>• Replace "N/A" with "Unknown"</li>
+          <li>• Replace "0" with "No Data"</li>
+          <li>• Replace abbreviations with full words</li>
+          <li>• Standardize data formats</li>
+        </ul>
+      </div>
+
       <div className="flex items-center justify-between">
         <h5 className="text-sm font-medium text-gray-700">Replacement Rules</h5>
         <Button
@@ -76,9 +121,9 @@ export const ReplacementForm: React.FC<ReplacementFormProps> = ({
             </Button>
           </div>
 
-          <FormGroup label="Pattern (Regex)" htmlFor={`${columnId}-rule-${index}-pattern`} required>
+          <FormGroup label="Pattern (Regex)" htmlFor={`${configIndex}-rule-${index}-pattern`} required>
             <TextInput
-              id={`${columnId}-rule-${index}-pattern`}
+              id={`${configIndex}-rule-${index}-pattern`}
               name={`rule-${index}-pattern`}
               value={rule.pattern}
               onChange={(e) => handleRuleChange(index, 'pattern', e.target.value)}
@@ -87,9 +132,9 @@ export const ReplacementForm: React.FC<ReplacementFormProps> = ({
             />
           </FormGroup>
 
-          <FormGroup label="Replacement" htmlFor={`${columnId}-rule-${index}-replacement`} required>
+          <FormGroup label="Replacement" htmlFor={`${configIndex}-rule-${index}-replacement`} required>
             <TextInput
-              id={`${columnId}-rule-${index}-replacement`}
+              id={`${configIndex}-rule-${index}-replacement`}
               name={`rule-${index}-replacement`}
               value={rule.replacement}
               onChange={(e) => handleRuleChange(index, 'replacement', e.target.value)}
@@ -98,9 +143,9 @@ export const ReplacementForm: React.FC<ReplacementFormProps> = ({
             />
           </FormGroup>
 
-          <FormGroup label="Case Sensitive" htmlFor={`${columnId}-rule-${index}-case_sensitive`}>
+          <FormGroup label="Case Sensitive" htmlFor={`${configIndex}-rule-${index}-case_sensitive`}>
             <SelectInput
-              id={`${columnId}-rule-${index}-case_sensitive`}
+              id={`${configIndex}-rule-${index}-case_sensitive`}
               name={`rule-${index}-case_sensitive`}
               value={rule.case_sensitive ? 'true' : 'false'}
               onChange={(e) => handleRuleChange(index, 'case_sensitive', e.target.value === 'true')}

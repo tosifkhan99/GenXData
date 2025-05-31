@@ -5,18 +5,18 @@ import TextInput from '@/components/ui/forms/TextInput';
 import SelectInput from '@/components/ui/forms/SelectInput';
 
 interface DateGeneratorFormProps {
-  columnId: string;
+  configIndex: number;
   currentParams: Record<string, any>;
-  onParamsChange: (columnId: string, paramName: string, value: any) => void;
+  onParamsChange: (configIndex: number, paramName: string, value: any) => void;
 }
 
 export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
-  columnId,
+  configIndex,
   currentParams,
   onParamsChange,
 }) => {
   const handleInputChange = (paramName: string, value: any) => {
-    onParamsChange(columnId, paramName, value);
+    onParamsChange(configIndex, paramName, value);
   };
 
   const formatOptions = [
@@ -36,9 +36,9 @@ export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <FormGroup label="Start Date" htmlFor={`${columnId}-start_date`} required>
+        <FormGroup label="Start Date" htmlFor={`config-${configIndex}-start_date`} required>
           <TextInput
-            id={`${columnId}-start_date`}
+            id={`config-${configIndex}-start_date`}
             name="start_date"
             type="text"
             pattern="\d{4}-\d{2}-\d{2}"
@@ -49,9 +49,9 @@ export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
           />
         </FormGroup>
 
-        <FormGroup label="End Date" htmlFor={`${columnId}-end_date`} required>
+        <FormGroup label="End Date" htmlFor={`config-${configIndex}-end_date`} required>
           <TextInput
-            id={`${columnId}-end_date`}
+            id={`config-${configIndex}-end_date`}
             name="end_date"
             type="text"
             pattern="\d{4}-\d{2}-\d{2}"
@@ -63,9 +63,9 @@ export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
         </FormGroup>
       </div>
 
-      <FormGroup label="Input Format" htmlFor={`${columnId}-format`} required>
+      <FormGroup label="Input Format" htmlFor={`config-${configIndex}-format`} required>
         <SelectInput
-          id={`${columnId}-format`}
+          id={`config-${configIndex}-format`}
           name="format"
           value={currentParams.format ?? '%Y-%m-%d'}
           onChange={(e) => handleInputChange('format', e.target.value)}
@@ -78,9 +78,9 @@ export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
         </p>
       </FormGroup>
 
-      <FormGroup label="Output Format" htmlFor={`${columnId}-output_format`} required>
+      <FormGroup label="Output Format" htmlFor={`config-${configIndex}-output_format`} required>
         <SelectInput
-          id={`${columnId}-output_format`}
+          id={`config-${configIndex}-output_format`}
           name="output_format"
           value={currentParams.output_format ?? '%Y-%m-%d'}
           onChange={(e) => handleInputChange('output_format', e.target.value)}

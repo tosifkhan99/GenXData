@@ -1,22 +1,21 @@
 import React from 'react';
-import { Clock } from 'lucide-react';
 import FormGroup from '@/components/ui/forms/FormGroup';
 import TextInput from '@/components/ui/forms/TextInput';
 import SelectInput from '@/components/ui/forms/SelectInput';
 
 interface TimeRangeFormProps {
-  columnId: string;
+  configIndex: number;
   currentParams: Record<string, any>;
-  onParamsChange: (columnId: string, paramName: string, value: any) => void;
+  onParamsChange: (configIndex: number, paramName: string, value: any) => void;
 }
 
 export const TimeRangeForm: React.FC<TimeRangeFormProps> = ({
-  columnId,
+  configIndex,
   currentParams,
   onParamsChange,
 }) => {
   const handleInputChange = (paramName: string, value: any) => {
-    onParamsChange(columnId, paramName, value);
+    onParamsChange(configIndex, paramName, value);
   };
 
   const formatOptions = [
@@ -29,9 +28,9 @@ export const TimeRangeForm: React.FC<TimeRangeFormProps> = ({
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
-        <FormGroup label="Start Time" htmlFor={`${columnId}-start_time`} required>
+        <FormGroup label="Start Time" htmlFor={`config-${configIndex}-start_time`} required>
           <TextInput
-            id={`${columnId}-start_time`}
+            id={`config-${configIndex}-start_time`}
             name="start_time"
             type="text"
             pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
@@ -42,9 +41,9 @@ export const TimeRangeForm: React.FC<TimeRangeFormProps> = ({
           />
         </FormGroup>
 
-        <FormGroup label="End Time" htmlFor={`${columnId}-end_time`} required>
+        <FormGroup label="End Time" htmlFor={`config-${configIndex}-end_time`} required>
           <TextInput
-            id={`${columnId}-end_time`}
+            id={`config-${configIndex}-end_time`}
             name="end_time"
             type="text"
             pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]"
@@ -56,9 +55,9 @@ export const TimeRangeForm: React.FC<TimeRangeFormProps> = ({
         </FormGroup>
       </div>
 
-      <FormGroup label="Time Format" htmlFor={`${columnId}-format`} required>
+      <FormGroup label="Time Format" htmlFor={`config-${configIndex}-format`} required>
         <SelectInput
-          id={`${columnId}-format`}
+          id={`config-${configIndex}-format`}
           name="format"
           value={currentParams.format ?? 'HH:mm:ss'}
           onChange={(e) => handleInputChange('format', e.target.value)}
@@ -67,9 +66,9 @@ export const TimeRangeForm: React.FC<TimeRangeFormProps> = ({
         />
       </FormGroup>
 
-      <FormGroup label="Step (minutes)" htmlFor={`${columnId}-step`}>
+      <FormGroup label="Step (minutes)" htmlFor={`config-${configIndex}-step`}>
         <TextInput
-          id={`${columnId}-step`}
+          id={`config-${configIndex}-step`}
           name="step"
           type="number"
           min="1"
