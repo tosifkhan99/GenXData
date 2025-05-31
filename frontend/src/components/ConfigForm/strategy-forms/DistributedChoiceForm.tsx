@@ -39,19 +39,29 @@ export const DistributedChoiceForm: React.FC<DistributedChoiceFormProps> = ({
 
   // Convert UI array format to backend object format
   const updateChoices = (choices: Choice[]) => {
-    const choicesObj: Record<string, number> = {};
-    choices.forEach(choice => {
-      if (choice.value && choice.distribution) {
-        choicesObj[choice.value] = choice.distribution;
-      }
-    });
-    onParamsChange(configIndex, 'choices', choicesObj);
+    // If we have any choices that are still being edited (empty value), 
+    // store as array for UI purposes
+    const hasEmptyChoices = choices.some(choice => choice.value === '');
+    
+    if (hasEmptyChoices) {
+      // Store as array to maintain UI state during editing
+      onParamsChange(configIndex, 'choices', choices);
+    } else {
+      // Convert to object format for backend when all choices have values
+      const choicesObj: Record<string, number> = {};
+      choices.forEach(choice => {
+        if (choice.value.trim()) {
+          choicesObj[choice.value] = choice.distribution || 0;
+        }
+      });
+      onParamsChange(configIndex, 'choices', choicesObj);
+    }
   };
 
   const choices = getChoicesArray();
 
   const handleAddChoice = () => {
-    const newChoices = [...choices, { value: '', distribution: 0 }];
+    const newChoices = [...choices, { value: '', distribution: 10 }];
     updateChoices(newChoices);
   };
 
@@ -112,8 +122,11 @@ export const DistributedChoiceForm: React.FC<DistributedChoiceFormProps> = ({
                   id={`config-${configIndex}-choice-${index}-distribution`}
                   name={`choice-${index}-distribution`}
                   type="number"
+                  min="0"
+                  max="100"
+                  step="0.1"
                   value={choice.distribution}
-                  onChange={(e) => handleChoiceChange(index, 'distribution', parseInt(e.target.value))}
+                  onChange={(e) => handleChoiceChange(index, 'distribution', Number(e.target.value) || 0)}
                   placeholder="Enter distribution"
                   required
                 />
