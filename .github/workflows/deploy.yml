@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ deploy ]
 
+# Add permissions for GitHub token
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -32,7 +38,6 @@ jobs:
         npm run build:gh-pages
       env:
         NODE_ENV: production
-        VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'https://your-backend-url.com' }}
         
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/deploy'
