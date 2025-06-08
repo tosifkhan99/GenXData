@@ -38,18 +38,19 @@ jobs:
         npm run build:gh-pages
       env:
         NODE_ENV: production
+        VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL || 'https://your-backend-url.com' }}
         
     - name: Setup Pages
       if: github.ref == 'refs/heads/deploy'
-      uses: actions/configure-pages@v4
+      uses: actions/configure-pages@v5
       
     - name: Upload artifact
       if: github.ref == 'refs/heads/deploy'
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: ./frontend/dist
         
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/deploy'
       id: deployment
-      uses: actions/deploy-pages@v3 
+      uses: actions/deploy-pages@v4 
