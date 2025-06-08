@@ -272,7 +272,7 @@ def process_config(configFile, debug_mode=False, perf_report=False):
         report = get_performance_report()
         logger.info("\n" + report)
             
-    logger.info(f"Successfully processed config file: {configFile['metadata']['name']}")
+    logger.info(f"Processed config file: {configFile['metadata']['name']}")
     return df
 
 def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, logging_enabled=True, stream=None, batch=None):
