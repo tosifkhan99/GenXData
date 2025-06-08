@@ -2,7 +2,7 @@ import React, { type ChangeEvent } from 'react';
 import FormGroup from '@/components/ui/forms/FormGroup';
 import TextInput from '@/components/ui/forms/TextInput';
 import SelectInput from '@/components/ui/forms/SelectInput';
-import type { StrategyCollection, StrategySchema } from '../../types/strategy';
+import type { StrategyCollection } from '../../types/strategy';
 import { StrategyParameters } from '@/components/ConfigForm/StrategyParameters';
 
 const DeleteIcon = () => (

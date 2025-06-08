@@ -1,7 +1,7 @@
 import React, { useState, useEffect, type ChangeEvent } from 'react';
 import { getStrategySchemas } from '@/lib/api';
 import type { StrategyCollection } from '../../types/strategy';
-import ColumnConfigItem, { type ColumnConfig } from './ColumnConfigItem';
+import ColumnConfigItem from './ColumnConfigItem';
 // @ts-ignore
 import { saveAs } from 'file-saver';
 // @ts-ignore
@@ -13,9 +13,6 @@ import CheckboxInput from '@/components/ui/forms/CheckboxInput';
 
 // Icons (using simple text for unstyled version)
 const AddIcon = () => <span className="font-bold text-lg">+</span>;
-const DeleteIcon = () => <span className="font-bold text-lg">-</span>;
-const ChevronDownIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.25 4.25a.75.75 0 01-1.06 0L5.23 8.29a.75.75 0 01.02-1.06z" clipRule="evenodd" /></svg>;
-const ChevronUpIcon = () => <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5"><path fillRule="evenodd" d="M14.77 12.79a.75.75 0 01-1.06-.02L10 9.06l-3.71 3.71a.75.75 0 11-1.06-1.06l4.25-4.25a.75.75 0 011.06 0l4.25 4.25a.75.75 0 01-.02 1.06z" clipRule="evenodd" /></svg>;
 
 // Updated FormData interface to match backend format
 export interface FormData {
@@ -81,6 +78,7 @@ const ConfigForm: React.FC = () => {
   const [strategySchemas, setStrategySchemas] = useState<StrategyCollection | undefined>(undefined);
   const [isLoadingStrategies, setIsLoadingStrategies] = useState(true);
   const [errorStrategies, setErrorStrategies] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     const fetchStrategies = async () => {
@@ -277,29 +275,63 @@ const ConfigForm: React.FC = () => {
     }
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const backendConfig = generateBackendConfig();
+    setIsGenerating(true);
     
-    console.log('Backend Configuration:', backendConfig);
-    
-    // Generate YAML for download
-    const yamlContent = YAML.dump(backendConfig, {
-      indent: 2,
-      lineWidth: -1,
-      noRefs: true,
-      sortKeys: false
-    });
-    
-    console.log('YAML Output:', yamlContent);
-    
-    // Create blob and download
-    const blob = new Blob([yamlContent], { type: 'text/yaml;charset=utf-8' });
-    const filename = `${backendConfig.metadata.name || 'data-generator-config'}.yaml`;
-    saveAs(blob, filename);
-    
-    alert('Configuration prepared! Check console. Data generation and download coming soon.');
+    try {
+      const backendConfig = generateBackendConfig();
+      
+      console.log('Backend Configuration:', backendConfig);
+      
+      // Call the new generate_and_download endpoint
+      const response = await fetch('http://localhost:8000/generate_and_download', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(backendConfig),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to generate data');
+      }
+
+      // Handle the file download
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      
+      // Get filename from response headers or use default
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'generated_data.zip';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?([^"]+)"?/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+      
+      // Create download link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      
+      alert('Data generated and download started successfully!');
+      
+    } catch (error) {
+      console.error('Error generating data:', error);
+      alert(`Error generating data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   return (
@@ -401,7 +433,7 @@ const ConfigForm: React.FC = () => {
                 onRemove={handleRemoveColumn}
                 onStrategyParamsChange={handleStrategyParamsChange}
                 isOnlyColumn={formData.configs.length === 1}
-                availableColumns={formData.column_name.filter((name, i) => i !== index)}
+                availableColumns={formData.column_name.filter((_, i) => i !== index)}
               />
             ))}
             <div className="flex justify-end mt-6">
@@ -436,9 +468,21 @@ const ConfigForm: React.FC = () => {
         </button>
         <button 
             type="submit" 
-            className="w-full md:w-auto px-6 py-3 text-base font-medium text-white bg-green-600 hover:bg-green-700 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+            disabled={isGenerating}
+            className={`w-full md:w-auto px-6 py-3 text-base font-medium text-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
+              isGenerating 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : 'bg-green-600 hover:bg-green-700'
+            }`}
         >
-            Prepare Configuration & Generate Data
+            {isGenerating ? (
+              <div className="flex items-center">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                Generating...
+              </div>
+            ) : (
+              'Generate & Download'
+            )}
         </button>
       </div>
 

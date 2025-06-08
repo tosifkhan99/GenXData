@@ -40,7 +40,7 @@ const CheckboxInput: React.FC<CheckboxInputProps> = ({
         aria-describedby={error ? `${name}-error` : undefined}
         {...props}
       />
-      <label htmlFor={name} className={`ml-2 block text-sm text-gray-900 ${labelClassName}`.trim()}>
+      <label htmlFor={name} className={`ml-2 block text-sm text-gray-900 dark:text-gray-100 ${labelClassName}`.trim()}>
         {label}
       </label>
       {/* Error message typically handled by FormGroup, but can be shown here if needed specifically */}
