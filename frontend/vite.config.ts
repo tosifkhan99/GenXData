@@ -11,4 +11,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // Configure for GitHub Pages deployment
+  base: process.env.NODE_ENV === 'production' ? '/GenXData/' : '/',
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    // Generate manifest for better caching
+    manifest: true,
+    // Optimize for production
+    minify: 'terser',
+    sourcemap: false,
+  },
 })

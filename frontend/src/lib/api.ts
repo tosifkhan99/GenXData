@@ -1,6 +1,13 @@
 import type { StrategyCollection, StrategySchema } from '../types/strategy';
 
-const API_BASE_URL = 'http://localhost:8000'; // Assuming backend runs on port 8000
+// Environment-based API configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+  (import.meta.env.DEV ? 'http://localhost:8000' : '');
+
+// Warn if no production API URL is set
+if (!import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL) {
+  console.warn('⚠️  VITE_API_BASE_URL environment variable is not set for production build');
+}
 
 // Define parameters for each strategy type
 const strategyParameters: Record<string, StrategySchema['parameters']> = {
