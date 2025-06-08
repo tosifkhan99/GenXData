@@ -39,10 +39,17 @@ jobs:
       env:
         NODE_ENV: production
         
+    - name: Setup Pages
+      if: github.ref == 'refs/heads/deploy'
+      uses: actions/configure-pages@v4
+      
+    - name: Upload artifact
+      if: github.ref == 'refs/heads/deploy'
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: ./frontend/dist
+        
     - name: Deploy to GitHub Pages
       if: github.ref == 'refs/heads/deploy'
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./frontend/dist
-        cname: # Add your custom domain here if you have one 
+      id: deployment
+      uses: actions/deploy-pages@v3 
