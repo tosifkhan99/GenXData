@@ -22,19 +22,27 @@ file_writer:
       output_path: output/concat_strategy.csv
 
 configs:
-  # Base age range
+  # Generate first names
   - names:
       - first_name
     strategy:
       name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: first
+        gender: any
+        case: title
     
-  # Base score range
+  # Generate last names
   - names:
       - last_name
     strategy:
       name: RANDOM_NAME_STRATEGY
+      params:
+        name_type: last
+        gender: any
+        case: title
     
-  # Bonus based on age
+  # Concatenate first and last names with space
   - names:
       - full_name
     strategy:
@@ -46,7 +54,7 @@ configs:
         prefix: ""
         suffix: ""
     
-  # Adjusted score based on score
+  # Create email from first and last names
   - names:
       - email
     strategy:

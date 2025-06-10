@@ -43,18 +43,24 @@ configs:
         start: 1000
         step: 1
 
-  # Random name strategies
+  # Random name strategies with explicit parameters
   - names:
       - first_name
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params: {}
+      params:
+        name_type: first
+        gender: any
+        case: title
 
   - names:
       - last_name
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params: {}
+      params:
+        name_type: last
+        gender: any
+        case: title
 
   # Distributed number range for age
   - names:

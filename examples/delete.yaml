@@ -21,7 +21,7 @@ file_writer:
       output_path: output/delete.csv
 
 configs:
-  # Base age range
+  # Sequential ID generation
   - names:
       - id
     strategy:
@@ -30,15 +30,17 @@ configs:
         start: 1
         step: 1
 
-    
+  # Generate full names
   - names:
       - name
     strategy:
       name: RANDOM_NAME_STRATEGY
-      params: {}
+      params:
+        name_type: full
+        gender: any
+        case: title
 
-    
-  # Bonus based on age
+  # Create email from name and ID
   - names:
       - email
     strategy:
@@ -50,7 +52,7 @@ configs:
         prefix: ""
         suffix: "@email.com"
 
-
+  # Delete rows where ID is less than 30
   - names:
       - id
     strategy:
