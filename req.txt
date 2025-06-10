@@ -2,8 +2,10 @@ annotated-types==0.7.0
 anyio==4.9.0
 certifi==2025.4.26
 charset-normalizer==3.4.2
+click==8.2.1
 fastapi==0.115.12
 gunicorn==23.0.0
+h11==0.16.0
 idna==3.10
 iniconfig==2.1.0
 names==0.3.0
@@ -26,3 +28,4 @@ typing-inspection==0.4.1
 typing_extensions==4.14.0
 tzdata==2025.2
 urllib3==2.4.0
+uvicorn==0.34.3
