@@ -4,10 +4,14 @@ import type { StrategyCollection, StrategySchema } from '../types/strategy';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
   (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
-// Warn if no production API URL is set
-if (!import.meta.env.DEV && !import.meta.env.VITE_API_BASE_URL) {
-  console.warn('⚠️  VITE_API_BASE_URL environment variable is not set for production build');
-}
+// For Docker deployment, use relative URLs in production
+const getApiUrl = (endpoint: string) => {
+  if (import.meta.env.DEV) {
+    return `${API_BASE_URL}${endpoint}`;
+  }
+  // In production (Docker), use relative URLs
+  return endpoint;
+};
 
 // Define parameters for each strategy type
 const strategyParameters: Record<string, StrategySchema['parameters']> = {
@@ -108,7 +112,7 @@ const strategyParameters: Record<string, StrategySchema['parameters']> = {
 
 export const getStrategySchemas = async (): Promise<StrategyCollection> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/get_strategy_schemas`);
+    const response = await fetch(getApiUrl('/get_strategy_schemas'));
     if (!response.ok) {
       console.error(`HTTP error fetching strategy schemas: ${response.status}`, await response.text());
       throw new Error(`Error fetching strategy schemas: ${response.statusText}`);

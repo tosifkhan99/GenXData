@@ -1,0 +1,68 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.pytest_cache/
+
+# Node.js (frontend will be built separately)
+frontend/node_modules
+frontend/dist
+frontend/.vite
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Output
+output/
+*.csv
+*.json
+*.xlsx
+*.parquet
+
+# Notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Documentation
+*.md
+!README.md
+
+# Tests
+tests/
+.pytest_cache/
+
+# Temporary files
+tmp/
+temp/
+~
+
+# Virtual documents
+.virtual_documents/
+
+# Cursor
+.cursor/ 

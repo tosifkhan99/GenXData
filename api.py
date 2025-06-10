@@ -1,10 +1,8 @@
 from typing import Dict, Any
 from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from core.strategy_mapping import get_all_strategy_names, get_all_strategy_schemas
 from exceptions.param_exceptions import InvalidConfigParamException
 from main import start
@@ -14,16 +12,22 @@ import pandas as pd
 import os
 from io import BytesIO
 
-# Create rate limiter
-limiter = Limiter(key_func=get_remote_address)
+app = FastAPI(
+    title="Data Generator API",
+    description="Synthetic data generation API with 13+ strategies",
+    version="1.0.0"
+)
 
-app = FastAPI()
-app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# Mount static files (for serving the React frontend)
+static_path = os.path.join(os.path.dirname(__file__), "static")
+if os.path.exists(static_path):
+    app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 origins = [
     "http://localhost:5173",
-    "https://tosifkhan99.github.io",  # Add your GitHub Pages domain
+    "http://localhost:3000",
+    "http://localhost:8080",
+    "*"  # Allow all origins for demo
 ]
 
 app.add_middleware(
@@ -33,48 +37,47 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 @app.middleware("http")
 async def catch_all_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
     except Exception as e:
         # Log the exception for debugging
-        print(e)
+        print(f"API Error: {e}")
         # Return a generic 500 error response
         return JSONResponse(
             status_code=500,
             content={"message": "An unexpected internal server error occurred."},
         )
 
-
-
 @app.get('/ping')
-@limiter.limit("100/minute") 
-async def ping(request: Request):
-    return {"message": "pong"}
+async def ping():
+    return {"message": "pong", "status": "healthy"}
 
+@app.get('/')
+async def serve_frontend():
+    """Serve the React frontend"""
+    static_path = os.path.join(os.path.dirname(__file__), "static")
+    index_file = os.path.join(static_path, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"message": "Data Generator API", "status": "Frontend not built"}
 
 @app.get('/get_all_strategies')
-@limiter.limit("30/minute")  
-async def get_all_strategies(request: Request):
+async def get_all_strategies():
     return {"strategies": get_all_strategy_names()}
 
-
 @app.get('/get_strategy_schemas')
-@limiter.limit("30/minute")  
-async def get_strategy_schemas(request: Request):
+async def get_strategy_schemas():
     return {"strategies": get_all_strategy_schemas()}
 
-
 @app.post('/generate_data')
-@limiter.limit("5/minute") 
-async def generate_data(request: Request, config: Dict[str, Any]):
+async def generate_data(config: Dict[str, Any]):
     return {"data": start(config)}
 
-
 @app.post('/generate_and_download')
-@limiter.limit("3/minute")
-async def generate_and_download(request: Request, config: Dict[str, Any]):
+async def generate_and_download(config: Dict[str, Any]):
     """
     Generate data based on config and return as a zip file containing the generated files.
     """
@@ -133,13 +136,6 @@ async def generate_and_download(request: Request, config: Dict[str, Any]):
             content={"error": "Failed to generate data", "message": str(e)}
         )
 
-
-@app.post('/generate_config')
-@limiter.limit("10/minute") 
-async def generate_config(request: Request, config: Dict[str, Any]):
-    return {"config": generate_config(config)}
-
-
 @app.exception_handler(InvalidConfigParamException)
 async def invalid_config_param_exception_handler(request: Request, exc: InvalidConfigParamException):
     return JSONResponse(
@@ -147,10 +143,10 @@ async def invalid_config_param_exception_handler(request: Request, exc: InvalidC
         content={"error_name": exc.name, "message": f"Oops! {exc.message}. We are on it!"},
     )
 
-
 @app.exception_handler(RuntimeError)
 async def runtime_error_handler(request: Request, exc: RuntimeError):
     return JSONResponse(
         status_code=500,
         content={"error_name": exc.name, "message": f"Something went wrong while generating data."},
     )
+

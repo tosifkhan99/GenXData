@@ -80,6 +80,7 @@ const ConfigForm: React.FC = () => {
   const [errorStrategies, setErrorStrategies] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
+
   useEffect(() => {
     const fetchStrategies = async () => {
       setIsLoadingStrategies(true);
@@ -119,6 +120,10 @@ const ConfigForm: React.FC = () => {
       processedValue = (e.target as HTMLInputElement).checked;
     } else if (targetType === 'number') {
       processedValue = value === '' ? 0 : Number(value);
+      // Enforce row limits in demo mode
+      if (name === 'num_of_rows') {
+        processedValue = Math.min(Math.max(processedValue as number, 1), 5000);
+      }
     }
     setFormData(prev => ({ ...prev, [name]: processedValue }));
   };
@@ -277,7 +282,6 @@ const ConfigForm: React.FC = () => {
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setIsGenerating(true);
     
     try {
@@ -286,7 +290,10 @@ const ConfigForm: React.FC = () => {
       console.log('Backend Configuration:', backendConfig);
       
       // Call the new generate_and_download endpoint
-      const response = await fetch('http://localhost:8000/generate_and_download', {
+      const apiUrl = import.meta.env.DEV 
+        ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000')
+        : '';
+      const response = await fetch(`${apiUrl}/generate_and_download`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -295,6 +302,9 @@ const ConfigForm: React.FC = () => {
       });
 
       if (!response.ok) {
+        if (response.status === 429) {
+          throw new Error('Rate limit exceeded. Please wait before trying again.');
+        }
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to generate data');
       }
@@ -337,6 +347,21 @@ const ConfigForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white dark:bg-gray-900 shadow-xl rounded-lg space-y-8">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-10 text-center">Data Generator Configuration</h1>
+      
+      {/* Demo Banner */}
+      <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
+        <div className="flex items-center">
+          <div className="flex-shrink-0">
+            <span className="text-blue-500 text-lg">🚀</span>
+          </div>
+          <div className="ml-3">
+            <p className="text-blue-700 dark:text-blue-300 text-sm">
+              <strong>Synthetic Data Generator:</strong> Create realistic datasets with 13+ generation strategies. 
+              Configure columns, choose formats, and download your data instantly.
+            </p>
+          </div>
+        </div>
+      </div>
 
       {/* Metadata Section */}
       <fieldset className="p-6 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-800">
@@ -376,7 +401,14 @@ const ConfigForm: React.FC = () => {
         <legend className="text-xl font-semibold text-gray-700 dark:text-gray-200 px-2">General Settings</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mt-4">
           <FormGroup label="Number of Rows" htmlFor="num_of_rows" required>
-            <TextInput name="num_of_rows" type="number" value={formData.num_of_rows} onChange={handleInputChange} required />
+            <TextInput 
+              name="num_of_rows" 
+              type="number" 
+              value={formData.num_of_rows} 
+              onChange={handleInputChange} 
+              min="1"
+              required 
+            />
           </FormGroup>
           <FormGroup label="Shuffle Data" htmlFor="shuffle" className="flex items-center mt-5 md:mt-auto">
             <CheckboxInput name="shuffle" label="Enable shuffling" checked={formData.shuffle} onChange={handleInputChange} />
@@ -449,6 +481,8 @@ const ConfigForm: React.FC = () => {
           </div>
         )}
       </fieldset>
+
+
 
       {/* Action Buttons */}
       <div className="mt-10 pt-6 border-t border-gray-200 space-y-4 md:space-y-0 md:flex md:items-center md:justify-end md:space-x-3">
