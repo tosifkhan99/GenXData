@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +21,12 @@ app = FastAPI(
 # Mount static files (for serving the React frontend)
 static_path = os.path.join(os.path.dirname(__file__), "static")
 if os.path.exists(static_path):
+    # Mount the assets directory at /assets path to match frontend expectations
+    assets_path = os.path.join(static_path, "assets")
+    if os.path.exists(assets_path):
+        app.mount("/assets", StaticFiles(directory=assets_path), name="assets")
+    
+    # Mount static files for other assets like vite.svg, favicon.ico, etc.
     app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 origins = [
@@ -63,6 +69,26 @@ async def serve_frontend():
     if os.path.exists(index_file):
         return FileResponse(index_file)
     return {"message": "Data Generator API", "status": "Frontend not built"}
+
+@app.get('/{filename:path}')
+async def serve_static_files(filename: str):
+    """Serve static files like vite.svg, favicon.ico, etc. from root"""
+    # Only serve specific file types to avoid conflicts with API routes
+    allowed_extensions = {'.svg', '.ico', '.png', '.jpg', '.jpeg', '.gif', '.webp', '.txt', '.xml'}
+    
+    # Check if the filename has an allowed extension
+    if not any(filename.endswith(ext) for ext in allowed_extensions):
+        raise HTTPException(status_code=404, detail="Not found")
+    
+    static_path = os.path.join(os.path.dirname(__file__), "static")
+    file_path = os.path.join(static_path, filename)
+    
+    if os.path.exists(file_path) and os.path.isfile(file_path):
+        return FileResponse(file_path)
+    
+    raise HTTPException(status_code=404, detail="File not found")
+
+
 
 @app.get('/get_all_strategies')
 async def get_all_strategies():

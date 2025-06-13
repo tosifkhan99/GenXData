@@ -1,20 +1,21 @@
 # Multi-stage Docker build for Data Generator
 # Stage 1: Build the React frontend
-FROM node:18-alpine AS frontend-build
+FROM node:20-alpine AS frontend-build
 
 WORKDIR /app/frontend
 
 # Copy package files
 COPY frontend/package*.json ./
+COPY frontend/yarn.lock* ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including devDependencies needed for build)
+RUN yarn install --frozen-lockfile
 
 # Copy frontend source
 COPY frontend/ ./
 
 # Build the frontend
-RUN npm run build
+RUN yarn build
 
 # Stage 2: Build the Python backend
 FROM python:3.11-slim AS backend

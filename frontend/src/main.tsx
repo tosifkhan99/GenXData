@@ -5,8 +5,8 @@ import './index.css'
 import { BrowserRouter } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeProvider'
 
-// GitHub Pages routing support
-const basename = import.meta.env.DEV ? '/' : '/GenXData';
+// Set basename to root for Docker deployment
+const basename = '/';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

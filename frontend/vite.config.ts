@@ -12,7 +12,7 @@ export default defineConfig({
     },
   },
   // Configure for GitHub Pages deployment
-  base: process.env.NODE_ENV === 'production' ? '/GenXData/' : '/',
+  base: '/',
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
