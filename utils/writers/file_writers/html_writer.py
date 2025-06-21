@@ -20,9 +20,14 @@ def htmlWriter(df, params):
         None
     """
     try:
-        path = params.get('path_or_buf')
+        # Support multiple path parameter names for flexibility
+        path = params.get('output_path') or params.get('path_or_buf')
         if not path:
-            raise ValueError("Missing 'path_or_buf' parameter for HTML writer")
+            raise ValueError("Missing path parameter (use 'output_path' or 'path_or_buf') for HTML writer")
+            
+        # Ensure the file has .html extension
+        if not path.endswith(('.html', '.htm')):
+            path = os.path.splitext(path)[0] + '.html'
             
         # Set default title if not provided
         if 'title' not in params:
@@ -39,18 +44,23 @@ def htmlWriter(df, params):
             body { padding: 20px; }
             .container { max-width: 100%; }
             .table-responsive { margin-top: 20px; }
+            tr { text-align: center; }
         </style>
         """
         
-        # Export options for the HTML file
+        # Extract custom options that aren't pandas to_html parameters
+        include_bootstrap = params.pop('include_bootstrap', True)
+        title = params.pop('title', 'Data Generator Output')
+        classes = params.pop('classes', 'table table-striped')
+        render_links = params.pop('render_links', True)
+        
+        # Export options for the HTML file (only pandas-compatible parameters)
         html_options = {
-            'include_bootstrap': params.pop('include_bootstrap', True),
-            'table_attributes': f'class="{params.pop("classes", "table table-striped")}"',
-            'render_links': params.pop('render_links', True),
             'border': params.pop('border', 0),
             'index': params.pop('index', False),
             'escape': params.pop('escape', True),
-            'na_rep': params.pop('na_rep', 'N/A')
+            'na_rep': params.pop('na_rep', 'N/A'),
+            'classes': classes
         }
         
         logger.info(f"Writing DataFrame with {len(df)} rows to HTML file: {path}")
@@ -59,8 +69,7 @@ def htmlWriter(df, params):
         html_content = df.to_html(**html_options)
         
         # Add title and Bootstrap if requested
-        if html_options['include_bootstrap']:
-            title = params.pop('title', 'Data Generator Output')
+        if include_bootstrap:
             final_html = f"""<!DOCTYPE html>
 <html>
 <head>

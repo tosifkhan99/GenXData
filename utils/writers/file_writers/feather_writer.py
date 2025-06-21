@@ -1,4 +1,5 @@
 import logging
+import os
 
 logger = logging.getLogger("data_generator.writers.feather")
 
@@ -20,17 +21,23 @@ def featherWriter(df, params):
         None
     """
     try:
-        path = params.get('path')
+        # Support multiple path parameter names for flexibility
+        path = params.get('output_path') or params.get('path')
         if not path:
-            raise ValueError("Missing 'path' parameter for Feather writer")
+            raise ValueError("Missing path parameter (use 'output_path' or 'path') for Feather writer")
             
+        # Ensure the file has .feather extension
+        if not path.endswith('.feather'):
+            path = os.path.splitext(path)[0] + '.feather'
+            
+        # Create a copy of params without path-related keys and any None values
+        writer_params = {k: v for k, v in params.items() if k not in ['output_path', 'path'] and v is not None}
+        
         # Set defaults for common parameters
-        compression = params.get('compression', 'zstd')
+        if 'compression' not in writer_params:
+            writer_params['compression'] = 'zstd'
         
         logger.info(f"Writing DataFrame with {len(df)} rows to Feather file: {path}")
-        
-        # Create a copy of params without 'path' and any None values
-        writer_params = {k: v for k, v in params.items() if k != 'path' and v is not None}
         
         # Write the dataframe to a Feather file
         df.to_feather(path, **writer_params)

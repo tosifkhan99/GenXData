@@ -324,31 +324,26 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
                 strategy_states = {}
                 stream_config = load_config(stream)
                 
-                # Validate streaming configuration
-                if 'amqp' not in stream_config:
-                    raise ValueError("Streaming config must contain 'amqp' section with connection details")
-                
-                amqp_config = stream_config['amqp']
+                # Get streaming configuration
                 streaming_config = stream_config.get('streaming', {})
-                
-                # Required AMQP settings
-                if 'url' not in amqp_config or 'queue' not in amqp_config:
-                    raise ValueError("AMQP config must contain 'url' and 'queue' settings")
                 
                 # Get batch size from streaming config or use default
                 batch_size = streaming_config.get('batch_size', SETTINGS.STREAM_BATCH_SIZE)
                 batches = get_batches(batch_size, configFile['num_of_rows'])
                 
-                # Initialize AMQP producer (streaming mode only)
-                amqp_producer = None
+                # Initialize queue producer using the factory
+                queue_producer = None
                 try:
-                    from amqp.producer import AMQPProducer
-                    amqp_producer = AMQPProducer(amqp_config['url'], amqp_config['queue'])
-                    logger.info(f"AMQP streaming enabled - URL: {amqp_config['url']}, Queue: {amqp_config['queue']}")
+                    from queue.factory import QueueFactory
+                    queue_producer = QueueFactory.create_from_config(stream_config)
+                    queue_producer.connect()
+                    
+                    logger.info(f"Queue streaming enabled - Type: {queue_producer.config.queue_type}")
+                    
                 except ImportError as e:
-                    raise ValueError(f"AMQP library not available. Install python-qpid-proton: {e}")
-                except ConnectionError as e:
-                    raise ValueError(f"Could not connect to AMQP broker: {e}")
+                    raise ValueError(f"Queue library not available: {e}")
+                except Exception as e:
+                    raise ValueError(f"Could not connect to queue: {e}")
                 
                 for batch_index, batch_size in enumerate(batches):
                     logger.info(f"Processing batch {batch_index + 1}/{len(batches)} with {batch_size} rows")
@@ -358,8 +353,8 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
                     
                     df = process_config(batch_config, debug_mode, perf_report)
                     
-                    # Send batch to AMQP queue if producer is available
-                    if amqp_producer:
+                    # Send batch to queue if producer is available
+                    if queue_producer:
                         batch_info = {
                             'batch_index': batch_index,
                             'batch_size': batch_size,
@@ -372,13 +367,13 @@ def start(config, debug_mode=SETTINGS.DEBUG, perf_report=SETTINGS.PERF_REPORT, l
                         if streaming_config.get('include_metadata', True):
                             batch_info['streaming_config'] = streaming_config
                         
-                        amqp_producer.send_dataframe(df, batch_info)
-                        logger.info(f"Sent batch {batch_index + 1} to AMQP queue")
+                        queue_producer.send_dataframe(df, batch_info)
+                        logger.info(f"Sent batch {batch_index + 1} to {queue_producer.config.queue_type} queue")
                 
-                # Clean up AMQP producer
-                if amqp_producer:
-                    amqp_producer.close_connection()
-                    logger.info("AMQP streaming completed successfully")
+                # Clean up queue producer
+                if queue_producer:
+                    queue_producer.disconnect()
+                    logger.info(f"{queue_producer.config.queue_type.upper()} streaming completed successfully")
                 
                 # For streaming, return the last batch as the result
                 results['df'] = df.to_dict(orient='records') if 'df' in locals() else []
