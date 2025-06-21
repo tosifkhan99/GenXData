@@ -1,0 +1,89 @@
+# Example Kafka streaming configuration
+# This file contains both data generation config and Kafka streaming settings
+
+# Kafka connection and streaming configuration
+kafka:
+  bootstrap_servers: "localhost:9092"
+  topic: "genxdata-topic"
+  client_id: "genxdata-producer"
+  
+  # Optional Kafka producer settings
+  acks: "all"                    # Wait for all replicas to acknowledge
+  retries: 3                     # Number of retries on failure
+  batch_size: 16384             # Batch size in bytes
+  linger_ms: 0                  # Time to wait before sending batch
+  compression_type: "gzip"      # Compression type (none, gzip, snappy, lz4, zstd)
+  
+  # Security settings (uncomment if needed)
+  # security_protocol: "SASL_SSL"
+  # sasl_mechanism: "PLAIN"
+  # sasl_username: "your_username"
+  # sasl_password: "your_password"
+  
+  # SSL settings (uncomment if needed)
+  # ssl_cafile: "/path/to/ca-cert"
+  # ssl_certfile: "/path/to/client-cert"
+  # ssl_keyfile: "/path/to/client-key"
+
+streaming:
+  batch_size: 100               # Records per batch
+  include_metadata: true        # Include streaming config in messages
+  include_batch_info: true      # Include batch metadata
+
+# Data generation configuration
+metadata:
+  name: "Kafka Streaming Test"
+  description: "Example configuration for Kafka streaming with GenXData"
+  version: "1.0"
+
+num_of_rows: 500
+shuffle: false
+write_output: false  # Disable file output for streaming
+
+column_name:
+  - id
+  - user_id
+  - event_type
+  - timestamp
+  - value
+
+file_writer: []  # No file writers for streaming
+
+configs:
+  - names: ["id"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  - names: ["user_id"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 1000
+        end: 9999
+
+  - names: ["event_type"]
+    strategy:
+      name: "DISTRIBUTED_CHOICE_STRATEGY"
+      params:
+        choices:
+          login: 30
+          logout: 25
+          page_view: 35
+          purchase: 10
+
+  - names: ["timestamp"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 1672531200  # 2023-01-01
+        end: 1704067199    # 2023-12-31
+
+  - names: ["value"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 1
+        end: 1000 

@@ -25,13 +25,29 @@ shuffle: true
 file_writer:
   - type: CSV_WRITER
     params:
-      output_path: ./output/all_example.csv
+      output_path: ./new-output/all_example.csv
   - type: JSON_WRITER
     params:
-      output_path: ./output/all_example.json
+      output_path: ./new-output/all_example.json
       orient: "records"
       date_format: "iso"
       indent: 2
+  - type: EXCEL_WRITER
+    params:
+      output_path: ./new-output/all_example.xlsx
+  - type: PARQUET_WRITER
+    params:
+      output_path: ./new-output/all_example.parquet
+  - type: SQLITE_WRITER
+    params:
+      output_path: ./new-output/all_example.db
+  - type: HTML_WRITER
+    params:
+      output_path: ./new-output/all_example.html
+  - type: FEATHER_WRITER
+    params:
+      output_path: ./new-output/all_example.feather
+
 
 configs:
   # Series strategy for ID

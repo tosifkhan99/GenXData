@@ -1,0 +1,83 @@
+# Updated AMQP streaming configuration using the new abstract queue system
+# This file contains both data generation config and AMQP streaming settings
+
+# AMQP connection and streaming configuration
+amqp:
+  url: "localhost:5672"
+  queue: "genxdata-queue"
+  
+  # Optional authentication
+  username: "guest"
+  password: "guest"
+  
+  # Optional connection settings
+  virtual_host: "/"
+  heartbeat: 60
+  
+  # Queue-specific settings
+  queue_durable: true
+  queue_auto_delete: false
+
+streaming:
+  batch_size: 75                # Records per batch
+  include_metadata: true        # Include streaming config in messages
+  include_batch_info: true      # Include batch metadata
+
+# Data generation configuration
+metadata:
+  name: "Updated AMQP Streaming Test"
+  description: "Example configuration using the new abstract queue system"
+  version: "2.0"
+
+num_of_rows: 300
+shuffle: false
+write_output: false  # Disable file output for streaming
+
+column_name:
+  - id
+  - name
+  - department
+  - salary
+  - join_date
+
+file_writer: []  # No file writers for streaming
+
+configs:
+  - names: ["id"]
+    strategy:
+      name: "SERIES_STRATEGY"
+      params:
+        start: 1
+        step: 1
+
+  - names: ["name"]
+    strategy:
+      name: "RANDOM_NAME_STRATEGY"
+      params:
+        name_type: "full"
+        gender: "any"
+        case: "title"
+
+  - names: ["department"]
+    strategy:
+      name: "DISTRIBUTED_CHOICE_STRATEGY"
+      params:
+        choices:
+          Engineering: 40
+          HR: 15
+          Marketing: 20
+          Sales: 25
+
+  - names: ["salary"]
+    strategy:
+      name: "RANDOM_NUMBER_RANGE_STRATEGY"
+      params:
+        start: 45000
+        end: 150000
+
+  - names: ["join_date"]
+    strategy:
+      name: "DATE_GENERATOR_STRATEGY"
+      params:
+        start_date: "2020-01-01"
+        end_date: "2024-12-31" 
