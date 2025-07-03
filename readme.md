@@ -5,19 +5,19 @@ A Complete synthetic data framework for generating realistic data for your appli
 ### 🛠️ Running the tool
 **Step 1**: Install dependencies
 ```bash
-pip install -r requirements.txt
+pip install -r req.txt
 ```
 
-**Step 2**: Create a configuration file. You can copy `examples/config.json.example` to `examples/config.json`, or create your own config (refer to examples folder for more info).
+**Step 2**: Create a configuration file. You can copy examples from the `examples/` directory, or create your own config (refer to examples folder for more info).
 
 **Step 3**: Run the script with your configuration:
 ```bash
-python data_generator.py ./examples/config.json
+python main.py ./examples/all_example.yaml
 ```
 
 For verbose output and debugging information, use the debug flag:
 ```bash
-python data_generator.py ./examples/config.json --debug
+python main.py ./examples/all_example.yaml --debug
 ```
 
 ### 🌐 Running the Frontend and API Server
@@ -32,8 +32,7 @@ yarn dev
 
 #### 🔌 Running the API Server
 ```bash
-cd api
-uv run uvicorn api:app --reload
+uvicorn api:app --reload
 ```
 
 #### 🐳 Docker
@@ -64,6 +63,30 @@ visit the frontend at `http://localhost:8000`
 see the api server docs at `http://localhost:8000/docs`
 
 
+## 🏗️ Project Structure
+
+GenXData has been refactored into a modular structure for better maintainability and extensibility:
+
+```
+GenXData/
+├── cli/                    # Command-line interface
+├── core/                   # Core processing modules
+│   ├── orchestrator.py     # Main processing orchestration
+│   ├── processing/         # Core data processing
+│   ├── streaming/          # Streaming and batch processing
+│   └── strategies/         # Data generation strategies
+├── generators/             # Pre-built data generators
+├── utils/                  # Utility modules
+│   ├── config_utils/       # Configuration loading
+│   ├── file_utils/         # File operations
+│   └── writers/            # Output format writers
+├── queue/                  # Queue system implementations
+├── examples/               # Configuration examples
+├── frontend/               # React web interface
+├── main.py                 # Main entry point
+└── api.py                  # FastAPI server
+```
+
 ## ✨ Features
 
 ### 🚀 **Comprehensive Data Generation Strategies**
@@ -73,6 +96,7 @@ see the api server docs at `http://localhost:8000/docs`
 - 📊 **Distribution-Based Generation**: Generate data following custom statistical distributions
 - ⏰ **Date & Time Generation**: Flexible date and time generation with range controls
 - 🔗 **Concatenation & Dependencies**: Create columns that depend on or combine other columns
+- 🎛️ **Pre-built Generators**: Ready-to-use generators for common domains (ecommerce, healthcare, education, etc.)
 
 ### 📁 **Multiple Output Formats**
 - 💾 **7 File Formats Supported**: CSV, Excel, JSON, Parquet, SQLite, HTML, and Feather
@@ -133,6 +157,16 @@ Generators are the higher-level apis, an abstraction to hide the parameters of s
 for example, Person Name can be a generator that is a wrapper around the [Random Name Strategy](./strategies/random_name_strategy.py)
 
 or a Date of Birth can be a generator that is a wrapper around the [Date Generator Strategy](./strategies/date_generator_strategy.py) that is used to generate this kind of data.
+
+**Pre-built Generators**: GenXData now includes domain-specific generator collections in the `generators/` directory:
+- 🛒 **ecommerce_generators.json**: Product categories, pricing, order statuses, payment methods
+- 🏥 **healthcare_generators.json**: Medical conditions, treatments, patient data
+- 🎓 **education_generators.json**: Academic subjects, grades, enrollment data
+- 🌍 **geographic_generators.json**: Countries, cities, coordinates, addresses
+- 🚗 **transportation_generators.json**: Vehicle types, routes, logistics data
+- 💼 **business_generators.json**: Company data, financial metrics, market segments
+- 🔧 **technology_generators.json**: Software versions, hardware specs, tech stack data
+- 🏭 **iot_sensors_generators.json**: Sensor readings, device data, telemetry
 
 and so on, There can be 100s of generators
 
