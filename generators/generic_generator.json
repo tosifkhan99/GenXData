@@ -1,0 +1,409 @@
+{
+    "PERSON_NAME": {
+        "implementation": "RANDOM_NAME_STRATEGY",
+        "params": {
+            "name_type": "first",
+            "gender": "any",
+            "case": "title"
+        }
+    },
+    "PERSON_AGE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": 18,
+            "end": 65,
+            "step": 1,
+            "precision": 0,
+            "unique": false
+        }
+    },
+    "FULL_NAME": {
+        "implementation": "RANDOM_NAME_STRATEGY",
+        "params": {
+            "name_type": "full",
+            "gender": "any",
+            "case": "title"
+        }
+    },
+    "LAST_NAME": {
+        "implementation": "RANDOM_NAME_STRATEGY",
+        "params": {
+            "name_type": "last",
+            "gender": "any",
+            "case": "upper"
+        }
+    },
+    "BIRTH_DATE": {
+        "implementation": "DATE_GENERATOR_STRATEGY",
+        "params": {
+            "start_date": "1950-01-01",
+            "end_date": "2005-12-31",
+            "format": "%Y-%m-%d",
+            "output_format": "%Y-%m-%d"
+        }
+    },
+    "RECENT_DATE": {
+        "implementation": "DATE_GENERATOR_STRATEGY",
+        "params": {
+            "start_date": "2020-01-01",
+            "end_date": "2024-12-31",
+            "format": "%Y-%m-%d",
+            "output_format": "%m/%d/%Y"
+        }
+    },
+    "WORKING_HOURS": {
+        "implementation": "TIME_RANGE_STRATEGY",
+        "params": {
+            "start_time": "09:00:00",
+            "end_time": "17:00:00",
+            "input_format": "%H:%M:%S",
+            "output_format": "%H:%M"
+        }
+    },
+    "SALARY": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": 30000,
+            "end": 150000,
+            "step": 1000,
+            "precision": 0,
+            "unique": false
+        }
+    },
+    "PERCENTAGE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": 0.0,
+            "end": 100.0,
+            "step": 0.1,
+            "precision": 1,
+            "unique": false
+        }
+    },
+    "EMPLOYEE_ID": {
+        "implementation": "SERIES_STRATEGY",
+        "params": {
+            "start": 1001,
+            "step": 1
+        }
+    },
+    "BATCH_NUMBER": {
+        "implementation": "SERIES_STRATEGY",
+        "params": {
+            "start": 1.0,
+            "step": 0.1
+        }
+    },
+    "PHONE_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "\\d{3}-\\d{3}-\\d{4}"
+        }
+    },
+    "EMAIL_PATTERN": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[a-z]{5,10}\\.[a-z]{3,8}@[a-z]{3,8}\\.(com|org|net)"
+        }
+    },
+    "SSN": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "\\d{3}-\\d{2}-\\d{4}"
+        }
+    },
+    "DEPARTMENT": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Engineering": 40,
+                "Sales": 25,
+                "Marketing": 15,
+                "HR": 10,
+                "Finance": 10
+            }
+        }
+    },
+    "PRIORITY_LEVEL": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Low": 50,
+                "Medium": 30,
+                "High": 15,
+                "Critical": 5
+            }
+        }
+    },
+    "EDUCATION_LEVEL": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "High School": 30,
+                "Bachelor's": 40,
+                "Master's": 25,
+                "PhD": 5
+            }
+        }
+    },
+    "INCOME_BRACKETS": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 25000,
+                    "end": 50000,
+                    "distribution": 30
+                },
+                {
+                    "start": 50000,
+                    "end": 100000,
+                    "distribution": 45
+                },
+                {
+                    "start": 100000,
+                    "end": 200000,
+                    "distribution": 20
+                },
+                {
+                    "start": 200000,
+                    "end": 500000,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "HISTORICAL_DATES": {
+        "implementation": "DISTRIBUTED_DATE_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start_date": "2020-01-01",
+                    "end_date": "2021-12-31",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 25
+                },
+                {
+                    "start_date": "2022-01-01",
+                    "end_date": "2023-12-31",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 35
+                },
+                {
+                    "start_date": "2024-01-01",
+                    "end_date": "2024-12-31",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 40
+                }
+            ]
+        }
+    },
+    "BUSINESS_HOURS": {
+        "implementation": "DISTRIBUTED_TIME_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": "08:00:00",
+                    "end": "12:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 40
+                },
+                {
+                    "start": "13:00:00",
+                    "end": "17:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 60
+                }
+            ]
+        }
+    },
+    "NULL_VALUES": {
+        "implementation": "DELETE_STRATEGY",
+        "params": {
+            "mask": "age > 65"
+        }
+    },
+    "REPLACE_PLACEHOLDER": {
+        "implementation": "REPLACEMENT_STRATEGY",
+        "params": {
+            "from_value": "TBD",
+            "to_value": "Not Available"
+        }
+    },
+    "GENDER_MAPPING": {
+        "implementation": "REPLACEMENT_STRATEGY",
+        "params": {
+            "from_value": "M",
+            "to_value": "Male"
+        }
+    },
+    "FIRST_NAME_MALE": {
+        "implementation": "RANDOM_NAME_STRATEGY",
+        "params": {
+            "name_type": "first",
+            "gender": "male",
+            "case": "title"
+        }
+    },
+    "FIRST_NAME_FEMALE": {
+        "implementation": "RANDOM_NAME_STRATEGY",
+        "params": {
+            "name_type": "first",
+            "gender": "female",
+            "case": "title"
+        }
+    },
+    "WEEKEND_DATES": {
+        "implementation": "DISTRIBUTED_DATE_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start_date": "2024-01-06",
+                    "end_date": "2024-01-07",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-01-13",
+                    "end_date": "2024-01-14",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-01-20",
+                    "end_date": "2024-01-21",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-01-27",
+                    "end_date": "2024-01-28",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-02-03",
+                    "end_date": "2024-02-04",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-02-10",
+                    "end_date": "2024-02-11",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 14
+                },
+                {
+                    "start_date": "2024-02-17",
+                    "end_date": "2024-02-18",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 16
+                }
+            ]
+        }
+    },
+    "EVENING_HOURS": {
+        "implementation": "TIME_RANGE_STRATEGY",
+        "params": {
+            "start_time": "18:00:00",
+            "end_time": "23:59:59",
+            "input_format": "%H:%M:%S",
+            "output_format": "%H:%M"
+        }
+    },
+    "MORNING_HOURS": {
+        "implementation": "TIME_RANGE_STRATEGY",
+        "params": {
+            "start_time": "06:00:00",
+            "end_time": "11:59:59",
+            "input_format": "%H:%M:%S",
+            "output_format": "%H:%M"
+        }
+    },
+    "WEIGHT_KG": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 50,
+                    "end": 70,
+                    "distribution": 35
+                },
+                {
+                    "start": 70,
+                    "end": 90,
+                    "distribution": 40
+                },
+                {
+                    "start": 90,
+                    "end": 120,
+                    "distribution": 20
+                },
+                {
+                    "start": 40,
+                    "end": 50,
+                    "distribution": 3
+                },
+                {
+                    "start": 120,
+                    "end": 150,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "HEIGHT_CM": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 160,
+                    "end": 175,
+                    "distribution": 40
+                },
+                {
+                    "start": 175,
+                    "end": 185,
+                    "distribution": 35
+                },
+                {
+                    "start": 150,
+                    "end": 160,
+                    "distribution": 15
+                },
+                {
+                    "start": 185,
+                    "end": 200,
+                    "distribution": 8
+                },
+                {
+                    "start": 140,
+                    "end": 150,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "PRODUCT_SKU": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{3}-\\d{4}-[A-Z]{2}"
+        }
+    },
+    "LICENSE_PLATE": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{3}\\d{4}"
+        }
+    }
+}

@@ -1,0 +1,275 @@
+{
+    "PATIENT_AGE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 0,
+                    "end": 17,
+                    "distribution": 20
+                },
+                {
+                    "start": 18,
+                    "end": 35,
+                    "distribution": 25
+                },
+                {
+                    "start": 36,
+                    "end": 55,
+                    "distribution": 25
+                },
+                {
+                    "start": 56,
+                    "end": 75,
+                    "distribution": 20
+                },
+                {
+                    "start": 76,
+                    "end": 100,
+                    "distribution": 10
+                }
+            ]
+        }
+    },
+    "BLOOD_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "O+": 37,
+                "A+": 34,
+                "B+": 9,
+                "O-": 7,
+                "A-": 6,
+                "AB+": 4,
+                "B-": 2,
+                "AB-": 1
+            }
+        }
+    },
+    "MEDICAL_CONDITION": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Hypertension": 20,
+                "Diabetes Type 2": 15,
+                "Asthma": 12,
+                "Heart Disease": 10,
+                "Arthritis": 8,
+                "Depression": 8,
+                "Anxiety": 7,
+                "COPD": 5,
+                "Kidney Disease": 4,
+                "Cancer": 3,
+                "Stroke": 3,
+                "Healthy": 5
+            }
+        }
+    },
+    "HOSPITAL_DEPARTMENT": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Emergency": 25,
+                "Internal Medicine": 20,
+                "Surgery": 15,
+                "Pediatrics": 12,
+                "Cardiology": 8,
+                "Orthopedics": 7,
+                "Oncology": 5,
+                "Neurology": 4,
+                "Psychiatry": 2,
+                "Radiology": 2
+            }
+        }
+    },
+    "VITAL_SIGNS_BP_SYSTOLIC": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 90,
+                    "end": 119,
+                    "distribution": 30
+                },
+                {
+                    "start": 120,
+                    "end": 129,
+                    "distribution": 25
+                },
+                {
+                    "start": 130,
+                    "end": 139,
+                    "distribution": 25
+                },
+                {
+                    "start": 140,
+                    "end": 180,
+                    "distribution": 20
+                }
+            ]
+        }
+    },
+    "VITAL_SIGNS_HEART_RATE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 60,
+                    "end": 80,
+                    "distribution": 40
+                },
+                {
+                    "start": 81,
+                    "end": 100,
+                    "distribution": 35
+                },
+                {
+                    "start": 101,
+                    "end": 120,
+                    "distribution": 20
+                },
+                {
+                    "start": 121,
+                    "end": 150,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "BODY_TEMPERATURE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 96.5,
+                    "end": 99.0,
+                    "distribution": 70
+                },
+                {
+                    "start": 99.1,
+                    "end": 100.4,
+                    "distribution": 20
+                },
+                {
+                    "start": 100.5,
+                    "end": 103.0,
+                    "distribution": 10
+                }
+            ]
+        }
+    },
+    "PRESCRIPTION_MEDICATION": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Lisinopril": 15,
+                "Metformin": 12,
+                "Amlodipine": 10,
+                "Metoprolol": 8,
+                "Omeprazole": 7,
+                "Simvastatin": 7,
+                "Losartan": 6,
+                "Albuterol": 5,
+                "Gabapentin": 5,
+                "Sertraline": 4,
+                "Ibuprofen": 4,
+                "Acetaminophen": 4,
+                "None": 13
+            }
+        }
+    },
+    "INSURANCE_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Private": 45,
+                "Medicare": 20,
+                "Medicaid": 18,
+                "Self-Pay": 10,
+                "Workers Comp": 4,
+                "Military": 3
+            }
+        }
+    },
+    "PATIENT_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "PT\\d{6}[A-Z]{2}"
+        }
+    },
+    "MEDICAL_RECORD_NUMBER": {
+        "implementation": "SERIES_STRATEGY",
+        "params": {
+            "start": 1000001,
+            "step": 1
+        }
+    },
+    "APPOINTMENT_TIMES": {
+        "implementation": "DISTRIBUTED_TIME_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": "08:00:00",
+                    "end": "10:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 25
+                },
+                {
+                    "start": "10:00:00",
+                    "end": "12:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 25
+                },
+                {
+                    "start": "13:00:00",
+                    "end": "15:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 25
+                },
+                {
+                    "start": "15:00:00",
+                    "end": "17:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 25
+                }
+            ]
+        }
+    },
+    "VISIT_REASON": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Annual Checkup": 20,
+                "Chest Pain": 12,
+                "Fever": 10,
+                "Follow-up": 10,
+                "Headache": 8,
+                "Back Pain": 8,
+                "Shortness of Breath": 6,
+                "Abdominal Pain": 6,
+                "Medication Refill": 5,
+                "Injury": 5,
+                "Skin Condition": 4,
+                "Mental Health": 3,
+                "Other": 3
+            }
+        }
+    },
+    "LAB_TEST_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Complete Blood Count": 25,
+                "Basic Metabolic Panel": 20,
+                "Lipid Panel": 15,
+                "Thyroid Function": 10,
+                "Liver Function": 8,
+                "Kidney Function": 7,
+                "HbA1c": 6,
+                "Urinalysis": 5,
+                "Cardiac Enzymes": 2,
+                "Tumor Markers": 2
+            }
+        }
+    }
+} 

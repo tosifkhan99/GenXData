@@ -1,0 +1,205 @@
+{
+    "COMPANY_NAME": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "TechCorp Inc.": 15,
+                "Global Solutions LLC": 15,
+                "Innovation Partners": 10,
+                "Future Systems": 10,
+                "Digital Dynamics": 10,
+                "Smart Solutions": 10,
+                "Advanced Analytics": 8,
+                "Cloud Computing Co.": 8,
+                "Data Insights Ltd.": 7,
+                "Quantum Systems": 7
+            }
+        }
+    },
+    "JOB_TITLE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Software Engineer": 20,
+                "Data Analyst": 15,
+                "Project Manager": 12,
+                "Sales Representative": 10,
+                "Marketing Specialist": 8,
+                "Product Manager": 8,
+                "Business Analyst": 7,
+                "UX Designer": 6,
+                "DevOps Engineer": 6,
+                "Quality Assurance": 5,
+                "Technical Writer": 3
+            }
+        }
+    },
+    "EXPERIENCE_LEVEL": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Entry Level": 25,
+                "Mid Level": 40,
+                "Senior Level": 25,
+                "Executive Level": 10
+            }
+        }
+    },
+    "COMPANY_SIZE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Startup (1-50)": 30,
+                "Small (51-200)": 25,
+                "Medium (201-1000)": 25,
+                "Large (1001-5000)": 15,
+                "Enterprise (5000+)": 5
+            }
+        }
+    },
+    "INDUSTRY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Technology": 25,
+                "Healthcare": 15,
+                "Finance": 15,
+                "Manufacturing": 12,
+                "Retail": 10,
+                "Education": 8,
+                "Real Estate": 5,
+                "Hospitality": 5,
+                "Transportation": 3,
+                "Agriculture": 2
+            }
+        }
+    },
+    "BUDGET_RANGE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 1000,
+                    "end": 10000,
+                    "distribution": 40
+                },
+                {
+                    "start": 10000,
+                    "end": 50000,
+                    "distribution": 35
+                },
+                {
+                    "start": 50000,
+                    "end": 200000,
+                    "distribution": 20
+                },
+                {
+                    "start": 200000,
+                    "end": 1000000,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "QUARTERLY_REVENUE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 50000,
+                    "end": 250000,
+                    "distribution": 30
+                },
+                {
+                    "start": 250000,
+                    "end": 1000000,
+                    "distribution": 40
+                },
+                {
+                    "start": 1000000,
+                    "end": 5000000,
+                    "distribution": 25
+                },
+                {
+                    "start": 5000000,
+                    "end": 50000000,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "PROJECT_STATUS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Planning": 20,
+                "In Progress": 35,
+                "Review": 15,
+                "Testing": 12,
+                "Completed": 10,
+                "On Hold": 5,
+                "Cancelled": 3
+            }
+        }
+    },
+    "MEETING_TIMES": {
+        "implementation": "DISTRIBUTED_TIME_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": "09:00:00",
+                    "end": "11:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 30
+                },
+                {
+                    "start": "13:00:00",
+                    "end": "15:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 40
+                },
+                {
+                    "start": "15:00:00",
+                    "end": "17:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 30
+                }
+            ]
+        }
+    },
+    "FISCAL_YEAR_DATES": {
+        "implementation": "DISTRIBUTED_DATE_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start_date": "2024-01-01",
+                    "end_date": "2024-03-31",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 25
+                },
+                {
+                    "start_date": "2024-04-01",
+                    "end_date": "2024-06-30",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 25
+                },
+                {
+                    "start_date": "2024-07-01",
+                    "end_date": "2024-09-30",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 25
+                },
+                {
+                    "start_date": "2024-10-01",
+                    "end_date": "2024-12-31",
+                    "format": "%Y-%m-%d",
+                    "output_format": "%Y-%m-%d",
+                    "distribution": 25
+                }
+            ]
+        }
+    }
+} 

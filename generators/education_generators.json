@@ -1,0 +1,345 @@
+{
+    "STUDENT_GRADE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "A+": 8,
+                "A": 12,
+                "A-": 15,
+                "B+": 18,
+                "B": 20,
+                "B-": 12,
+                "C+": 8,
+                "C": 5,
+                "C-": 1,
+                "D": 0.5,
+                "F": 0.5
+            }
+        }
+    },
+    "GPA": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 3.5,
+                    "end": 4.0,
+                    "distribution": 25
+                },
+                {
+                    "start": 3.0,
+                    "end": 3.5,
+                    "distribution": 35
+                },
+                {
+                    "start": 2.5,
+                    "end": 3.0,
+                    "distribution": 25
+                },
+                {
+                    "start": 2.0,
+                    "end": 2.5,
+                    "distribution": 12
+                },
+                {
+                    "start": 1.0,
+                    "end": 2.0,
+                    "distribution": 3
+                }
+            ]
+        }
+    },
+    "ACADEMIC_YEAR": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "2024-2025": 30,
+                "2023-2024": 25,
+                "2022-2023": 20,
+                "2021-2022": 15,
+                "2020-2021": 10
+            }
+        }
+    },
+    "SEMESTER": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Fall": 40,
+                "Spring": 40,
+                "Summer": 20
+            }
+        }
+    },
+    "SCHOOL_LEVEL": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Elementary": 30,
+                "Middle School": 25,
+                "High School": 25,
+                "College": 15,
+                "Graduate": 5
+            }
+        }
+    },
+    "MAJOR": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Computer Science": 15,
+                "Business Administration": 12,
+                "Psychology": 8,
+                "Engineering": 8,
+                "Biology": 7,
+                "English": 6,
+                "Mathematics": 5,
+                "History": 5,
+                "Chemistry": 4,
+                "Physics": 4,
+                "Economics": 4,
+                "Political Science": 4,
+                "Art": 3,
+                "Sociology": 3,
+                "Communications": 3,
+                "Nursing": 3,
+                "Education": 3,
+                "Philosophy": 2,
+                "Music": 2,
+                "Other": 3
+            }
+        }
+    },
+    "CLASS_YEAR": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Freshman": 30,
+                "Sophomore": 25,
+                "Junior": 25,
+                "Senior": 20
+            }
+        }
+    },
+    "ATTENDANCE_RATE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 95.0,
+                    "end": 100.0,
+                    "distribution": 40
+                },
+                {
+                    "start": 90.0,
+                    "end": 95.0,
+                    "distribution": 30
+                },
+                {
+                    "start": 85.0,
+                    "end": 90.0,
+                    "distribution": 20
+                },
+                {
+                    "start": 70.0,
+                    "end": 85.0,
+                    "distribution": 8
+                },
+                {
+                    "start": 50.0,
+                    "end": 70.0,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "STUDENT_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "STU\\d{7}"
+        }
+    },
+    "COURSE_CODE": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{3,4}\\d{3,4}"
+        }
+    },
+    "CLASSROOM_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{1,2}\\d{2,3}[A-Z]?"
+        }
+    },
+    "EXTRACURRICULAR_ACTIVITY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Student Government": 8,
+                "Drama Club": 7,
+                "Basketball": 7,
+                "Soccer": 6,
+                "Chess Club": 5,
+                "Debate Team": 5,
+                "Band": 5,
+                "Choir": 4,
+                "Volleyball": 4,
+                "Track and Field": 4,
+                "Art Club": 4,
+                "Science Club": 4,
+                "Math Team": 3,
+                "Tennis": 3,
+                "Swimming": 3,
+                "Baseball": 3,
+                "Robotics Club": 3,
+                "National Honor Society": 3,
+                "Yearbook": 3,
+                "Photography Club": 2,
+                "Creative Writing": 2,
+                "Community Service": 2,
+                "Environmental Club": 2,
+                "None": 15
+            }
+        }
+    },
+    "TEACHER_RATING": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Excellent": 30,
+                "Very Good": 35,
+                "Good": 25,
+                "Fair": 8,
+                "Poor": 2
+            }
+        }
+    },
+    "ASSIGNMENT_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Homework": 40,
+                "Quiz": 25,
+                "Test": 15,
+                "Project": 10,
+                "Presentation": 5,
+                "Lab Report": 3,
+                "Essay": 2
+            }
+        }
+    },
+    "GRADUATION_STATUS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "On Track": 70,
+                "At Risk": 20,
+                "Behind": 8,
+                "Graduated": 2
+            }
+        }
+    },
+    "SCHOLARSHIP_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Merit-Based": 40,
+                "Need-Based": 35,
+                "Athletic": 15,
+                "Academic": 8,
+                "None": 2
+            }
+        }
+    },
+    "CLASS_SIZE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 15,
+                    "end": 25,
+                    "distribution": 50
+                },
+                {
+                    "start": 26,
+                    "end": 35,
+                    "distribution": 35
+                },
+                {
+                    "start": 10,
+                    "end": 14,
+                    "distribution": 10
+                },
+                {
+                    "start": 36,
+                    "end": 50,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "TEST_SCORE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 90,
+                    "end": 100,
+                    "distribution": 20
+                },
+                {
+                    "start": 80,
+                    "end": 89,
+                    "distribution": 35
+                },
+                {
+                    "start": 70,
+                    "end": 79,
+                    "distribution": 30
+                },
+                {
+                    "start": 60,
+                    "end": 69,
+                    "distribution": 12
+                },
+                {
+                    "start": 0,
+                    "end": 59,
+                    "distribution": 3
+                }
+            ]
+        }
+    },
+    "STUDY_HOURS_PER_WEEK": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 10,
+                    "end": 20,
+                    "distribution": 40
+                },
+                {
+                    "start": 21,
+                    "end": 30,
+                    "distribution": 30
+                },
+                {
+                    "start": 5,
+                    "end": 9,
+                    "distribution": 20
+                },
+                {
+                    "start": 31,
+                    "end": 50,
+                    "distribution": 8
+                },
+                {
+                    "start": 0,
+                    "end": 4,
+                    "distribution": 2
+                }
+            ]
+        }
+    }
+} 

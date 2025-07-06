@@ -1,0 +1,431 @@
+{
+    "VEHICLE_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Sedan": 30,
+                "SUV": 25,
+                "Truck": 15,
+                "Hatchback": 12,
+                "Motorcycle": 8,
+                "Van": 5,
+                "Bus": 3,
+                "Pickup": 2
+            }
+        }
+    },
+    "VEHICLE_MANUFACTURER": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Toyota": 18,
+                "Ford": 15,
+                "Honda": 12,
+                "Chevrolet": 10,
+                "Nissan": 8,
+                "BMW": 7,
+                "Mercedes-Benz": 6,
+                "Audi": 5,
+                "Volkswagen": 4,
+                "Hyundai": 4,
+                "Mazda": 3,
+                "Subaru": 3,
+                "Lexus": 2,
+                "Kia": 2,
+                "Other": 1
+            }
+        }
+    },
+    "FUEL_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Gasoline": 65,
+                "Diesel": 20,
+                "Electric": 10,
+                "Hybrid": 4,
+                "LPG": 1
+            }
+        }
+    },
+    "VEHICLE_COLOR": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "White": 25,
+                "Black": 20,
+                "Silver": 15,
+                "Gray": 12,
+                "Blue": 8,
+                "Red": 6,
+                "Brown": 4,
+                "Green": 3,
+                "Yellow": 2,
+                "Orange": 2,
+                "Purple": 1,
+                "Pink": 1,
+                "Other": 1
+            }
+        }
+    },
+    "TRANSPORTATION_MODE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Road": 60,
+                "Air": 20,
+                "Rail": 12,
+                "Sea": 5,
+                "Pipeline": 2,
+                "Bicycle": 1
+            }
+        }
+    },
+    "SHIPPING_STATUS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "In Transit": 35,
+                "Delivered": 30,
+                "Processing": 15,
+                "Picked Up": 10,
+                "Out for Delivery": 5,
+                "Delayed": 3,
+                "Lost": 1,
+                "Returned": 1
+            }
+        }
+    },
+    "VEHICLE_YEAR": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 2020,
+                    "end": 2024,
+                    "distribution": 40
+                },
+                {
+                    "start": 2015,
+                    "end": 2019,
+                    "distribution": 30
+                },
+                {
+                    "start": 2010,
+                    "end": 2014,
+                    "distribution": 20
+                },
+                {
+                    "start": 2000,
+                    "end": 2009,
+                    "distribution": 8
+                },
+                {
+                    "start": 1990,
+                    "end": 1999,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "MILEAGE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 0,
+                    "end": 50000,
+                    "distribution": 30
+                },
+                {
+                    "start": 50001,
+                    "end": 100000,
+                    "distribution": 35
+                },
+                {
+                    "start": 100001,
+                    "end": 200000,
+                    "distribution": 25
+                },
+                {
+                    "start": 200001,
+                    "end": 350000,
+                    "distribution": 8
+                },
+                {
+                    "start": 350001,
+                    "end": 500000,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "SPEED_KMH": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 30,
+                    "end": 60,
+                    "distribution": 40
+                },
+                {
+                    "start": 60,
+                    "end": 90,
+                    "distribution": 35
+                },
+                {
+                    "start": 90,
+                    "end": 120,
+                    "distribution": 20
+                },
+                {
+                    "start": 0,
+                    "end": 30,
+                    "distribution": 3
+                },
+                {
+                    "start": 120,
+                    "end": 180,
+                    "distribution": 2
+                }
+            ]
+        }
+    },
+    "DISTANCE_KM": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 1,
+                    "end": 50,
+                    "distribution": 40
+                },
+                {
+                    "start": 51,
+                    "end": 200,
+                    "distribution": 30
+                },
+                {
+                    "start": 201,
+                    "end": 500,
+                    "distribution": 20
+                },
+                {
+                    "start": 501,
+                    "end": 1000,
+                    "distribution": 7
+                },
+                {
+                    "start": 1001,
+                    "end": 5000,
+                    "distribution": 3
+                }
+            ]
+        }
+    },
+    "CARGO_WEIGHT_KG": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 1,
+                    "end": 100,
+                    "distribution": 40
+                },
+                {
+                    "start": 101,
+                    "end": 1000,
+                    "distribution": 35
+                },
+                {
+                    "start": 1001,
+                    "end": 10000,
+                    "distribution": 20
+                },
+                {
+                    "start": 10001,
+                    "end": 50000,
+                    "distribution": 4
+                },
+                {
+                    "start": 50001,
+                    "end": 100000,
+                    "distribution": 1
+                }
+            ]
+        }
+    },
+    "FLIGHT_STATUS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "On Time": 70,
+                "Delayed": 20,
+                "Cancelled": 5,
+                "Boarding": 3,
+                "Departed": 2
+            }
+        }
+    },
+    "AIRLINE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "American Airlines": 15,
+                "Delta Air Lines": 14,
+                "United Airlines": 13,
+                "Southwest Airlines": 12,
+                "JetBlue Airways": 8,
+                "Alaska Airlines": 6,
+                "Spirit Airlines": 5,
+                "Frontier Airlines": 4,
+                "Hawaiian Airlines": 3,
+                "Allegiant Air": 2,
+                "Other": 18
+            }
+        }
+    },
+    "SEAT_CLASS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Economy": 75,
+                "Premium Economy": 15,
+                "Business": 8,
+                "First Class": 2
+            }
+        }
+    },
+    "VIN_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-HJ-NPR-Z0-9]{17}"
+        }
+    },
+    "FLIGHT_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{2}\\d{3,4}"
+        }
+    },
+    "TRACKING_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "TRK[0-9]{10}[A-Z]{2}"
+        }
+    },
+    "CONTAINER_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]{4}\\d{7}"
+        }
+    },
+    "ROUTE_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "RT-\\d{4}-[A-Z]{2}"
+        }
+    },
+    "DRIVER_LICENSE": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "[A-Z]\\d{7}"
+        }
+    },
+    "DEPARTURE_TIME": {
+        "implementation": "DISTRIBUTED_TIME_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": "06:00:00",
+                    "end": "09:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 25
+                },
+                {
+                    "start": "09:00:00",
+                    "end": "12:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 20
+                },
+                {
+                    "start": "12:00:00",
+                    "end": "15:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 20
+                },
+                {
+                    "start": "15:00:00",
+                    "end": "18:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 20
+                },
+                {
+                    "start": "18:00:00",
+                    "end": "22:00:00",
+                    "format": "%H:%M:%S",
+                    "distribution": 15
+                }
+            ]
+        }
+    },
+    "DELIVERY_PRIORITY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Standard": 50,
+                "Express": 25,
+                "Priority": 15,
+                "Overnight": 8,
+                "Same Day": 2
+            }
+        }
+    },
+    "PARKING_ZONE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Zone A": 30,
+                "Zone B": 25,
+                "Zone C": 20,
+                "Zone D": 15,
+                "VIP": 5,
+                "Handicap": 3,
+                "Electric": 2
+            }
+        }
+    },
+    "TOLL_AMOUNT": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 0.50,
+                    "end": 5.00,
+                    "distribution": 50
+                },
+                {
+                    "start": 5.01,
+                    "end": 15.00,
+                    "distribution": 30
+                },
+                {
+                    "start": 15.01,
+                    "end": 50.00,
+                    "distribution": 15
+                },
+                {
+                    "start": 50.01,
+                    "end": 100.00,
+                    "distribution": 4
+                },
+                {
+                    "start": 100.01,
+                    "end": 500.00,
+                    "distribution": 1
+                }
+            ]
+        }
+    }
+} 

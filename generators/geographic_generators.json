@@ -1,0 +1,323 @@
+{
+    "US_STATE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "California": 12,
+                "Texas": 9,
+                "Florida": 7,
+                "New York": 6,
+                "Pennsylvania": 4,
+                "Illinois": 4,
+                "Ohio": 4,
+                "Georgia": 3,
+                "North Carolina": 3,
+                "Michigan": 3,
+                "New Jersey": 3,
+                "Virginia": 3,
+                "Washington": 2,
+                "Arizona": 2,
+                "Massachusetts": 2,
+                "Tennessee": 2,
+                "Indiana": 2,
+                "Maryland": 2,
+                "Missouri": 2,
+                "Wisconsin": 2,
+                "Colorado": 2,
+                "Minnesota": 2,
+                "South Carolina": 2,
+                "Alabama": 2,
+                "Louisiana": 1,
+                "Kentucky": 1,
+                "Oregon": 1,
+                "Oklahoma": 1,
+                "Connecticut": 1,
+                "Utah": 1,
+                "Iowa": 1,
+                "Nevada": 1,
+                "Arkansas": 1,
+                "Mississippi": 1,
+                "Kansas": 1,
+                "New Mexico": 1,
+                "Nebraska": 1,
+                "West Virginia": 1,
+                "Idaho": 1,
+                "Hawaii": 1,
+                "New Hampshire": 1,
+                "Maine": 1,
+                "Montana": 1,
+                "Rhode Island": 1,
+                "Delaware": 1,
+                "South Dakota": 1,
+                "North Dakota": 1,
+                "Alaska": 1,
+                "Vermont": 1,
+                "Wyoming": 1
+            }
+        }
+    },
+    "MAJOR_CITY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "New York": 8,
+                "Los Angeles": 7,
+                "Chicago": 6,
+                "Houston": 5,
+                "Phoenix": 4,
+                "Philadelphia": 4,
+                "San Antonio": 3,
+                "San Diego": 3,
+                "Dallas": 3,
+                "San Jose": 3,
+                "Austin": 2,
+                "Jacksonville": 2,
+                "Fort Worth": 2,
+                "Columbus": 2,
+                "Charlotte": 2,
+                "San Francisco": 2,
+                "Indianapolis": 2,
+                "Seattle": 2,
+                "Denver": 2,
+                "Washington DC": 2,
+                "Boston": 2,
+                "El Paso": 1,
+                "Nashville": 1,
+                "Detroit": 1,
+                "Oklahoma City": 1,
+                "Portland": 1,
+                "Las Vegas": 1,
+                "Memphis": 1,
+                "Louisville": 1,
+                "Baltimore": 1,
+                "Milwaukee": 1,
+                "Albuquerque": 1,
+                "Tucson": 1,
+                "Fresno": 1,
+                "Sacramento": 1,
+                "Mesa": 1,
+                "Kansas City": 1,
+                "Atlanta": 3,
+                "Miami": 2,
+                "Tampa": 1,
+                "Raleigh": 1,
+                "Omaha": 1,
+                "Colorado Springs": 1,
+                "Virginia Beach": 1
+            }
+        }
+    },
+    "COUNTRY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "United States": 35,
+                "Canada": 8,
+                "United Kingdom": 6,
+                "Germany": 5,
+                "France": 4,
+                "Australia": 3,
+                "Japan": 3,
+                "Italy": 3,
+                "Spain": 3,
+                "Netherlands": 2,
+                "Sweden": 2,
+                "Norway": 2,
+                "Denmark": 2,
+                "Switzerland": 2,
+                "Belgium": 2,
+                "Austria": 2,
+                "Finland": 1,
+                "Ireland": 1,
+                "New Zealand": 1,
+                "South Korea": 1,
+                "Singapore": 1,
+                "Brazil": 2,
+                "Mexico": 2,
+                "Argentina": 1,
+                "Chile": 1,
+                "India": 3,
+                "China": 3,
+                "Russia": 2,
+                "South Africa": 1
+            }
+        }
+    },
+    "TIMEZONE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "America/New_York": 25,
+                "America/Chicago": 20,
+                "America/Denver": 15,
+                "America/Los_Angeles": 20,
+                "America/Anchorage": 2,
+                "Pacific/Honolulu": 2,
+                "Europe/London": 4,
+                "Europe/Paris": 3,
+                "Europe/Berlin": 3,
+                "Asia/Tokyo": 2,
+                "Australia/Sydney": 2,
+                "America/Toronto": 2
+            }
+        }
+    },
+    "ZIP_CODE": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "\\d{5}"
+        }
+    },
+    "ZIP_CODE_PLUS_FOUR": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "\\d{5}-\\d{4}"
+        }
+    },
+    "LATITUDE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": -90.0,
+            "end": 90.0,
+            "step": 0.0001,
+            "precision": 4,
+            "unique": false
+        }
+    },
+    "LONGITUDE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": -180.0,
+            "end": 180.0,
+            "step": 0.0001,
+            "precision": 4,
+            "unique": false
+        }
+    },
+    "US_LATITUDE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": 24.396308,
+            "end": 49.384358,
+            "step": 0.0001,
+            "precision": 4,
+            "unique": false
+        }
+    },
+    "US_LONGITUDE": {
+        "implementation": "RANDOM_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": -125.0,
+            "end": -66.93457,
+            "step": 0.0001,
+            "precision": 4,
+            "unique": false
+        }
+    },
+    "ELEVATION_FEET": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 0,
+                    "end": 1000,
+                    "distribution": 60
+                },
+                {
+                    "start": 1001,
+                    "end": 3000,
+                    "distribution": 25
+                },
+                {
+                    "start": 3001,
+                    "end": 8000,
+                    "distribution": 12
+                },
+                {
+                    "start": 8001,
+                    "end": 14000,
+                    "distribution": 3
+                }
+            ]
+        }
+    },
+    "STREET_SUFFIX": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Street": 30,
+                "Avenue": 20,
+                "Drive": 15,
+                "Lane": 10,
+                "Road": 10,
+                "Way": 5,
+                "Court": 3,
+                "Place": 3,
+                "Circle": 2,
+                "Boulevard": 2
+            }
+        }
+    },
+    "CARDINAL_DIRECTION": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "North": 25,
+                "South": 25,
+                "East": 25,
+                "West": 25
+            }
+        }
+    },
+    "ADDRESS_NUMBER": {
+        "implementation": "NUMBER_RANGE_STRATEGY",
+        "params": {
+            "start": 1,
+            "end": 9999
+        }
+    },
+    "APARTMENT_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "(Apt |Unit |#)\\d{1,4}[A-Z]?"
+        }
+    },
+    "AREA_CODE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "212": 3,
+                "718": 3,
+                "646": 2,
+                "310": 3,
+                "424": 2,
+                "323": 2,
+                "773": 3,
+                "312": 2,
+                "713": 3,
+                "281": 2,
+                "832": 2,
+                "602": 3,
+                "480": 2,
+                "623": 1,
+                "215": 3,
+                "267": 1,
+                "404": 3,
+                "678": 2,
+                "470": 1,
+                "305": 3,
+                "786": 2,
+                "954": 2,
+                "617": 2,
+                "857": 1,
+                "206": 2,
+                "425": 1,
+                "253": 1,
+                "214": 2,
+                "469": 1,
+                "972": 1,
+                "Other": 50
+            }
+        }
+    }
+} 

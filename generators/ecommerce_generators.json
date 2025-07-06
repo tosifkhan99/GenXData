@@ -1,0 +1,234 @@
+{
+    "PRODUCT_CATEGORY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Electronics": 25,
+                "Clothing": 20,
+                "Home & Garden": 15,
+                "Books": 10,
+                "Sports & Outdoors": 10,
+                "Beauty & Health": 8,
+                "Toys & Games": 5,
+                "Automotive": 4,
+                "Jewelry": 2,
+                "Art & Crafts": 1
+            }
+        }
+    },
+    "PRODUCT_PRICE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 5.99,
+                    "end": 49.99,
+                    "distribution": 40
+                },
+                {
+                    "start": 50.00,
+                    "end": 199.99,
+                    "distribution": 35
+                },
+                {
+                    "start": 200.00,
+                    "end": 999.99,
+                    "distribution": 20
+                },
+                {
+                    "start": 1000.00,
+                    "end": 5000.00,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "ORDER_STATUS": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Pending": 15,
+                "Processing": 20,
+                "Shipped": 25,
+                "Delivered": 30,
+                "Cancelled": 5,
+                "Returned": 3,
+                "Refunded": 2
+            }
+        }
+    },
+    "PAYMENT_METHOD": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Credit Card": 45,
+                "Debit Card": 25,
+                "PayPal": 15,
+                "Bank Transfer": 8,
+                "Cash on Delivery": 5,
+                "Cryptocurrency": 2
+            }
+        }
+    },
+    "SHIPPING_METHOD": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Standard Shipping": 50,
+                "Express Shipping": 25,
+                "Next Day Delivery": 15,
+                "Same Day Delivery": 5,
+                "In-Store Pickup": 5
+            }
+        }
+    },
+    "CUSTOMER_RATING": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "5 Stars": 40,
+                "4 Stars": 30,
+                "3 Stars": 15,
+                "2 Stars": 10,
+                "1 Star": 5
+            }
+        }
+    },
+    "CREDIT_SCORE": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 300,
+                    "end": 579,
+                    "distribution": 15
+                },
+                {
+                    "start": 580,
+                    "end": 669,
+                    "distribution": 20
+                },
+                {
+                    "start": 670,
+                    "end": 739,
+                    "distribution": 25
+                },
+                {
+                    "start": 740,
+                    "end": 799,
+                    "distribution": 25
+                },
+                {
+                    "start": 800,
+                    "end": 850,
+                    "distribution": 15
+                }
+            ]
+        }
+    },
+    "TRANSACTION_AMOUNT": {
+        "implementation": "DISTRIBUTED_NUMBER_RANGE_STRATEGY",
+        "params": {
+            "ranges": [
+                {
+                    "start": 1.00,
+                    "end": 50.00,
+                    "distribution": 40
+                },
+                {
+                    "start": 50.01,
+                    "end": 200.00,
+                    "distribution": 35
+                },
+                {
+                    "start": 200.01,
+                    "end": 1000.00,
+                    "distribution": 20
+                },
+                {
+                    "start": 1000.01,
+                    "end": 10000.00,
+                    "distribution": 5
+                }
+            ]
+        }
+    },
+    "ACCOUNT_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Checking": 45,
+                "Savings": 35,
+                "Credit": 15,
+                "Investment": 3,
+                "Business": 2
+            }
+        }
+    },
+    "CURRENCY": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "USD": 60,
+                "EUR": 20,
+                "GBP": 8,
+                "JPY": 5,
+                "CAD": 3,
+                "AUD": 2,
+                "CHF": 1,
+                "CNY": 1
+            }
+        }
+    },
+    "ORDER_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "ORD-\\d{8}-[A-Z]{3}"
+        }
+    },
+    "TRANSACTION_ID": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "TXN[0-9A-F]{12}"
+        }
+    },
+    "CREDIT_CARD_NUMBER": {
+        "implementation": "PATTERN_STRATEGY",
+        "params": {
+            "regex": "4\\d{3}-\\d{4}-\\d{4}-\\d{4}"
+        }
+    },
+    "INVOICE_NUMBER": {
+        "implementation": "SERIES_STRATEGY",
+        "params": {
+            "start": 100001,
+            "step": 1
+        }
+    },
+    "DISCOUNT_PERCENTAGE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "0%": 40,
+                "5%": 20,
+                "10%": 15,
+                "15%": 10,
+                "20%": 8,
+                "25%": 4,
+                "30%": 2,
+                "50%": 1
+            }
+        }
+    },
+    "SUBSCRIPTION_TYPE": {
+        "implementation": "DISTRIBUTED_CHOICE_STRATEGY",
+        "params": {
+            "choices": {
+                "Free": 30,
+                "Basic": 35,
+                "Premium": 25,
+                "Enterprise": 10
+            }
+        }
+    }
+} 
