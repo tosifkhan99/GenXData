@@ -41,7 +41,6 @@ class NumberRangeStrategy(BaseStrategy):
         Returns:
             pd.Series: Generated values
         """
-        self.logger.debug(f"Generating {count} random numbers")
         
         # Get parameters
         lower = float(self.params['start'])

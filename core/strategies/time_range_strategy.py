@@ -40,7 +40,6 @@ class TimeRangeStrategy(BaseStrategy):
         Returns:
             pd.Series: Generated time values
         """
-        self.logger.debug(f"Generating {count} random time values")
         
         # Get time generation parameters
         params = {

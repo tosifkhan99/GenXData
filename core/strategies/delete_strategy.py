@@ -32,7 +32,6 @@ class DeleteStrategy(BaseStrategy):
         Returns:
             Series of None values
         """
-        self.logger.debug(f"Generating {count} None values for deletion")
         
         # Return None values for the masked rows
         return pd.Series([None] * count)

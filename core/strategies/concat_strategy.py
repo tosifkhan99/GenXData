@@ -34,7 +34,6 @@ class ConcatStrategy(BaseStrategy):
         Returns:
             Series of concatenated values
         """
-        self.logger.debug("Concatenating values from multiple columns")
         
         # Get LHS column and prepare its data as string for concatenation
         lhs_col = self.params['lhs_col']

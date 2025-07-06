@@ -2,7 +2,6 @@
 Factory for creating strategy instances based on strategy name.
 """
 
-import logging
 from typing import Dict, Any, Type
 import pandas as pd
 
@@ -12,7 +11,6 @@ from core.strategy_mapping import get_strategy_class, get_config_class
 from exceptions.strategy_exceptions import UnsupportedStrategyException
 from utils.intermediate_column import mark_as_intermediate
 
-logger = logging.getLogger("data_generator.strategy_factory")
 
 class StrategyFactory:
     """
@@ -24,7 +22,6 @@ class StrategyFactory:
     
     def __init__(self):
         """Initialize the factory"""
-        logger.info("Strategy factory initialized")
     
     def create_strategy(self, strategy_name: str, **kwargs) -> BaseStrategy:
         """
@@ -40,7 +37,6 @@ class StrategyFactory:
         Raises:
             UnsupportedStrategyException: If the strategy cannot be created
         """
-        logger.info(f"Creating strategy: {strategy_name}")
         
         try:
             # Get the strategy class from our mapping
@@ -62,7 +58,6 @@ class StrategyFactory:
             return strategy_class(**kwargs)
             
         except Exception as e:
-            logger.error(f"Error creating strategy {strategy_name}: {str(e)}")
             raise UnsupportedStrategyException(f"Could not create strategy {strategy_name}: {str(e)}")
             
     def execute_strategy(self, strategy: BaseStrategy) -> pd.DataFrame:
@@ -75,7 +70,6 @@ class StrategyFactory:
         Returns:
             The updated dataframe
         """
-        logger.info(f"Executing {strategy.__class__.__name__} on column '{strategy.col_name}'")
         
         # Get mask from params
         mask = strategy.params.get('mask')
@@ -85,8 +79,6 @@ class StrategyFactory:
         
         # Mark as intermediate if needed
         if strategy.is_intermediate:
-            logger.info(f"Marking column '{strategy.col_name}' as intermediate")
             strategy.df = mark_as_intermediate(strategy.df, strategy.col_name)
         
-        logger.info(f"Successfully applied {strategy.__class__.__name__} to '{strategy.col_name}'")
         return strategy.df 

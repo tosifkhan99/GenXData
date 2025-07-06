@@ -54,7 +54,6 @@ class RandomNameStrategy(BaseStrategy):
         gender = None if self.params['gender'] == 'any' else self.params['gender']
         case_format = self.params['case']
         
-        self.logger.debug(f"Generating {count} random names (type: {name_type}, gender: {gender or 'any'}, case: {case_format})")
         
         result = []
         for _ in range(count):
@@ -66,5 +65,4 @@ class RandomNameStrategy(BaseStrategy):
             
             result.append(formatted_name)
             
-        self.logger.info(f"Generated {len(result)} {name_type} names")
         return pd.Series(result) 

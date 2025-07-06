@@ -36,6 +36,5 @@ class ReplacementStrategy(BaseStrategy):
         """
         from_value = self.params['from_value']
         to_value = self.params['to_value']
-        self.logger.debug(f"Replacing value '{from_value}' with '{to_value}'")
         values = self.df[self.col_name]
         return values.replace(from_value, to_value) 

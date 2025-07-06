@@ -4,13 +4,11 @@ Base strategy for all data generation strategies.
 
 import pandas as pd
 import numpy as np
-import logging
 from typing import Union, Optional, Any
 from abc import ABC, abstractmethod
 
 from utils.intermediate_column import mark_as_intermediate
 
-logger = logging.getLogger(__name__)
 
 class BaseStrategy(ABC):
     """
@@ -19,7 +17,6 @@ class BaseStrategy(ABC):
     
     def __init__(self, **kwargs):
         """Initialize the strategy with configuration parameters"""
-        self.logger = logging.getLogger(f"data_generator.strategy.{self.__class__.__name__}")
         self.df = kwargs.get('df')
         self.col_name = kwargs.get('col_name')
         self.rows = kwargs.get('rows', 100)
@@ -30,9 +27,6 @@ class BaseStrategy(ABC):
         self.shuffle = kwargs.get('shuffle', False)
         # Validate required parameters
         self._validate_params()
-        
-        if self.debug:
-            self.logger.debug(f"Initialized {self.__class__.__name__} with params: {self.params}")
     
     @abstractmethod
     def _validate_params(self):
@@ -78,29 +72,18 @@ class BaseStrategy(ABC):
                 # Use pandas query to safely evaluate mask
                 filtered_df = df_copy.query(mask)
                 
-                self.logger.debug(f"Mask '{mask}' matched {len(filtered_df)} out of {len(df_copy)} rows")
                 
                 if len(filtered_df) > 0:
                     # Generate data only for filtered rows
                     values = self.generate_data(len(filtered_df))
-                    
-                    self.logger.debug(f"Generated {len(values)} values for {len(filtered_df)} filtered rows")
                     
                     # Ensure column has compatible dtype before assignment
                     if df_copy[column_name].dtype == 'float64' and values.dtype == 'object':
                         df_copy[column_name] = df_copy[column_name].astype('object')
                     
                     df_copy.loc[filtered_df.index, column_name] = values.values
-                    
-                    self.logger.info(f"Applied strategy to {len(filtered_df)} rows matching mask: '{mask}'")
-                    self.logger.debug(f"Values assigned to indices: {list(filtered_df.index)}")
-                else:
-                    self.logger.warning(f"No rows matched mask: '{mask}'. Column '{column_name}' will remain NaN.")
-                    
             except Exception as e:
-                self.logger.error(f"Failed to evaluate mask '{mask}': {e}")
                 # Fallback: apply to all rows
-                self.logger.info("Falling back to applying strategy to all rows")
                 values = self.generate_data(len(df_copy))
                 
                 # Ensure column has compatible dtype before assignment
@@ -117,7 +100,6 @@ class BaseStrategy(ABC):
                 df_copy[column_name] = df_copy[column_name].astype('object')
             
             df_copy[column_name] = values.values
-            self.logger.info(f"Applied strategy to all {len(df_copy)} rows")
         
         return df_copy
     

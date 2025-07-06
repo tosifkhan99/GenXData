@@ -79,10 +79,6 @@ class DistributedNumberRangeStrategy(BaseStrategy):
         # Calculate counts for each range
         range_counts = np.random.multinomial(count, normalized_dist)
         
-        self.logger.debug(
-            f"Generating {count} values from {len(ranges)} ranges with distribution: {distributions}"
-        )
-        
         # Generate values for each range
         all_values = []
         for i, range_item in enumerate(ranges):

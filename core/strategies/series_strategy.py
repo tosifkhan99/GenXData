@@ -40,7 +40,6 @@ class SeriesStrategy(BaseStrategy):
         Returns:
             pd.Series: Generated values
         """
-        self.logger.debug(f"Generating {count} sequential values")
         
         # Get parameters
         if isinstance(self.params['start'], float):
@@ -48,8 +47,6 @@ class SeriesStrategy(BaseStrategy):
             from decimal import Decimal, getcontext
             getcontext().prec = 2
 
-            self.logger.debug(f"Setting precision to {getcontext().prec}")
-            self.logger.warning(f"Generation with floating point numbers and a step might leads to slower generation as it requires more precision calculations")
 
             start = Decimal(self.params['start'])
             step = Decimal(self.params.get('step', 0.1))

@@ -40,7 +40,6 @@ class DateGeneratorStrategy(BaseStrategy):
         Returns:
             pd.Series: Generated dates
         """
-        self.logger.debug(f"Generating {count} random dates")
         
         # Get date generation parameters
         

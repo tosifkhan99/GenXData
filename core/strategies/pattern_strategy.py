@@ -37,7 +37,6 @@ class PatternStrategy(BaseStrategy):
         Returns:
             pd.Series: Generated strings
         """
-        self.logger.debug(f"Generating {count} random strings matching pattern: {self.params['regex']}")
         
         # Get regex pattern
         pattern = self.params['regex']
@@ -45,7 +44,6 @@ class PatternStrategy(BaseStrategy):
         attempts = 0
 
         if self.unique:
-            self.logger.warning("unique is not recommended for pattern strategy, it may take a long time to generate unique strings, use with caution.")
             result = set()
             while len(result) < count and attempts < max_attempts:
                 attempts += 1
@@ -57,7 +55,6 @@ class PatternStrategy(BaseStrategy):
         
             if len(result) < count:
                 remaining = count - len(result)
-                self.logger.warning(f"Could not generate {remaining} strings matching pattern: {pattern}, generated {len(result)} strings instead, repeating the same strings {remaining} times")
                 
                 result = list(result)
                 result.extend([np.random.choice(list(result)) for _ in range(remaining)])

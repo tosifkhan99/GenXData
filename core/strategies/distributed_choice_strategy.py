@@ -43,9 +43,6 @@ class DistributedChoiceStrategy(BaseStrategy):
         choices = list(choices_dict.keys())
         weights = list(choices_dict.values())
         
-        self.logger.debug(
-            f"Generating {count} choices from {len(choices)} options with weights: {weights}"
-        )
         
         # Generate random choices based on weights
         values = []
@@ -53,7 +50,6 @@ class DistributedChoiceStrategy(BaseStrategy):
         # Calculate total weight
         total_weight = sum(weights)
         
-        self.logger.debug(f"Total weight: {total_weight}, Count requested: {count}")
         
         # Generate values proportionally based on weights
         for choice, weight in choices_dict.items():
@@ -61,13 +57,11 @@ class DistributedChoiceStrategy(BaseStrategy):
             proportion = weight / total_weight
             num_values = int(proportion * count)
             
-            self.logger.debug(f"Choice '{choice}': weight={weight}, proportion={proportion:.3f}, num_values={num_values}")
             
             # Add the values for this choice
             for _ in range(num_values):
                 values.append(choice)
         
-        self.logger.debug(f"Generated {len(values)} values before handling remainder")
         
         # Handle any remaining values due to rounding
         while len(values) < count:
@@ -75,7 +69,6 @@ class DistributedChoiceStrategy(BaseStrategy):
             choice = np.random.choice(choices, p=[w/total_weight for w in weights])
             values.append(choice)
         
-        self.logger.debug(f"Final generated {len(values)} values")
 
         
         return pd.Series(values) 
