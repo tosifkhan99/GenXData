@@ -3,11 +3,8 @@ Utility for measuring and reporting performance in data generation.
 """
 
 import time
-import logging
 from functools import wraps
 from contextlib import contextmanager
-
-logger = logging.getLogger("data_generator.performance")
 
 class PerformanceTracker:
     """Class to track and report performance metrics for data generation"""
@@ -46,7 +43,6 @@ class PerformanceTracker:
         if rows_processed:
             metrics['rows_processed'] += rows_processed
             
-        logger.debug(f"Operation {self.current_operation} completed in {elapsed:.4f}s")
         self.current_operation = None
         
         return elapsed

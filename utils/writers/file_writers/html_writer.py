@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.html")
 
 def htmlWriter(df, params):
     """
@@ -63,7 +60,6 @@ def htmlWriter(df, params):
             'classes': classes
         }
         
-        logger.info(f"Writing DataFrame with {len(df)} rows to HTML file: {path}")
         
         # Generate HTML content
         html_content = df.to_html(**html_options)
@@ -94,8 +90,6 @@ def htmlWriter(df, params):
         with open(path, 'w') as f:
             f.write(final_html)
             
-        logger.info(f"Successfully wrote HTML file: {path}")
         
     except Exception as e:
-        logger.error(f"Error writing HTML file: {str(e)}")
         raise 

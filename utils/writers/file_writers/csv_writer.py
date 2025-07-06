@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.csv")
 
 def csvWriter(df, params):
     """
@@ -31,10 +28,7 @@ def csvWriter(df, params):
         if 'index' not in csv_params:
             csv_params['index'] = False
             
-        logger.info(f"Writing DataFrame with {len(df)} rows to CSV file: {path}")
         df.to_csv(path, **csv_params)
-        logger.info(f"Successfully wrote CSV file: {path}")
         
     except Exception as e:
-        logger.error(f"Error writing CSV file: {str(e)}")
         raise

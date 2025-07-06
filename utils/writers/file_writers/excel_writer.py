@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.excel")
 
 def excelWriter(df, params):
     """
@@ -35,10 +32,7 @@ def excelWriter(df, params):
         if 'sheet_name' not in excel_params:
             excel_params['sheet_name'] = 'Sheet1'
             
-        logger.info(f"Writing DataFrame with {len(df)} rows to Excel file: {path}")
         df.to_excel(path, **excel_params)
-        logger.info(f"Successfully wrote Excel file: {path}")
         
     except Exception as e:
-        logger.error(f"Error writing Excel file: {str(e)}")
         raise

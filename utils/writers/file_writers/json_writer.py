@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.json")
 
 def jsonWriter(df, params):
     """
@@ -30,15 +27,12 @@ def jsonWriter(df, params):
         if 'date_format' not in params:
             params['date_format'] = 'iso'
             
-        logger.info(f"Writing DataFrame with {len(df)} rows to JSON file: {path}")
 
         # Create a copy of params for to_json call, using path_or_buf as required by pandas
         json_params = {k: v for k, v in params.items() if k not in ['output_path']}
         json_params['path_or_buf'] = path
         
         df.to_json(**json_params)
-        logger.info(f"Successfully wrote JSON file: {path}")
         
     except Exception as e:
-        logger.error(f"Error writing JSON file: {str(e)}")
         raise

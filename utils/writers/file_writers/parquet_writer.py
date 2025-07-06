@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.parquet")
 
 def parquetWriter(df, params):
     """
@@ -31,12 +28,8 @@ def parquetWriter(df, params):
         if 'compression' not in writer_params:
             writer_params['compression'] = 'snappy'
         
-        logger.info(f"Writing DataFrame with {len(df)} rows to Parquet file: {path}")
         df.to_parquet(path, **writer_params)
-        logger.info(f"Successfully wrote Parquet file: {path}")
     except ImportError:
-        logger.error("pyarrow or fastparquet package is required for Parquet support")
         raise
     except Exception as e:
-        logger.error(f"Error writing Parquet file: {str(e)}")
         raise 

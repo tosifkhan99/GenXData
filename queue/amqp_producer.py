@@ -3,12 +3,12 @@ AMQP producer implementation.
 """
 
 import json
-import logging
 import threading
 import time
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, TYPE_CHECKING
 
-import pandas as pd
+if TYPE_CHECKING:
+    import pandas as pd
 from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
@@ -32,7 +32,6 @@ class AMQPProducer(QueueProducer, MessagingHandler):
         
         self.conn = None
         self.sender = None
-        self.logger = logging.getLogger("genxdata.amqp_producer")
         
         # Threading for container
         self.connection_ready = threading.Event()
@@ -56,10 +55,8 @@ class AMQPProducer(QueueProducer, MessagingHandler):
             if not self._connected:
                 raise ConnectionError("Failed to establish AMQP connection")
             
-            self.logger.info(f"Connected to AMQP broker at {self.config.url}, queue: {self.config.queue}")
             
         except Exception as e:
-            self.logger.error(f"Failed to connect to AMQP broker: {e}")
             raise
     
     def disconnect(self) -> None:
@@ -74,16 +71,15 @@ class AMQPProducer(QueueProducer, MessagingHandler):
                 self.conn.close()
             
             self._connected = False
-            self.logger.info("Disconnected from AMQP broker")
             
             # Give the container thread a moment to clean up
             if self.container_thread and self.container_thread.is_alive():
                 time.sleep(0.1)
                 
         except Exception as e:
-            self.logger.error(f"Error during AMQP disconnect: {e}")
+            pass
     
-    def send_dataframe(self, df: pd.DataFrame, batch_info: Optional[Dict[str, Any]] = None) -> None:
+    def send_dataframe(self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None) -> None:
         """
         Send a DataFrame to the AMQP queue.
         
@@ -111,10 +107,8 @@ class AMQPProducer(QueueProducer, MessagingHandler):
             
             # Send message
             self.sender.send(message)
-            self.logger.info(f"Sent DataFrame message with {len(df)} rows to queue {self.config.queue}")
             
         except Exception as e:
-            self.logger.error(f"Error sending DataFrame message: {str(e)}")
             raise
     
     def send_message(self, message_data: Any) -> None:
@@ -135,10 +129,8 @@ class AMQPProducer(QueueProducer, MessagingHandler):
             
             message = Message(body=message_body)
             self.sender.send(message)
-            self.logger.info(f"Sent custom message to queue {self.config.queue}")
             
         except Exception as e:
-            self.logger.error(f"Error sending custom message: {str(e)}")
             raise
     
     # Proton MessagingHandler methods
@@ -152,7 +144,6 @@ class AMQPProducer(QueueProducer, MessagingHandler):
             self.connection_ready.set()
             
         except Exception as e:
-            self.logger.error(f"Failed to start AMQP connection: {e}")
             self.connection_ready.set()  # Unblock waiting thread even on failure
             raise
     
@@ -163,10 +154,8 @@ class AMQPProducer(QueueProducer, MessagingHandler):
     
     def on_connection_error(self, event):
         """Handle connection errors."""
-        self.logger.error(f"AMQP connection error: {event.connection.condition}")
         self._connected = False
         self.connection_ready.set()
     
     def on_link_error(self, event):
         """Handle link errors."""
-        self.logger.error(f"AMQP link error: {event.link.condition}") 

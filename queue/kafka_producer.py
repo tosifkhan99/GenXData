@@ -3,10 +3,10 @@ Kafka producer implementation.
 """
 
 import json
-import logging
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, TYPE_CHECKING
 
-import pandas as pd
+if TYPE_CHECKING:
+    import pandas as pd
 
 from .base import QueueProducer
 from .kafka_config import KafkaConfig
@@ -24,7 +24,6 @@ class KafkaProducer(QueueProducer):
         """
         super().__init__(config)
         self.producer = None
-        self.logger = logging.getLogger("genxdata.kafka_producer")
     
     def connect(self) -> None:
         """Establish connection to Kafka cluster."""
@@ -43,12 +42,10 @@ class KafkaProducer(QueueProducer):
             self.producer = KafkaClient(**producer_config)
             self._connected = True
             
-            self.logger.info(f"Connected to Kafka cluster: {self.config.bootstrap_servers}, topic: {self.config.topic}")
             
         except ImportError as e:
             raise ImportError(f"Kafka library not available. Install kafka-python: {e}")
         except Exception as e:
-            self.logger.error(f"Failed to connect to Kafka: {e}")
             raise
     
     def disconnect(self) -> None:
@@ -62,12 +59,11 @@ class KafkaProducer(QueueProducer):
             self.producer.close(timeout=10)
             
             self._connected = False
-            self.logger.info("Disconnected from Kafka cluster")
             
         except Exception as e:
-            self.logger.error(f"Error during Kafka disconnect: {e}")
+            pass
     
-    def send_dataframe(self, df: pd.DataFrame, batch_info: Optional[Dict[str, Any]] = None) -> None:
+    def send_dataframe(self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None) -> None:
         """
         Send a DataFrame to the Kafka topic.
         
@@ -96,11 +92,7 @@ class KafkaProducer(QueueProducer):
             # Optional: wait for confirmation (can be made configurable)
             record_metadata = future.get(timeout=10)
             
-            self.logger.info(f"Sent DataFrame message with {len(df)} rows to topic {self.config.topic} "
-                           f"(partition: {record_metadata.partition}, offset: {record_metadata.offset})")
-            
         except Exception as e:
-            self.logger.error(f"Error sending DataFrame message to Kafka: {str(e)}")
             raise
     
     def send_message(self, message_data: Any) -> None:
@@ -120,11 +112,7 @@ class KafkaProducer(QueueProducer):
             # Optional: wait for confirmation
             record_metadata = future.get(timeout=10)
             
-            self.logger.info(f"Sent custom message to topic {self.config.topic} "
-                           f"(partition: {record_metadata.partition}, offset: {record_metadata.offset})")
-            
         except Exception as e:
-            self.logger.error(f"Error sending custom message to Kafka: {str(e)}")
             raise
     
     def flush(self, timeout: int = 10) -> None:

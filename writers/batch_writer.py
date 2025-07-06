@@ -6,7 +6,6 @@ This writer splits large datasets into multiple files for easier processing
 
 import json
 import pandas as pd
-import logging
 from datetime import datetime
 import os
 
@@ -21,12 +20,10 @@ class BatchWriter:
         self.file_prefix = file_prefix
         self.file_format = file_format.lower()
         self.batch_count = 0
-        self.logger = logging.getLogger("batch_writer")
         
         # Create output directory
         os.makedirs(output_dir, exist_ok=True)
         
-        self.logger.info(f"BatchWriter initialized - Output: {output_dir}, Format: {file_format}")
 
     def write_batch(self, df, batch_info=None):
         """
@@ -97,10 +94,8 @@ class BatchWriter:
                 raise ValueError(f"Unsupported file format: {self.file_format}")
             
             self.batch_count += 1
-            self.logger.info(f"Wrote batch to {filepath} ({len(df)} rows)")
             
         except Exception as e:
-            self.logger.error(f"Error writing batch: {str(e)}")
             raise
 
     def get_summary(self):

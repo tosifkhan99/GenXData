@@ -1,7 +1,4 @@
-import logging
 import os
-
-logger = logging.getLogger("data_generator.writers.feather")
 
 def featherWriter(df, params):
     """
@@ -37,16 +34,12 @@ def featherWriter(df, params):
         if 'compression' not in writer_params:
             writer_params['compression'] = 'zstd'
         
-        logger.info(f"Writing DataFrame with {len(df)} rows to Feather file: {path}")
         
         # Write the dataframe to a Feather file
         df.to_feather(path, **writer_params)
         
-        logger.info(f"Successfully wrote Feather file: {path}")
         
     except ImportError:
-        logger.error("pyarrow package is required for Feather support")
         raise
     except Exception as e:
-        logger.error(f"Error writing Feather file: {str(e)}")
         raise 

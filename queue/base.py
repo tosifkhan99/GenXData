@@ -3,8 +3,10 @@ Abstract base classes for queue producers and configuration.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
-import pandas as pd
+from typing import Dict, Any, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 
 class QueueConfig(ABC):
@@ -56,7 +58,7 @@ class QueueProducer(ABC):
         pass
     
     @abstractmethod
-    def send_dataframe(self, df: pd.DataFrame, batch_info: Optional[Dict[str, Any]] = None) -> None:
+    def send_dataframe(self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None) -> None:
         """
         Send a DataFrame to the queue.
         
