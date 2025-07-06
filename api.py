@@ -11,12 +11,21 @@ import zipfile
 import pandas as pd
 import os
 from io import BytesIO
+from core.orchestrator import DataOrchestrator
+from utils.generator_utils import (
+    load_all_generators,
+    list_available_generators,
+    get_generator_info,
+    get_generators_by_strategy,
+    generator_to_config,
+    get_generator_stats,
+    validate_generator_config
+
 
 app = FastAPI(
     title="Data Generator API",
     description="Synthetic data generation API with 13+ strategies",
     version="1.0.0"
-)
 
 # Mount static files (for serving the React frontend)
 static_path = os.path.join(os.path.dirname(__file__), "static")
@@ -87,8 +96,6 @@ async def serve_static_files(filename: str):
         return FileResponse(file_path)
     
     raise HTTPException(status_code=404, detail="File not found")
-
-
 
 @app.get('/get_all_strategies')
 async def get_all_strategies():
@@ -175,4 +182,192 @@ async def runtime_error_handler(request: Request, exc: RuntimeError):
         status_code=500,
         content={"error_name": exc.name, "message": f"Something went wrong while generating data."},
     )
+
+@app.get('/api/generators')
+async def list_generators_api(filter_by: str = None):
+    """List available generators with optional filtering."""
+    try:
+        generators = list_available_generators(filter_by)
+        
+        return {
+            "generators": generators,
+            "count": len(generators),
+            "filter": filter_by
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/generators/{generator_name}')
+async def get_generator_api(generator_name: str):
+    """Get detailed information about a specific generator."""
+    try:
+        generator_info = get_generator_info(generator_name)
+        
+        return {
+            "name": generator_name,
+            "generator": generator_info
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/generators/by-strategy/{strategy_name}')
+async def get_generators_by_strategy_api(strategy_name: str):
+    """Get generators using a specific strategy."""
+    try:
+        generators = get_generators_by_strategy(strategy_name)
+        
+        return {
+            "strategy": strategy_name,
+            "generators": generators,
+            "count": len(generators)
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/generators/stats')
+async def get_generator_stats_api():
+    """Get generator statistics."""
+    try:
+        stats = get_generator_stats()
+        return stats
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/config/from-generators')
+async def create_config_from_generators_api(data: dict):
+    """Create a configuration from generator mappings."""
+    try:        
+        generator_mapping = data.get('mapping')
+        if not generator_mapping:
+            raise HTTPException(status_code=400, detail="No generator mapping provided")
+        
+        num_rows = data.get('num_rows', 100)
+        metadata = data.get('metadata', {})
+        output_config = data.get('output_config')
+        
+        # Create configuration
+        config = generator_to_config(
+            generator_mapping,
+            num_rows=num_rows,
+            output_config=output_config,
+            metadata=metadata
+        )
+        
+        # Validate configuration
+        validate_generator_config(config)
+        
+        return {
+            "status": "success",
+            "config": config
+        }
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/config/validate')
+async def validate_config_api(config: dict):
+    """Validate a configuration."""
+    try:
+        # Validate configuration
+        is_valid = validate_generator_config(config)
+        
+        return {
+            "valid": is_valid,
+            "message": "Configuration is valid"
+        }
+        
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/schemas/config')
+async def get_config_schema_api():
+    """Get the configuration schema documentation."""
+    schema = {
+        "type": "object",
+        "required": ["column_name", "num_of_rows", "configs"],
+        "properties": {
+            "metadata": {
+                "type": "object",
+                "properties": {
+                    "name": {"type": "string"},
+                    "description": {"type": "string"},
+                    "version": {"type": "string"}
+                }
+            },
+            "column_name": {
+                "type": "array",
+                "items": {"type": "string"},
+                "description": "List of column names"
+            },
+            "num_of_rows": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Number of rows to generate"
+            },
+            "shuffle": {
+                "type": "boolean",
+                "default": True,
+                "description": "Whether to shuffle the generated data"
+            },
+            "configs": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["names", "strategy"],
+                    "properties": {
+                        "names": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Column names this strategy applies to"
+                        },
+                        "strategy": {
+                            "type": "object",
+                            "required": ["name", "params"],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "description": "Strategy implementation name"
+                                },
+                                "params": {
+                                    "type": "object",
+                                    "description": "Strategy-specific parameters"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "file_writer": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "required": ["type", "params"],
+                    "properties": {
+                        "type": {"type": "string"},
+                        "params": {"type": "object"}
+                    }
+                },
+                "description": "Output file writer configurations"
+            }
+        }
+    }
+    
+    return {
+        "schema": schema,
+        "description": "GenXData configuration schema"
+    }
 
