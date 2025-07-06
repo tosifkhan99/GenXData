@@ -118,7 +118,7 @@ export const getStrategySchemas = async (): Promise<StrategyCollection> => {
       throw new Error(`Error fetching strategy schemas: ${response.statusText}`);
     }
     const data = await response.json();
-    console.log('Received strategy data:', data); // Debug log
+    
 
     // Transform the backend response into the expected format
     const transformedStrategies: StrategyCollection = {};
@@ -131,7 +131,7 @@ export const getStrategySchemas = async (): Promise<StrategyCollection> => {
       };
     });
 
-    console.log('Transformed strategies:', transformedStrategies); // Debug log
+    
     return transformedStrategies;
   } catch (error) {
     console.error('Failed to get strategy schemas:', error);

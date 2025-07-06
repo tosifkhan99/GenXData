@@ -56,7 +56,7 @@ const ColumnConfigItem: React.FC<ColumnConfigItemProps> = ({
 
   const strategyOptions = strategySchemas
     ? Object.values(strategySchemas).map(s => {
-        console.log('Processing strategy:', s); // Debug log
+    
         return {
           value: s.strategy_name,
           label: `${s.strategy_name}${s.description ? ` - ${s.description}` : ''}`,
@@ -64,8 +64,7 @@ const ColumnConfigItem: React.FC<ColumnConfigItemProps> = ({
       })
     : [];
 
-  console.log('Strategy options:', strategyOptions); // Debug log
-  console.log('Strategy schemas:', strategySchemas);
+  
 
   return (
     <div className="p-4 mb-4 border border-gray-300 dark:border-gray-700 rounded-md shadow-sm bg-gray-50 dark:bg-gray-800 space-y-3">

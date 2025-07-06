@@ -287,7 +287,7 @@ const ConfigForm: React.FC = () => {
     try {
       const backendConfig = generateBackendConfig();
       
-      console.log('Backend Configuration:', backendConfig);
+  
       
       // Call the new generate_and_download endpoint
       const apiUrl = import.meta.env.DEV 
