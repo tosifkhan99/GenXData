@@ -1,0 +1,83 @@
+# GenXData Project Architecture
+
+GenXData is a comprehensive synthetic data generation framework with 175+ generators across 9 domains and 13+ data generation strategies.
+
+## Core Architecture
+
+### Entry Points
+- [main.py](mdc:main.py) - Main CLI entry point, delegates to cli module
+- [api.py](mdc:api.py) - FastAPI server for REST API access
+- [cli/main_cli.py](mdc:cli/main_cli.py) - Full-featured CLI with 7 commands
+
+### Core Processing
+- [core/orchestrator.py](mdc:core/orchestrator.py) - Main processing orchestration, handles streaming/batch modes
+- [core/base_strategy.py](mdc:core/base_strategy.py) - Abstract base class for all data generation strategies
+- [core/strategy_factory.py](mdc:core/strategy_factory.py) - Factory pattern for strategy instantiation
+- [core/strategy_mapping.py](mdc:core/strategy_mapping.py) - Maps strategy names to classes and configs
+
+### Data Generation Strategies (13 total)
+Located in [core/strategies/](mdc:core/strategies/):
+- `number_range_strategy.py` - Random numbers within ranges
+- `distributed_number_range_strategy.py` - Numbers with custom distributions
+- `date_generator_strategy.py` - Date generation within ranges
+- `distributed_date_range_strategy.py` - Dates with custom distributions
+- `pattern_strategy.py` - Regex pattern-based generation
+- `random_name_strategy.py` - Realistic name generation
+- `concat_strategy.py` - Column concatenation and dependencies
+- `series_strategy.py` - Sequential/arithmetic series
+- `distributed_choice_strategy.py` - Categorical data with weights
+- `time_range_strategy.py` - Time generation within ranges
+- `distributed_time_range_strategy.py` - Times with custom distributions
+- `replacement_strategy.py` - Value replacement logic
+- `delete_strategy.py` - Value deletion/nullification
+
+### Pre-built Generators (175 total across 9 domains)
+Located in [generators/](mdc:generators/):
+- `generic_generator.json` (25) - Basic data types, IDs, patterns
+- `geographic_generators.json` (24) - Addresses, coordinates, locations
+- `iot_sensors_generators.json` (23) - Device data, telemetry, readings
+- `education_generators.json` (22) - Academic data, courses, grades
+- `business_generators.json` (21) - Company data, financial metrics
+- `healthcare_generators.json` (21) - Medical data, patient information
+- `technology_generators.json` (20) - Software, hardware, tech specs
+- `transportation_generators.json` (19) - Vehicle data, logistics
+- `ecommerce_generators.json` (18) - Product data, pricing, orders
+
+### Utilities
+- [utils/generator_utils.py](mdc:utils/generator_utils.py) - Generator management and CLI utilities
+- [utils/config_utils/](mdc:utils/config_utils/) - Configuration loading and validation
+- [utils/writers/file_writers/](mdc:utils/writers/file_writers/) - 7 output formats (CSV, JSON, Excel, Parquet, SQLite, HTML, Feather)
+- [utils/logging.py](mdc:utils/logging.py) - Centralized logging system
+- [utils/performance_timer.py](mdc:utils/performance_timer.py) - Performance monitoring
+
+### Error Handling
+- [exceptions/](mdc:exceptions/) - Comprehensive exception hierarchy
+- [exceptions/base_exception.py](mdc:exceptions/base_exception.py) - Base exception with severity levels
+- [core/error/](mdc:core/error/) - Error context and handling utilities
+
+### Frontend & API
+- [frontend/](mdc:frontend/) - React web interface for configuration building
+- [api.py](mdc:api.py) - FastAPI backend with 175+ generator endpoints
+
+### Configuration Examples
+- [examples/](mdc:examples/) - 25+ validated configuration examples
+- [examples/README.md](mdc:examples/README.md) - Comprehensive strategy examples
+
+## Key Design Patterns
+
+1. **Strategy Pattern**: Each data generation approach is a separate strategy class
+2. **Factory Pattern**: StrategyFactory creates strategy instances based on configuration
+3. **Template Method**: BaseStrategy defines common behavior, subclasses implement specifics
+4. **Configuration-Driven**: YAML/JSON configs drive all data generation
+5. **Modular Architecture**: Clear separation between strategies, generators, utilities, and output
+
+## Development Guidelines
+
+- All strategies must extend BaseStrategy
+- Use generators for high-level abstractions, strategies for low-level implementation
+- Configuration validation is mandatory for all strategies
+- Support both streaming and batch processing modes
+description:
+globs:
+alwaysApply: false
+---

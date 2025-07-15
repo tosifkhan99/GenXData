@@ -1,0 +1,217 @@
+# CLI Command Reference
+
+GenXData provides a comprehensive CLI in [cli/main_cli.py](mdc:cli/main_cli.py) with 7 main commands.
+
+## Command Structure
+
+```bash
+python -m cli.main_cli [GLOBAL_OPTIONS] COMMAND [COMMAND_OPTIONS]
+```
+
+## Global Options
+- `--log-level, -l`: Set logging level (DEBUG, INFO, WARN, ERROR)
+
+## Available Commands
+
+### 1. list-generators
+List and filter available generators (175 total across 9 domains).
+
+```bash
+# List all generators
+python -m cli.main_cli list-generators
+
+# Filter by name pattern
+python -m cli.main_cli list-generators --filter NAME
+
+# Show comprehensive statistics
+python -m cli.main_cli list-generators --show-stats
+
+# Combine verbose logging with filtering
+python -m cli.main_cli --log-level DEBUG list-generators --filter EMAIL
+```
+
+### 2. show-generator
+Show detailed information about a specific generator.
+
+```bash
+# Show generator details
+python -m cli.main_cli show-generator PERSON_NAME
+python -m cli.main_cli show-generator EMAIL_PATTERN
+python -m cli.main_cli show-generator PRODUCT_CATEGORY
+```
+
+### 3. by-strategy
+List all generators using a specific strategy.
+
+```bash
+# Find generators by strategy
+python -m cli.main_cli by-strategy RANDOM_NAME_STRATEGY
+python -m cli.main_cli by-strategy DATE_GENERATOR_STRATEGY
+python -m cli.main_cli by-strategy PATTERN_STRATEGY
+```
+
+### 4. create-config
+Create configuration files from generator mappings.
+
+```bash
+# Create config from mapping string
+python -m cli.main_cli create-config \
+  --mapping "name:FULL_NAME,age:PERSON_AGE,email:EMAIL_PATTERN" \
+  --output test_config.yaml \
+  --rows 1000
+
+# Create config from mapping file
+python -m cli.main_cli create-config \
+  --mapping-file mapping.json \
+  --output config.yaml \
+  --rows 500 \
+  --name "User Profiles" \
+  --description "Generate user profile data"
+```
+
+#### Mapping Format
+```json
+{
+  "user_id": "UUID",
+  "name": "FULL_NAME",
+  "email": "EMAIL_PATTERN",
+  "age": "PERSON_AGE",
+  "salary": "SALARY"
+}
+```
+
+### 5. create-domain-configs
+Generate domain-specific example configurations.
+
+```bash
+# Create all domain configs
+python -m cli.main_cli create-domain-configs
+
+# This creates configs for:
+# - Healthcare (21 generators)
+# - Ecommerce (18 generators)  
+# - Education (22 generators)
+# - Business (21 generators)
+# - Geographic (24 generators)
+# - Technology (20 generators)
+# - Transportation (19 generators)
+# - IoT Sensors (23 generators)
+```
+
+### 6. generate
+Generate synthetic data from configuration files.
+
+```bash
+# Generate from config file
+python -m cli.main_cli generate config.yaml
+python -m cli.main_cli generate examples/simple_random_number_example.yaml
+
+# With verbose logging
+python -m cli.main_cli --log-level DEBUG generate config.yaml
+
+# Generate with performance profiling
+python -m cli.main_cli generate config.yaml --perf
+```
+
+### 7. stats
+Display comprehensive generator statistics.
+
+```bash
+# Show generator statistics
+python -m cli.main_cli stats
+
+# Output includes:
+# - Total generators by domain
+# - Strategy distribution
+# - Available strategies
+# - Domain breakdown
+```
+
+## Common Workflows
+
+### Explore Available Generators
+```bash
+# See all generators with stats
+python -m cli.main_cli list-generators --show-stats
+
+# Find name-related generators
+python -m cli.main_cli list-generators --filter NAME
+
+# Find all date generators
+python -m cli.main_cli by-strategy DATE_GENERATOR_STRATEGY
+```
+
+### Create Custom Dataset
+```bash
+# Step 1: Create configuration
+python -m cli.main_cli create-config \
+  --mapping "user_id:UUID,name:FULL_NAME,email:EMAIL_PATTERN,age:PERSON_AGE" \
+  --output user_profiles.yaml \
+  --rows 1000
+
+# Step 2: Generate data
+python -m cli.main_cli generate user_profiles.yaml
+```
+
+### Domain-Specific Generation
+```bash
+# Create domain configs
+python -m cli.main_cli create-domain-configs
+
+# Generate healthcare data
+python -m cli.main_cli generate output/healthcare_config.yaml
+
+# Generate ecommerce data
+python -m cli.main_cli generate output/ecommerce_config.yaml
+```
+
+## Generator Domains
+
+### Generic (25 generators)
+Basic data types: names, dates, numbers, UUIDs, patterns
+
+### Geographic (24 generators)
+Location data: addresses, coordinates, cities, countries
+
+### IoT Sensors (23 generators)
+Device data: sensor readings, telemetry, environmental data
+
+### Education (22 generators)
+Academic data: students, grades, courses, schools
+
+### Business (21 generators)
+Corporate data: companies, employees, financial metrics
+
+### Healthcare (21 generators)
+Medical data: patients, conditions, treatments, vital signs
+
+### Technology (20 generators)
+IT systems: software, hardware, APIs, performance metrics
+
+### Transportation (19 generators)
+Vehicle and logistics data: routes, schedules, tracking
+
+### Ecommerce (18 generators)
+Online retail: products, orders, payments, customers
+
+## Error Handling
+
+The CLI includes comprehensive error handling:
+- Configuration validation
+- Generator name validation
+- File path validation
+- Parameter validation
+- Clear error messages with suggestions
+
+## Performance Monitoring
+
+Use `--perf` flag with generate command for performance reports:
+```bash
+python -m cli.main_cli generate config.yaml --perf
+```
+
+This generates detailed timing reports for each processing stage.
+description:
+globs:
+alwaysApply: false
+---

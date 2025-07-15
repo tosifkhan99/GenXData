@@ -1,0 +1,252 @@
+# Error Handling Guide
+
+GenXData uses a comprehensive exception hierarchy with severity levels and contextual error reporting.
+
+## Exception Hierarchy
+
+### Base Exception
+All exceptions extend [exceptions/base_exception.py](mdc:exceptions/base_exception.py):
+
+```python
+from exceptions.base_exception import BaseGenXDataException, ErrorSeverity
+
+class MyCustomException(BaseGenXDataException):
+    def __init__(self, message, context=None, severity=ErrorSeverity.ERROR):
+        super().__init__(message, context, severity)
+```
+
+### Error Severity Levels
+```python
+class ErrorSeverity(Enum):
+    INFO = "INFO"
+    WARNING = "WARNING"  
+    ERROR = "ERROR"
+    CRITICAL = "CRITICAL"
+```
+
+## Available Exceptions
+
+### Configuration Exceptions
+- `ConfigException`: General configuration errors
+- `InvalidConfigFormatException`: Invalid YAML/JSON format
+- `InvalidConfigPathException`: Invalid file paths
+- `InvalidConfigParamException`: Invalid configuration parameters
+
+### Strategy Exceptions
+- `UnsupportedStrategyException`: Unknown strategy names
+- `StrategyException`: General strategy errors
+
+### Processing Exceptions
+- `StreamingException`: Streaming processing errors
+- `BatchProcessingException`: Batch processing errors
+- `InvalidRunningModeException`: Invalid execution mode
+
+## Error Context
+
+Use [core/error/error_context.py](mdc:core/error/error_context.py) for rich error context:
+
+```python
+from core.error.error_context import ErrorContextBuilder
+
+context = ErrorContextBuilder() \
+    .with_config(config) \
+    .with_column("column_name") \
+    .with_strategy("STRATEGY_NAME") \
+    .with_params(params) \
+    .build()
+
+raise InvalidConfigParamException("Missing required parameter", context)
+```
+
+## Error Handling Patterns
+
+### Strategy Parameter Validation
+```python
+def _validate_params(self):
+    """Validate strategy parameters"""
+    try:
+        required_params = ['min_value', 'max_value']
+        for param in required_params:
+            if param not in self.params:
+                raise InvalidConfigParamException(
+                    f"Missing required parameter: {param}",
+                    context=ErrorContextBuilder()
+                        .with_strategy(self.__class__.__name__)
+                        .with_params(self.params)
+                        .build()
+                )
+    except Exception as e:
+        self.logger.error(f"Parameter validation failed: {e}")
+        raise
+```
+
+### Configuration Loading
+```python
+def load_config(config_path):
+    """Load and validate configuration"""
+    try:
+        if not os.path.exists(config_path):
+            raise InvalidConfigPathException(
+                f"Configuration file not found: {config_path}",
+                context=ErrorContextBuilder()
+                    .with_config_path(config_path)
+                    .build()
+            )
+        
+        # Load configuration
+        config = yaml.safe_load(open(config_path))
+        
+        # Validate configuration
+        validate_config(config)
+        
+        return config
+        
+    except yaml.YAMLError as e:
+        raise InvalidConfigFormatException(
+            f"Invalid YAML format: {e}",
+            context=ErrorContextBuilder()
+                .with_config_path(config_path)
+                .build()
+        )
+```
+
+### Data Generation Error Handling
+```python
+def generate_data(self, count: int) -> pd.Series:
+    """Generate data with error handling"""
+    try:
+        # Validate parameters
+        self._validate_params()
+        
+        # Generate data
+        data = self._generate_base_data(count)
+        
+        # Apply transformations
+        if self.unique:
+            data = self._ensure_unique(data)
+            
+        return pd.Series(data)
+        
+    except Exception as e:
+        context = ErrorContextBuilder() \
+            .with_strategy(self.__class__.__name__) \
+            .with_column(self.col_name) \
+            .with_params(self.params) \
+            .build()
+            
+        self.logger.error(f"Data generation failed: {e}")
+        raise StrategyException(f"Failed to generate data: {e}", context)
+```
+
+## Error Handler Usage
+
+The [core/error/error.py](mdc:core/error/error.py) provides centralized error handling:
+
+```python
+from core.error.error import ErrorHandler
+
+class DataOrchestrator:
+    def __init__(self):
+        self.error_handler = ErrorHandler(self.logger)
+    
+    def run(self):
+        try:
+            # Process data
+            result = self.process_config()
+            return result
+            
+        except Exception as e:
+            self.error_handler.add_error(e)
+            
+        finally:
+            # Generate error report
+            if self.error_handler.has_errors():
+                self.error_handler.generate_error_report()
+            
+            # Fail only on critical errors
+            if self.error_handler.has_critical_errors():
+                self.logger.critical("Critical errors detected")
+                return None
+```
+
+## Best Practices
+
+### 1. Use Appropriate Severity Levels
+```python
+# INFO: Informational messages
+raise BaseGenXDataException("Process started", severity=ErrorSeverity.INFO)
+
+# WARNING: Non-critical issues
+raise BaseGenXDataException("Using default value", severity=ErrorSeverity.WARNING)
+
+# ERROR: Recoverable errors
+raise InvalidConfigParamException("Invalid parameter", severity=ErrorSeverity.ERROR)
+
+# CRITICAL: Fatal errors
+raise ConfigException("Configuration corrupted", severity=ErrorSeverity.CRITICAL)
+```
+
+### 2. Provide Rich Context
+```python
+context = ErrorContextBuilder() \
+    .with_config(config) \
+    .with_column(column_name) \
+    .with_strategy(strategy_name) \
+    .with_params(params) \
+    .with_row_count(rows) \
+    .build()
+```
+
+### 3. Log Before Raising
+```python
+self.logger.error(f"Parameter validation failed: {error_message}")
+raise InvalidConfigParamException(error_message, context)
+```
+
+### 4. Handle Specific Exceptions
+```python
+try:
+    # Risky operation
+    pass
+except InvalidConfigParamException as e:
+    # Handle parameter errors
+    pass
+except UnsupportedStrategyException as e:
+    # Handle strategy errors
+    pass
+except Exception as e:
+    # Handle unexpected errors
+    pass
+```
+
+### 5. Use Error Messages from Constants
+```python
+from exceptions.error_messages import ERROR_MESSAGES
+
+raise InvalidConfigParamException(
+    ERROR_MESSAGES.MISSING_REQUIRED_PARAM.format(param="min_value")
+)
+```
+
+## Error Reporting
+
+The error handler generates comprehensive reports including:
+- Error count by severity
+- Detailed error messages with context
+- Stack traces for debugging
+- Suggestions for resolution
+- Performance impact analysis
+
+## Testing Error Conditions
+
+Always test error conditions:
+```python
+def test_invalid_parameter():
+    with pytest.raises(InvalidConfigParamException):
+        strategy = MyStrategy(logger, params={})
+        strategy._validate_params()
+```
+description:
+globs:
+alwaysApply: false
+---

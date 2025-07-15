@@ -1,0 +1,129 @@
+# Strategy Development Guide
+
+## Strategy Implementation Pattern
+
+All strategies in GenXData must follow this pattern:
+
+### 1. Extend BaseStrategy
+```python
+from core.base_strategy import BaseStrategy
+
+class MyStrategy(BaseStrategy):
+    def __init__(self, logger, **kwargs):
+        super().__init__(logger, **kwargs)
+```
+
+### 2. Implement Required Methods
+```python
+def _validate_params(self):
+    """Validate required parameters"""
+    required_params = ['param1', 'param2']
+    for param in required_params:
+        if param not in self.params:
+            raise InvalidConfigParamException(f"Missing required parameter: {param}")
+
+def generate_data(self, count: int) -> pd.Series:
+    """Generate data based on strategy configuration"""
+    # Implementation here
+    return pd.Series(data)
+```
+
+### 3. Configuration Class
+Create corresponding config class in [core/strategy_config.py](mdc:core/strategy_config.py):
+```python
+class MyStrategyConfig(BaseConfig):
+    param1: str
+    param2: int
+    optional_param: Optional[str] = None
+```
+
+### 4. Register in Strategy Mapping
+Add to [core/strategy_mapping.py](mdc:core/strategy_mapping.py):
+```python
+STRATEGY_MAPPING = {
+    "MY_STRATEGY": (MyStrategy, MyStrategyConfig),
+    # ... other strategies
+}
+```
+
+## Strategy Features to Support
+
+### Core Features
+- **Unique values**: Handle `unique: true` parameter
+- **Shuffle**: Support `shuffle: true` parameter  
+- **Intermediate columns**: Support `intermediate: true` for dependent columns
+- **Masking**: Support conditional generation with masking logic
+- **Null handling**: Support null/blank value generation
+
+### Advanced Features
+- **Distribution support**: For numeric/date strategies, support custom distributions
+- **Dependency handling**: Access other columns via `self.df` for dependent generation
+- **Performance optimization**: Use vectorized operations where possible
+- **Memory efficiency**: Generate data in chunks for large datasets
+
+## Common Patterns
+
+### Parameter Validation
+```python
+def _validate_params(self):
+    # Check required parameters
+    required = ['min_value', 'max_value']
+    for param in required:
+        if param not in self.params:
+            raise InvalidConfigParamException(f"Missing {param}")
+    
+    # Validate parameter types and ranges
+    if not isinstance(self.params['min_value'], (int, float)):
+        raise InvalidConfigParamException("min_value must be numeric")
+```
+
+### Data Generation with Masking
+```python
+def generate_data(self, count: int) -> pd.Series:
+    # Generate base data
+    data = self._generate_base_data(count)
+    
+    # Apply masking if configured
+    if 'mask' in self.params:
+        data = self._apply_mask(data)
+    
+    # Handle unique constraint
+    if self.unique:
+        data = self._ensure_unique(data)
+    
+    return pd.Series(data)
+```
+
+### Distribution Support
+```python
+def _generate_with_distribution(self, count: int):
+    if 'distribution' in self.params:
+        # Use custom distribution
+        return self._generate_distributed(count)
+    else:
+        # Use uniform distribution
+        return self._generate_uniform(count)
+```
+
+## Testing Strategy
+
+Each strategy should have comprehensive tests covering:
+- Basic functionality
+- Parameter validation
+- Edge cases (empty data, large datasets)
+- Unique constraint handling
+- Masking functionality
+- Distribution support (if applicable)
+- Error handling
+
+## Performance Considerations
+
+- Use NumPy/Pandas vectorized operations
+- Avoid Python loops for data generation
+- Consider memory usage for large datasets
+- Profile performance with `utils.performance_timer`
+- Support streaming/batch processing modes
+description:
+globs:
+alwaysApply: false
+---

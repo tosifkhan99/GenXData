@@ -1,0 +1,280 @@
+# .cursorignore Best Practices Guide
+
+## Overview
+
+The `.cursorignore` file controls which files Cursor indexes for AI assistance. Proper configuration dramatically improves AI response quality by focusing on relevant code and reducing noise from generated files, dependencies, and temporary artifacts.
+
+## Current .cursorignore Strategy
+
+### Always Ignored (High Priority)
+- **Generated Output Files**: `output/`, `new-output/`, `*.csv`, `*.json`, `*.xlsx` - These change frequently and contain data, not code
+- **Build Artifacts**: `frontend/dist/`, `build/`, `*.egg-info/` - Generated during build process
+- **Dependencies**: `node_modules/`, `__pycache__/`, `venv/` - Third-party code that shouldn't influence AI responses
+- **Temporary Files**: `*temp*`, `*tmp*`, `.rough/`, `~/` - Experimental or temporary work
+- **Cache Files**: `.pytest_cache/`, `.mypy_cache/`, `.DS_Store` - System and tool caches
+
+### Contextually Ignored (Feature-Dependent)
+- **Documentation**: `*.md`, `LICENSE`, `TODO` - Usually not needed for code development
+- **Examples**: `examples/` - Can be ignored when working on core functionality
+- **Cross-Component Files**: Frontend when working on backend, API when working on CLI
+
+## Feature-Specific .cursorignore Strategies
+
+### 1. Working on Core Strategies
+
+When developing new data generation strategies in `core/strategies/`:
+
+```bash
+# Uncomment in .cursorignore:
+examples/
+generator-example-mapping.json
+frontend/
+api.py
+*.md
+```
+
+**Focus Areas**: Core strategy files, base classes, factory patterns, configuration schemas
+**Rationale**: Examples and frontend code create noise when focusing on data generation logic
+
+### 2. Working on Frontend Development
+
+When developing the React frontend in `frontend/`:
+
+```bash
+# Uncomment in .cursorignore:
+core/
+utils/
+exceptions/
+cli/
+generators/
+*.py
+```
+
+**Focus Areas**: React components, TypeScript files, styling, frontend API integration
+**Rationale**: Python backend code is irrelevant for frontend development
+
+### 3. Working on API Development
+
+When developing FastAPI endpoints in `api.py`:
+
+```bash
+# Uncomment in .cursorignore:
+frontend/src/
+frontend/public/
+examples/
+*.md
+```
+
+**Focus Areas**: API endpoints, request/response models, error handling, core orchestrator
+**Rationale**: Frontend source code and examples don't help with API development
+
+### 4. Working on CLI Development
+
+When developing CLI commands in `cli/`:
+
+```bash
+# Uncomment in .cursorignore:
+frontend/
+api.py
+examples/
+*.md
+```
+
+**Focus Areas**: CLI commands, argument parsing, generator utilities, core orchestrator
+**Rationale**: Web components are irrelevant for CLI development
+
+### 5. Working on Generators
+
+When creating new generators in `generators/`:
+
+```bash
+# Uncomment in .cursorignore:
+frontend/
+api.py
+cli/
+*.md
+```
+
+**Focus Areas**: Generator JSON files, generator utilities, strategy mappings
+**Rationale**: Focus on data generation configuration rather than interfaces
+
+### 6. Working on Error Handling
+
+When developing exception handling in `exceptions/`:
+
+```bash
+# Uncomment in .cursorignore:
+frontend/
+examples/
+output/
+*.md
+```
+
+**Focus Areas**: Exception classes, error context, error handling patterns
+**Rationale**: Generated files and frontend code don't help with error handling logic
+
+## Dynamic .cursorignore Management
+
+### Temporary Modifications
+
+For focused development sessions, temporarily modify `.cursorignore`:
+
+```bash
+# Save current state
+cp .cursorignore .cursorignore.backup
+
+# Add temporary ignores
+echo "# Temporary - working on API" >> .cursorignore
+echo "frontend/" >> .cursorignore
+echo "examples/" >> .cursorignore
+
+# Work on your feature...
+
+# Restore when done
+mv .cursorignore.backup .cursorignore
+```
+
+### Branch-Specific Ignores
+
+Consider different `.cursorignore` configurations for different types of work:
+
+```bash
+# Create feature-specific ignore files
+.cursorignore.frontend
+.cursorignore.backend
+.cursorignore.strategies
+.cursorignore.testing
+
+# Use during development
+cp .cursorignore.frontend .cursorignore  # When working on frontend
+```
+
+## File Size and Performance Considerations
+
+### Large Files to Always Ignore
+
+- **Generated Data**: Files over 1MB containing generated data
+- **Compiled Assets**: Minified JavaScript, compiled CSS
+- **Binary Files**: Images, fonts, compiled executables
+- **Log Files**: Debug logs, performance reports
+
+### Performance Impact
+
+```bash
+# Check current index size
+ls -la .cursor/
+
+# Monitor indexing performance
+time cursor --index-status
+
+# Optimize by adding large directories
+echo "large-dataset-folder/" >> .cursorignore
+```
+
+## Testing Your .cursorignore
+
+### Verify Indexing
+
+1. **Check what's indexed**: Use Cursor's file search to see what files are available
+2. **Test AI responses**: Ask AI about ignored files - it shouldn't know about them
+3. **Monitor performance**: Indexing should be faster with proper ignores
+
+### Common Issues
+
+- **Over-ignoring**: AI can't help because relevant files are ignored
+- **Under-ignoring**: AI responses are noisy due to irrelevant files
+- **Inconsistent ignoring**: Some similar files ignored, others not
+
+## Best Practices Summary
+
+### Do:
+- ✅ Always ignore generated output files
+- ✅ Ignore dependencies and build artifacts
+- ✅ Temporarily ignore unrelated components during focused work
+- ✅ Test your ignore patterns regularly
+- ✅ Document why specific files are ignored
+
+### Don't:
+- ❌ Ignore core source code files
+- ❌ Ignore configuration files needed for understanding
+- ❌ Ignore test files when debugging
+- ❌ Leave temporary ignores in place permanently
+- ❌ Ignore files without understanding their purpose
+
+## Example Workflows
+
+### Workflow 1: Adding a New Strategy
+
+```bash
+# 1. Focus on strategy development
+echo "examples/" >> .cursorignore
+echo "frontend/" >> .cursorignore
+
+# 2. Develop strategy
+# AI will focus on core/, utils/, exceptions/
+
+# 3. Test with examples
+sed -i '/examples\//d' .cursorignore
+
+# 4. Update documentation
+sed -i '/\*.md/d' .cursorignore
+```
+
+### Workflow 2: Frontend Feature Development
+
+```bash
+# 1. Focus on frontend
+echo "core/" >> .cursorignore
+echo "utils/" >> .cursorignore
+echo "exceptions/" >> .cursorignore
+
+# 2. Develop frontend feature
+# AI will focus on frontend/, api.py
+
+# 3. Test integration
+sed -i '/core\//d' .cursorignore
+sed -i '/utils\//d' .cursorignore
+```
+
+### Workflow 3: Full-Stack Feature
+
+```bash
+# 1. Start with backend
+echo "frontend/" >> .cursorignore
+
+# 2. Develop backend logic
+# AI focuses on Python code
+
+# 3. Switch to frontend
+sed -i '/frontend\//d' .cursorignore
+echo "core/" >> .cursorignore
+echo "utils/" >> .cursorignore
+
+# 4. Develop frontend
+# AI focuses on React/TypeScript
+
+# 5. Integration testing
+sed -i '/core\//d' .cursorignore
+sed -i '/utils\//d' .cursorignore
+```
+
+## Monitoring and Optimization
+
+### Regular Maintenance
+
+- Review `.cursorignore` monthly
+- Remove temporary ignores
+- Add new generated file patterns
+- Optimize based on development patterns
+
+### Performance Metrics
+
+- Index size: Should be < 50MB for optimal performance
+- Index time: Should be < 30 seconds
+- AI response quality: Should improve with focused indexing
+
+The key is to balance focus with context - ignore noise while preserving the information AI needs to help effectively.
+description:
+globs:
+alwaysApply: false
+---

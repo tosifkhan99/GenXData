@@ -1,0 +1,376 @@
+# API Development Guide
+
+GenXData provides a FastAPI-based REST API in [api.py](mdc:api.py) with comprehensive endpoints for data generation and generator management.
+
+## API Architecture
+
+### Core Components
+- **FastAPI Application**: Main API server with CORS support
+- **Static File Serving**: Serves React frontend from `/static` path
+- **Generator Management**: 175+ generator endpoints
+- **Data Generation**: Real-time synthetic data generation
+- **Configuration Management**: Dynamic config creation and validation
+
+### Key Endpoints
+
+#### Generator Management
+```python
+@app.get("/generators")
+async def list_generators(filter: Optional[str] = None)
+
+@app.get("/generators/{generator_name}")
+async def get_generator_info(generator_name: str)
+
+@app.get("/generators/strategy/{strategy_name}")
+async def get_generators_by_strategy(strategy_name: str)
+
+@app.get("/generators/stats")
+async def get_generator_stats()
+```
+
+#### Data Generation
+```python
+@app.post("/generate")
+async def generate_data(config: Dict[str, Any])
+
+@app.post("/generate/stream")
+async def generate_data_stream(config: Dict[str, Any])
+
+@app.post("/generate/download")
+async def generate_and_download(config: Dict[str, Any])
+```
+
+#### Configuration Management
+```python
+@app.post("/config/create")
+async def create_config_from_mapping(mapping: Dict[str, str])
+
+@app.post("/config/validate")
+async def validate_config(config: Dict[str, Any])
+
+@app.get("/config/examples")
+async def get_config_examples()
+```
+
+## API Development Patterns
+
+### Request/Response Models
+```python
+from pydantic import BaseModel
+from typing import Dict, Any, Optional, List
+
+class GenerateRequest(BaseModel):
+    name: str
+    description: Optional[str] = None
+    rows: int = 100
+    columns: Dict[str, Any]
+    output: List[Dict[str, str]]
+
+class GenerateResponse(BaseModel):
+    success: bool
+    data: Optional[List[Dict[str, Any]]] = None
+    error: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
+```
+
+### Error Handling
+```python
+from fastapi import HTTPException
+from exceptions.base_exception import BaseGenXDataException
+
+@app.post("/generate")
+async def generate_data(config: Dict[str, Any]):
+    try:
+        orchestrator = DataOrchestrator(config)
+        result = orchestrator.run()
+        return {"success": True, "data": result}
+    
+    except BaseGenXDataException as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": str(e),
+                "severity": e.severity.value,
+                "context": e.context
+            }
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail={"error": "Internal server error"}
+        )
+```
+
+### File Download Support
+```python
+@app.post("/generate/download")
+async def generate_and_download(config: Dict[str, Any]):
+    try:
+        # Generate data
+        orchestrator = DataOrchestrator(config)
+        result = orchestrator.run()
+        
+        # Create temporary file
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
+            df = pd.DataFrame(result['data'])
+            df.to_csv(tmp.name, index=False)
+            
+            return FileResponse(
+                tmp.name,
+                filename="generated_data.csv",
+                media_type="text/csv"
+            )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+```
+
+### Streaming Responses
+```python
+@app.post("/generate/stream")
+async def generate_data_stream(config: Dict[str, Any]):
+    def generate_chunks():
+        try:
+            orchestrator = DataOrchestrator(config)
+            # Stream data in chunks
+            for chunk in orchestrator.stream_data():
+                yield f"data: {json.dumps(chunk)}\n\n"
+        except Exception as e:
+            yield f"error: {str(e)}\n\n"
+    
+    return StreamingResponse(
+        generate_chunks(),
+        media_type="text/plain"
+    )
+```
+
+## Frontend Integration
+
+### React Frontend Structure
+```
+frontend/
+├── src/
+│   ├── components/     # Reusable UI components
+│   ├── pages/         # Main application pages
+│   ├── contexts/      # React contexts (theme, etc.)
+│   ├── hooks/         # Custom React hooks
+│   └── utils/         # Utility functions
+├── public/            # Static assets
+└── dist/             # Built frontend (served by API)
+```
+
+### API Client Pattern
+```typescript
+// utils/api.ts
+const API_BASE_URL = process.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
+export const apiClient = {
+  async listGenerators(filter?: string) {
+    const url = new URL(`${API_BASE_URL}/generators`);
+    if (filter) url.searchParams.set('filter', filter);
+    
+    const response = await fetch(url);
+    return response.json();
+  },
+  
+  async generateData(config: any) {
+    const response = await fetch(`${API_BASE_URL}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config)
+    });
+    return response.json();
+  }
+};
+```
+
+### Component Patterns
+```typescript
+// components/GeneratorSelector.tsx
+import { useState, useEffect } from 'react';
+import { apiClient } from '../utils/api';
+
+export function GeneratorSelector() {
+  const [generators, setGenerators] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    apiClient.listGenerators()
+      .then(setGenerators)
+      .finally(() => setLoading(false));
+  }, []);
+  
+  if (loading) return <div>Loading generators...</div>;
+  
+  return (
+    <select>
+      {generators.map(gen => (
+        <option key={gen.name} value={gen.name}>
+          {gen.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+```
+
+## Docker Deployment
+
+### Multi-stage Build
+```dockerfile
+# Stage 1: Build React frontend
+FROM node:20-alpine AS frontend-build
+WORKDIR /app/frontend
+COPY frontend/package*.json ./
+RUN yarn install --frozen-lockfile
+COPY frontend/ ./
+RUN yarn build
+
+# Stage 2: Python backend
+FROM python:3.11-slim AS backend
+WORKDIR /app
+COPY cli-requirements.txt .
+RUN pip install --no-cache-dir -r cli-requirements.txt
+COPY . .
+COPY --from=frontend-build /app/frontend/dist ./static
+EXPOSE 8000
+CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Environment Configuration
+```python
+# api.py
+import os
+
+# Configuration
+API_HOST = os.getenv('API_HOST', '0.0.0.0')
+API_PORT = int(os.getenv('API_PORT', 8000))
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
+DEBUG = os.getenv('DEBUG', 'false').lower() == 'true'
+
+# CORS configuration
+origins = [
+    FRONTEND_URL,
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
+
+if DEBUG:
+    origins.append("*")
+```
+
+## API Testing
+
+### Test Structure
+```python
+# tests/test_api.py
+import pytest
+from fastapi.testclient import TestClient
+from api import app
+
+client = TestClient(app)
+
+def test_list_generators():
+    response = client.get("/generators")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 175  # Total generators
+
+def test_generate_data():
+    config = {
+        "name": "Test Config",
+        "rows": 10,
+        "columns": {
+            "name": {"generator": "FULL_NAME"}
+        },
+        "output": [{"format": "json", "output_path": "test.json"}]
+    }
+    
+    response = client.post("/generate", json=config)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["success"] is True
+    assert len(data["data"]) == 10
+```
+
+### Performance Testing
+```python
+# tests/test_performance.py
+import time
+import pytest
+from fastapi.testclient import TestClient
+
+def test_large_dataset_generation():
+    config = {
+        "name": "Large Dataset",
+        "rows": 10000,
+        "columns": {
+            "id": {"generator": "UUID"},
+            "name": {"generator": "FULL_NAME"},
+            "email": {"generator": "EMAIL_PATTERN"}
+        },
+        "output": [{"format": "json", "output_path": "large.json"}]
+    }
+    
+    start_time = time.time()
+    response = client.post("/generate", json=config)
+    end_time = time.time()
+    
+    assert response.status_code == 200
+    assert end_time - start_time < 30  # Should complete within 30 seconds
+```
+
+## Best Practices
+
+### 1. Use Async/Await
+```python
+@app.post("/generate")
+async def generate_data(config: Dict[str, Any]):
+    # Use async for I/O operations
+    result = await asyncio.to_thread(orchestrator.run)
+    return result
+```
+
+### 2. Implement Proper Error Handling
+```python
+@app.exception_handler(BaseGenXDataException)
+async def handle_genx_exception(request: Request, exc: BaseGenXDataException):
+    return JSONResponse(
+        status_code=400,
+        content={
+            "error": str(exc),
+            "severity": exc.severity.value,
+            "context": exc.context
+        }
+    )
+```
+
+### 3. Add Request Validation
+```python
+from pydantic import BaseModel, validator
+
+class GenerateRequest(BaseModel):
+    rows: int
+    columns: Dict[str, Any]
+    
+    @validator('rows')
+    def validate_rows(cls, v):
+        if v <= 0 or v > 1000000:
+            raise ValueError('rows must be between 1 and 1,000,000')
+        return v
+```
+
+### 4. Use Dependency Injection
+```python
+from fastapi import Depends
+
+def get_orchestrator(config: Dict[str, Any] = Depends()):
+    return DataOrchestrator(config)
+
+@app.post("/generate")
+async def generate_data(orchestrator: DataOrchestrator = Depends(get_orchestrator)):
+    return orchestrator.run()
+```
+description:
+globs:
+alwaysApply: false
+---

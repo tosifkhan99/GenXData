@@ -1,0 +1,198 @@
+# Configuration Format Guide
+
+## Configuration Structure
+
+GenXData uses YAML/JSON configuration files with this structure:
+
+```yaml
+# Basic configuration
+name: "My Data Generation"
+description: "Generate synthetic data"
+rows: 1000
+
+# Column definitions
+columns:
+  column_name:
+    strategy: "STRATEGY_NAME"
+    params:
+      param1: value1
+      param2: value2
+    # Optional features
+    unique: true
+    shuffle: true
+    intermediate: true
+    mask:
+      condition: "column_name > 50"
+      value: null
+
+# Output configuration
+output:
+  - format: "csv"
+    output_path: "data.csv"
+  - format: "json" 
+    output_path: "data.json"
+```
+
+## Generator-Based Configuration
+
+Use pre-built generators for simplified configuration:
+
+```yaml
+columns:
+  name:
+    generator: "FULL_NAME"
+  age:
+    generator: "PERSON_AGE"
+  email:
+    generator: "EMAIL_PATTERN"
+```
+
+## Available Strategies
+
+### Numeric Strategies
+- `RANDOM_NUMBER_RANGE_STRATEGY`: Random numbers within ranges
+- `DISTRIBUTED_NUMBER_RANGE_STRATEGY`: Numbers with custom distributions
+- `SERIES_STRATEGY`: Sequential/arithmetic series
+
+### Date/Time Strategies  
+- `DATE_GENERATOR_STRATEGY`: Date generation within ranges
+- `DISTRIBUTED_DATE_STRATEGY`: Dates with custom distributions
+- `TIME_RANGE_STRATEGY`: Time generation within ranges
+- `DISTRIBUTED_TIME_RANGE_STRATEGY`: Times with custom distributions
+
+### Text Strategies
+- `RANDOM_NAME_STRATEGY`: Realistic name generation
+- `PATTERN_STRATEGY`: Regex pattern-based generation
+- `DISTRIBUTED_CHOICE_STRATEGY`: Categorical data with weights
+
+### Utility Strategies
+- `CONCAT_STRATEGY`: Column concatenation and dependencies
+- `REPLACEMENT_STRATEGY`: Value replacement logic
+- `DELETE_STRATEGY`: Value deletion/nullification
+
+## Strategy Parameters
+
+### Number Range Strategy
+```yaml
+strategy: "RANDOM_NUMBER_RANGE_STRATEGY"
+params:
+  min: 1
+  max: 100
+  precision: 2
+  step: 0.1
+```
+
+### Distributed Number Range Strategy
+```yaml
+strategy: "DISTRIBUTED_NUMBER_RANGE_STRATEGY"
+params:
+  distribution:
+    - range: [18, 30]
+      weight: 0.4
+    - range: [31, 50]
+      weight: 0.35
+    - range: [51, 70]
+      weight: 0.25
+```
+
+### Date Generator Strategy
+```yaml
+strategy: "DATE_GENERATOR_STRATEGY"
+params:
+  start_date: "2020-01-01"
+  end_date: "2023-12-31"
+  format: "%Y-%m-%d"
+```
+
+### Pattern Strategy
+```yaml
+strategy: "PATTERN_STRATEGY"
+params:
+  pattern: "PRD-[0-9]{6}-[A-Z]{3}"
+```
+
+### Random Name Strategy
+```yaml
+strategy: "RANDOM_NAME_STRATEGY"
+params:
+  name_type: "first"  # first, last, full
+  gender: "any"       # male, female, any
+  case: "title"       # upper, lower, title
+```
+
+### Concat Strategy
+```yaml
+strategy: "CONCAT_STRATEGY"
+params:
+  columns: ["first_name", "last_name"]
+  separator: " "
+  format: "{0} {1}"
+```
+
+## Advanced Features
+
+### Masking/Conditional Generation
+```yaml
+columns:
+  salary:
+    strategy: "RANDOM_NUMBER_RANGE_STRATEGY"
+    params:
+      min: 30000
+      max: 200000
+    mask:
+      condition: "age < 25"
+      value: null
+```
+
+### Column Dependencies
+```yaml
+columns:
+  first_name:
+    strategy: "RANDOM_NAME_STRATEGY"
+    params:
+      name_type: "first"
+      
+  last_name:
+    strategy: "RANDOM_NAME_STRATEGY"
+    params:
+      name_type: "last"
+      
+  email:
+    strategy: "CONCAT_STRATEGY"
+    params:
+      columns: ["first_name", "last_name"]
+      format: "{0}.{1}@company.com"
+```
+
+### Multiple Output Formats
+```yaml
+output:
+  - format: "csv"
+    output_path: "output/data.csv"
+  - format: "json"
+    output_path: "output/data.json"
+  - format: "excel"
+    output_path: "output/data.xlsx"
+  - format: "parquet"
+    output_path: "output/data.parquet"
+```
+
+## Validation Rules
+
+1. **Required fields**: `name`, `columns`, `output`
+2. **Column requirements**: Each column must have either `strategy` or `generator`
+3. **Parameter validation**: Strategy parameters are validated against schema
+4. **Output format validation**: Supported formats: csv, json, excel, parquet, sqlite, html, feather
+5. **Dependency validation**: Dependent columns must reference existing columns
+
+## Configuration Examples
+
+Reference [examples/](mdc:examples/) directory for comprehensive examples:
+- [examples/simple_random_number_example.yaml](mdc:examples/simple_random_number_example.yaml)
+- [examples/all_example.yaml](mdc:examples/all_example.yaml)
+- [examples/pattern_strategy.yaml](mdc:examples/pattern_strategy.yaml)
+- [examples/random_name_strategy.yaml](mdc:examples/random_name_strategy.yaml)
+description:
+globs:
+alwaysApply: false
+---
