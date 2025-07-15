@@ -1,0 +1,145 @@
+metadata:
+  name: education_dataset
+  description: Generated education dataset using pre-configured generators
+  version: 1.0.0
+  domain: education
+column_name:
+- student_id
+- grade
+- gpa
+- academic_year
+- semester
+- major
+- class_year
+- attendance
+num_of_rows: 500
+shuffle: true
+configs:
+- names:
+  - student_id
+  strategy:
+    name: PATTERN_STRATEGY
+    params:
+      regex: STU\d{7}
+- names:
+  - grade
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        A+: 8
+        A: 12
+        A-: 15
+        B+: 18
+        B: 20
+        B-: 12
+        C+: 8
+        C: 5
+        C-: 1
+        D: 0.5
+        F: 0.5
+- names:
+  - gpa
+  strategy:
+    name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+    params:
+      ranges:
+      - start: 3.5
+        end: 4.0
+        distribution: 25
+      - start: 3.0
+        end: 3.5
+        distribution: 35
+      - start: 2.5
+        end: 3.0
+        distribution: 25
+      - start: 2.0
+        end: 2.5
+        distribution: 12
+      - start: 1.0
+        end: 2.0
+        distribution: 3
+- names:
+  - academic_year
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        2024-2025: 30
+        2023-2024: 25
+        2022-2023: 20
+        2021-2022: 15
+        2020-2021: 10
+- names:
+  - semester
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Fall: 40
+        Spring: 40
+        Summer: 20
+- names:
+  - major
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Computer Science: 15
+        Business Administration: 12
+        Psychology: 8
+        Engineering: 8
+        Biology: 7
+        English: 6
+        Mathematics: 5
+        History: 5
+        Chemistry: 4
+        Physics: 4
+        Economics: 4
+        Political Science: 4
+        Art: 3
+        Sociology: 3
+        Communications: 3
+        Nursing: 3
+        Education: 3
+        Philosophy: 2
+        Music: 2
+        Other: 3
+- names:
+  - class_year
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Freshman: 30
+        Sophomore: 25
+        Junior: 25
+        Senior: 20
+- names:
+  - attendance
+  strategy:
+    name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+    params:
+      ranges:
+      - start: 95.0
+        end: 100.0
+        distribution: 40
+      - start: 90.0
+        end: 95.0
+        distribution: 30
+      - start: 85.0
+        end: 90.0
+        distribution: 20
+      - start: 70.0
+        end: 85.0
+        distribution: 8
+      - start: 50.0
+        end: 70.0
+        distribution: 2
+file_writer:
+- type: JSON_WRITER
+  params:
+    output_path: ./output/generated_data.json
+    orient: records
+    date_format: iso
+    indent: 2

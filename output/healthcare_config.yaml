@@ -1,0 +1,153 @@
+metadata:
+  name: healthcare_dataset
+  description: Generated healthcare dataset using pre-configured generators
+  version: 1.0.0
+  domain: healthcare
+column_name:
+- patient_id
+- patient_name
+- age
+- blood_type
+- condition
+- department
+- heart_rate
+- temperature
+- insurance
+num_of_rows: 500
+shuffle: true
+configs:
+- names:
+  - patient_id
+  strategy:
+    name: PATTERN_STRATEGY
+    params:
+      regex: PT\d{6}[A-Z]{2}
+- names:
+  - patient_name
+  strategy:
+    name: RANDOM_NAME_STRATEGY
+    params:
+      name_type: full
+      gender: any
+      case: title
+- names:
+  - age
+  strategy:
+    name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+    params:
+      ranges:
+      - start: 0
+        end: 17
+        distribution: 20
+      - start: 18
+        end: 35
+        distribution: 25
+      - start: 36
+        end: 55
+        distribution: 25
+      - start: 56
+        end: 75
+        distribution: 20
+      - start: 76
+        end: 100
+        distribution: 10
+- names:
+  - blood_type
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        O+: 37
+        A+: 34
+        B+: 9
+        O-: 7
+        A-: 6
+        AB+: 4
+        B-: 2
+        AB-: 1
+- names:
+  - condition
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Hypertension: 20
+        Diabetes Type 2: 15
+        Asthma: 12
+        Heart Disease: 10
+        Arthritis: 8
+        Depression: 8
+        Anxiety: 7
+        COPD: 5
+        Kidney Disease: 4
+        Cancer: 3
+        Stroke: 3
+        Healthy: 5
+- names:
+  - department
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Emergency: 25
+        Internal Medicine: 20
+        Surgery: 15
+        Pediatrics: 12
+        Cardiology: 8
+        Orthopedics: 7
+        Oncology: 5
+        Neurology: 4
+        Psychiatry: 2
+        Radiology: 2
+- names:
+  - heart_rate
+  strategy:
+    name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+    params:
+      ranges:
+      - start: 60
+        end: 80
+        distribution: 40
+      - start: 81
+        end: 100
+        distribution: 35
+      - start: 101
+        end: 120
+        distribution: 20
+      - start: 121
+        end: 150
+        distribution: 5
+- names:
+  - temperature
+  strategy:
+    name: DISTRIBUTED_NUMBER_RANGE_STRATEGY
+    params:
+      ranges:
+      - start: 96.5
+        end: 99.0
+        distribution: 70
+      - start: 99.1
+        end: 100.4
+        distribution: 20
+      - start: 100.5
+        end: 103.0
+        distribution: 10
+- names:
+  - insurance
+  strategy:
+    name: DISTRIBUTED_CHOICE_STRATEGY
+    params:
+      choices:
+        Private: 45
+        Medicare: 20
+        Medicaid: 18
+        Self-Pay: 10
+        Workers Comp: 4
+        Military: 3
+file_writer:
+- type: JSON_WRITER
+  params:
+    output_path: ./output/generated_data.json
+    orient: records
+    date_format: iso
+    indent: 2
