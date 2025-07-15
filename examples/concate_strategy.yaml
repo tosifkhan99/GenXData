@@ -20,6 +20,13 @@ file_writer:
   - type: CSV_WRITER
     params:
       output_path: output/concat_strategy.csv
+  - type: PARQUET_WRITER
+    params:
+      output_path: ./new-output/all_example.parquet
+  - type: FEATHER_WRITER
+    params:
+      output_path: ./new-output/all_example.feather
+
 
 configs:
   # Generate first names

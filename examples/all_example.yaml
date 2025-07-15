@@ -35,19 +35,12 @@ file_writer:
   - type: EXCEL_WRITER
     params:
       output_path: ./new-output/all_example.xlsx
-  - type: PARQUET_WRITER
-    params:
-      output_path: ./new-output/all_example.parquet
   - type: SQLITE_WRITER
     params:
       output_path: ./new-output/all_example.db
   - type: HTML_WRITER
     params:
       output_path: ./new-output/all_example.html
-  - type: FEATHER_WRITER
-    params:
-      output_path: ./new-output/all_example.feather
-
 
 configs:
   # Series strategy for ID
