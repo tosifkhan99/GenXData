@@ -3,19 +3,20 @@ Base strategy for all data generation strategies.
 """
 
 import pandas as pd
+from pandas.errors import IndexingError
 import numpy as np
 from typing import Union, Optional, Any
 from abc import ABC, abstractmethod
 
 from utils.intermediate_column import mark_as_intermediate
-
+from utils.logging import Logger
 
 class BaseStrategy(ABC):
     """
     Base class for all data generation strategies.
     """
     
-    def __init__(self, **kwargs):
+    def __init__(self, logger=None, **kwargs):
         """Initialize the strategy with configuration parameters"""
         self.df = kwargs.get('df')
         self.col_name = kwargs.get('col_name')
@@ -25,6 +26,18 @@ class BaseStrategy(ABC):
         self.debug = kwargs.get('debug', False)
         self.unique = kwargs.get('unique', False)
         self.shuffle = kwargs.get('shuffle', False)
+        
+        # Create strategy-specific logger
+        if logger is None:
+            strategy_name = self.__class__.__name__.lower().replace('strategy', '')
+            logger_name = f"strategies.{strategy_name}"
+            self.logger = Logger.get_logger(logger_name)
+        else:
+            self.logger = logger
+            
+        # Log strategy initialization
+        self.logger.debug(f"Initializing {self.__class__.__name__} for column '{self.col_name}'")
+        
         # Validate required parameters
         self._validate_params()
     
@@ -61,6 +74,9 @@ class BaseStrategy(ABC):
         Returns:
             Updated dataframe
         """
+        self.logger.debug(f"Applying {self.__class__.__name__} to column '{column_name}' with {len(df)} rows")
+        
+        # todo: check if this is needed. #optimizations.
         df_copy = df.copy()
         
         # Initialize column with NaN if it doesn't exist
@@ -68,12 +84,11 @@ class BaseStrategy(ABC):
             df_copy[column_name] = np.nan
         
         if mask and mask.strip():
+            self.logger.debug(f"Applying mask to column '{column_name}': {mask}")
             try:
-                # Use pandas query to safely evaluate mask
                 filtered_df = df_copy.query(mask)
-                
-                
                 if len(filtered_df) > 0:
+                    self.logger.debug(f"Mask filtered {len(filtered_df)} rows out of {len(df_copy)} total rows")
                     # Generate data only for filtered rows
                     values = self.generate_data(len(filtered_df))
                     
@@ -82,7 +97,11 @@ class BaseStrategy(ABC):
                         df_copy[column_name] = df_copy[column_name].astype('object')
                     
                     df_copy.loc[filtered_df.index, column_name] = values.values
-            except Exception as e:
+                else:
+                    self.logger.warning(f"Mask '{mask}' matched no rows for column '{column_name}'")
+            
+            except IndexingError as e:
+                self.logger.warning(f"IndexError applying mask to column '{column_name}': {e}. Applying to all rows as fallback.")
                 # Fallback: apply to all rows
                 values = self.generate_data(len(df_copy))
                 
@@ -91,8 +110,12 @@ class BaseStrategy(ABC):
                     df_copy[column_name] = df_copy[column_name].astype('object')
                 
                 df_copy[column_name] = values.values
+            except Exception as e:
+                self.logger.error(f"Error applying mask to column '{column_name}': {e}")
+                raise e
         else:
             # No mask: apply to all rows
+            self.logger.debug(f"No mask specified, applying to all {len(df_copy)} rows")
             values = self.generate_data(len(df_copy))
             
             # Ensure column has compatible dtype before assignment
@@ -101,6 +124,7 @@ class BaseStrategy(ABC):
             
             df_copy[column_name] = values.values
         
+        self.logger.debug(f"Successfully applied {self.__class__.__name__} to column '{column_name}'")
         return df_copy
     
     def validate_mask(self, df: pd.DataFrame, mask: str) -> tuple[bool, str]:
@@ -121,8 +145,10 @@ class BaseStrategy(ABC):
             # Test the query on a small sample
             test_df = df.head(1) if len(df) > 0 else df
             test_df.query(mask)
+            self.logger.debug(f"Mask validation successful: {mask}")
             return True, ""
         except Exception as e:
+            self.logger.debug(f"Mask validation failed: {mask} - {str(e)}")
             return False, str(e)
     
     def preview_mask_results(self, df: pd.DataFrame, mask: str) -> dict:
@@ -150,6 +176,8 @@ class BaseStrategy(ABC):
             total_rows = len(df)
             percentage = (affected_rows / total_rows * 100) if total_rows > 0 else 0
             
+            self.logger.debug(f"Mask preview: {affected_rows}/{total_rows} rows ({percentage:.2f}%) would be affected")
+            
             return {
                 "total_rows": total_rows,
                 "affected_rows": affected_rows,
@@ -158,6 +186,7 @@ class BaseStrategy(ABC):
                 "sample_affected_rows": filtered_df.head(3).to_dict('records') if affected_rows > 0 else []
             }
         except Exception as e:
+            self.logger.debug(f"Mask preview failed: {str(e)}")
             return {
                 "total_rows": len(df),
                 "affected_rows": 0,

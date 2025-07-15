@@ -3,8 +3,9 @@ Streaming processing functionality for GenXData.
 """
 import pandas as pd
 import configs.GENERATOR_SETTINGS as SETTINGS
-from core.processing import process_config
 from core.batch_processing import get_batches, prepare_batch_config
+from exceptions.streaming_exception import StreamingException
+from core.error.error_context import ErrorContextBuilder
 
 
 def process_streaming_config(config_file, stream_config, debug_mode=False, perf_report=False):
@@ -40,9 +41,15 @@ def process_streaming_config(config_file, stream_config, debug_mode=False, perf_
         
         
     except ImportError as e:
-        raise ValueError(f"Queue library not available: {e}")
+        raise StreamingException(
+            f"Queue library not available: {e}",
+            context=ErrorContextBuilder().with_config(stream_config).build()
+        )
     except Exception as e:
-        raise ValueError(f"Could not connect to queue: {e}")
+        raise StreamingException(
+            f"Could not connect to queue: {e}",
+            context=ErrorContextBuilder().with_config(stream_config).build()
+        )
     
     df = None
     for batch_index, batch_size in enumerate(batches):

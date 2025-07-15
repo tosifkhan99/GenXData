@@ -5,7 +5,9 @@ import os
 from pathlib import Path
 from utils.json_loader import read_json
 from utils.yaml_loader import read_yaml
-
+from exceptions.invalid_config_path_exception import InvalidConfigPathException
+from exceptions.invalid_config_format_exception import InvalidConfigFormatException
+from core.error.error_context import ErrorContextBuilder
 
 def load_config(config_path):
     """
@@ -24,7 +26,7 @@ def load_config(config_path):
     elif file_extension in ['.json']:
         return read_json(config_path)
     else:
-        raise ValueError(f"Unsupported configuration format: {file_extension}. Use .json, .yaml, or .yml")
+        raise InvalidConfigFormatException(f"Unsupported configuration format: {file_extension}. Use .json, .yaml, or .yml", context=ErrorContextBuilder().with_config_path(config_path).build())
 
 
 def get_config_files(config_path):
@@ -49,7 +51,7 @@ def get_config_files(config_path):
             config_files.extend(list(path.glob(f'*{ext}')))
         return [str(f) for f in config_files]
     else:
-        raise ValueError(f"Invalid config path: {config_path}")
+        raise InvalidConfigPathException(f"Invalid config path: {config_path}", context=ErrorContextBuilder().with_config_path(config_path).build())
 
 
 def load_writers_and_mappings():

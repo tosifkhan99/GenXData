@@ -10,6 +10,7 @@ from core.strategy_config import create_config, BaseConfig
 from core.strategy_mapping import get_strategy_class, get_config_class
 from exceptions.strategy_exceptions import UnsupportedStrategyException
 from utils.intermediate_column import mark_as_intermediate
+from core.error.error_context import ErrorContextBuilder
 
 
 class StrategyFactory:
@@ -20,8 +21,9 @@ class StrategyFactory:
     configuration parameters.
     """
     
-    def __init__(self):
+    def __init__(self, logger):
         """Initialize the factory"""
+        self.logger = logger
     
     def create_strategy(self, strategy_name: str, **kwargs) -> BaseStrategy:
         """
@@ -53,12 +55,13 @@ class StrategyFactory:
             
             # Update kwargs with validated config
             kwargs['params'] = config.to_dict()
-            
+            self.logger.debug(f"Strategy {strategy_name} created with params: {kwargs['params']}")
             # Create and return strategy instance
-            return strategy_class(**kwargs)
+            return strategy_class(logger=self.logger, **kwargs)
             
         except Exception as e:
-            raise UnsupportedStrategyException(f"Could not create strategy {strategy_name}: {str(e)}")
+            self.logger.debug(f"Error creating strategy {strategy_name}: {str(e)}")
+            raise UnsupportedStrategyException(f"Could not create strategy {strategy_name}: {str(e)}", context=ErrorContextBuilder().with_strategy_name(strategy_name).with_strategy_params(params).build())
             
     def execute_strategy(self, strategy: BaseStrategy) -> pd.DataFrame:
         """

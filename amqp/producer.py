@@ -3,7 +3,6 @@ from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 import pandas as pd
-import logging
 import threading
 import time
 
@@ -14,7 +13,6 @@ class AMQPProducer(MessagingHandler):
         self.queue = queue
         self.conn = None
         self.sender = None
-        self.logger = logging.getLogger("data_generator.amqp_producer")
         
         # Streaming mode only
         self.connected = False
@@ -41,9 +39,7 @@ class AMQPProducer(MessagingHandler):
             self.sender = event.container.create_sender(self.conn, self.queue)
             self.connected = True
             self.connection_ready.set()
-            self.logger.info(f"Connected to AMQP broker at {self.url}, queue: {self.queue}")
         except Exception as e:
-            self.logger.error(f"Failed to connect to AMQP broker: {e}")
             self.connection_ready.set()  # Unblock waiting thread even on failure
             raise
 
@@ -80,10 +76,8 @@ class AMQPProducer(MessagingHandler):
             
             # Send immediately
             self.sender.send(message)
-            self.logger.info(f"Sent DataFrame message with {len(df)} rows to queue {self.queue}")
             
         except Exception as e:
-            self.logger.error(f"Error sending DataFrame message: {str(e)}")
             raise
 
 
@@ -102,7 +96,6 @@ class AMQPProducer(MessagingHandler):
             raise ConnectionError("AMQP connection not established")
         message = Message(body=message_data)
         self.sender.send(message)
-        self.logger.info(f"Sent custom message to queue {self.queue}")
 
     def close_connection(self):
         """Close the connection and sender"""
@@ -111,11 +104,9 @@ class AMQPProducer(MessagingHandler):
         if self.conn:
             self.conn.close()
         self.connected = False
-        self.logger.info("Closed AMQP connection")
 
     def run(self):
         """Start the container and process messages"""
-        self.logger.warning("run() method not needed in streaming mode - messages sent immediately")
 
     def __enter__(self):
         """Context manager entry"""

@@ -3,8 +3,9 @@ Batch file processing functionality for GenXData.
 """
 import pandas as pd
 import configs.GENERATOR_SETTINGS as SETTINGS
-from core.processing import process_config
 from core.batch_processing import get_batches, prepare_batch_config
+from exceptions.batch_processing_exception import BatchProcessingException
+from core.error.error_context import ErrorContextBuilder
 
 
 def process_batch_config(config_file, batch_config, debug_mode=False, perf_report=False):
@@ -23,13 +24,19 @@ def process_batch_config(config_file, batch_config, debug_mode=False, perf_repor
     
     # Validate batch configuration
     if 'batch_writer' not in batch_config:
-        raise ValueError("Batch config must contain 'batch_writer' section with writer settings")
+        raise BatchProcessingException(
+            "Batch config must contain 'batch_writer' section with writer settings",
+            context=ErrorContextBuilder().with_config(batch_config).build()
+        )
     
     writer_config = batch_config['batch_writer']
     
     # Required batch writer settings
     if 'output_dir' not in writer_config:
-        raise ValueError("Batch writer config must contain 'output_dir' setting")
+        raise BatchProcessingException(
+            "Batch writer config must contain 'output_dir' setting",
+            context=ErrorContextBuilder().with_config(batch_config).build()
+        )
     
     # Initialize state tracking for the entire batch session
     strategy_states = {}
@@ -44,7 +51,7 @@ def process_batch_config(config_file, batch_config, debug_mode=False, perf_repor
         output_dir=writer_config['output_dir'],
         file_prefix=writer_config.get('file_prefix', 'batch'),
         file_format=writer_config.get('file_format', 'json')
-    
+    )
     df = None
     for batch_index, batch_size in enumerate(batches):
         

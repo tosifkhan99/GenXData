@@ -36,17 +36,19 @@ class ConcatStrategy(BaseStrategy):
         """
         
         # Get LHS column and prepare its data as string for concatenation
-        lhs_col = self.params['lhs_col']
-        # Ensure data from lhs_col is string. Note: a similar step will be needed for rhs_col.
-        # The actual concatenation logic should use this processed series (and a similarly processed one for RHS).
-        lhs_data_as_string = self.df[lhs_col].astype(str)
-        rhs_col = self.params['rhs_col']
+        if self.df[self.params['lhs_col']].dtype != 'str':
+            lhs_data_as_string = self.df[self.params['lhs_col']].astype(str)
+        else:
+            lhs_data_as_string = self.df[self.params['lhs_col']]
+        
+        if self.df[self.params['rhs_col']].dtype != 'str':
+            rhs_data_as_string = self.df[self.params['rhs_col']].astype(str)
+        else:
+            rhs_data_as_string = self.df[self.params['rhs_col']]
+        
+
         prefix = self.params.get('prefix', '')
         suffix = self.params.get('suffix', '')
-        # Concatenate values
-        lhs_values = self.df[lhs_col]
-        rhs_values = self.df[rhs_col]
-        
-        # Combine with separator if provided
         separator = self.params.get('separator', '')
-        return prefix + lhs_values + separator + rhs_values + suffix 
+        
+        return prefix + lhs_data_as_string + separator + rhs_data_as_string + suffix 

@@ -5,20 +5,195 @@ A Complete synthetic data framework for generating realistic data for your appli
 ### 🛠️ Running the tool
 **Step 1**: Install dependencies
 ```bash
-pip install -r req.txt
+pip install -r cli-requirements.txt
 ```
 
-**Step 2**: Create a configuration file. You can copy examples from the `examples/` directory, or create your own config (refer to examples folder for more info).
+**Step 2**: Create a configuration file. You can copy examples from the [examples](examples) directory, or create your own configs (refer to examples folder or visit documentation <TODO: INSERT DOCUMENTATION LINK> for more info).
 
 **Step 3**: Run the script with your configuration:
 ```bash
-python main.py ./examples/all_example.yaml
+python main.py generate path/to/your/config.yaml
 ```
 
 For verbose output and debugging information, use the debug flag:
 ```bash
 python main.py ./examples/all_example.yaml --debug
 ```
+
+### 💻 **CLI Interface**
+GenXData includes a comprehensive command-line interface for managing generators and configurations. The CLI provides several commands to explore, create, and generate data efficiently.
+
+#### **Installation**
+```bash
+pip install -r cli-requirements.txt
+```
+
+#### **Global Options**
+- `--help`: Show help message and available commands
+
+#### **Available Commands**
+
+##### **1. List Generators**
+Explore available generators with optional filtering and statistics:
+
+```bash
+# List all generators (175 total across 9 domains)
+python -m cli.main_cli list-generators
+
+# Filter generators by name pattern
+python -m cli.main_cli list-generators --filter NAME
+
+# Show comprehensive statistics
+python -m cli.main_cli list-generators --show-stats
+
+# Combine verbose logging with filtering
+python -m cli.main_cli --verbose list-generators --filter NAME
+```
+
+##### **2. Show Generator Details**
+Get detailed information about a specific generator:
+
+```bash
+# Show details of a specific generator
+python -m cli.main_cli show-generator PERSON_NAME
+
+# Output includes strategy and parameters
+python -m cli.main_cli show-generator EMAIL_PATTERN
+```
+
+##### **3. Find Generators by Strategy**
+List all generators using a specific strategy:
+
+```bash
+# Find generators using RANDOM_NAME_STRATEGY
+python -m cli.main_cli by-strategy RANDOM_NAME_STRATEGY
+
+# Find generators using DATE_GENERATOR_STRATEGY
+python -m cli.main_cli by-strategy DATE_GENERATOR_STRATEGY
+```
+
+##### **4. Create Configuration Files**
+Generate configuration files from generator mappings:
+
+```bash
+# Create config with generator mapping
+python -m cli.main_cli create-config \
+  --mapping "name:FULL_NAME,age:PERSON_AGE,email:EMAIL_PATTERN" \
+  --output test_config.json \
+  --rows 50
+
+# Create config with custom metadata
+python -m cli.main_cli create-config \
+  --mapping "product:PRODUCT_NAME,price:PRODUCT_PRICE" \
+  --output ecommerce_config.yaml \
+  --rows 1000 \
+  --name "Ecommerce Dataset" \
+  --description "Product catalog data"
+
+# Use a mapping file instead of command line
+python -m cli.main_cli create-config \
+  --mapping-file mapping.json \
+  --output config.yaml \
+  --rows 500
+```
+
+##### **5. Generate Domain Configurations**
+Create example configurations for various domains:
+
+```bash
+# Generate domain-specific configuration examples
+python -m cli.main_cli create-domain-configs
+
+# Creates configs in ./output/ for:
+# - ecommerce, healthcare, education, geographic
+# - transportation, business, technology, iot_sensors
+```
+
+##### **6. Generate Data**
+Generate data using configuration files:
+
+```bash
+# Generate data from your configuration
+python -m cli.main_cli generate test_config.json
+
+# Generate from example configurations
+python -m cli.main_cli generate examples/simple_random_number_example.yaml
+
+# Generate data from configuration
+python -m cli.main_cli generate config.yaml
+```
+
+##### **7. Show Statistics**
+Display comprehensive generator statistics:
+
+```bash
+# Show detailed statistics
+python -m cli.main_cli stats
+
+# Includes:
+# - Total generators count
+# - Strategy distribution
+# - Domain distribution
+# - Available strategies list
+```
+
+#### **Command Examples & Use Cases**
+
+**Exploring Available Data:**
+```bash
+# Discover what generators are available
+python -m cli.main_cli list-generators --show-stats
+
+# Find name-related generators
+python -m cli.main_cli list-generators --filter NAME
+
+# See all generators using a specific strategy
+python -m cli.main_cli by-strategy RANDOM_NAME_STRATEGY
+
+# Filter generators by name pattern
+python -m cli.main_cli list-generators --filter NAME
+```
+
+**Creating Custom Datasets:**
+```bash
+# Create a user profile dataset
+python -m cli.main_cli create-config \
+  --mapping "user_id:UUID,name:FULL_NAME,email:EMAIL_PATTERN,age:PERSON_AGE" \
+  --output user_profiles.yaml \
+  --rows 1000
+
+# Generate the data
+python -m cli.main_cli generate user_profiles.yaml
+```
+
+**Domain-Specific Data Generation:**
+```bash
+# Create all domain example configs
+python -m cli.main_cli create-domain-configs
+
+# Generate healthcare data
+python -m cli.main_cli generate output/healthcare_config.yaml
+
+# Generate ecommerce data
+python -m cli.main_cli generate output/ecommerce_config.yaml
+```
+
+#### **Important Notes**
+
+- **Configuration Formats**: Both JSON and YAML configuration files are supported.
+
+- **Supported Formats**: Configuration files can be in JSON or YAML format. The output format is determined by the file extension.
+
+- **Generator Domains**: 175 generators across 9 domains:
+  - **Generic** (25 generators): Basic data types, IDs, patterns
+  - **Geographic** (24 generators): Addresses, coordinates, locations
+  - **IoT Sensors** (23 generators): Device data, telemetry, readings
+  - **Education** (22 generators): Academic data, courses, grades
+  - **Business** (21 generators): Company data, financial metrics
+  - **Healthcare** (21 generators): Medical data, patient information
+  - **Technology** (20 generators): Software, hardware, tech specs
+  - **Transportation** (19 generators): Vehicle data, logistics
+  - **Ecommerce** (18 generators): Product data, pricing, orders
 
 ### 🌐 Running the Frontend and API Server
 Note: A React frontend app is present inside the [frontend](frontend) directory, built solely to quickly bootstrap the config, and to showcase the capabilities of the tool for demo showcase.
@@ -69,17 +244,28 @@ GenXData has been refactored into a modular structure for better maintainability
 
 ```
 GenXData/
-├── cli/                    # Command-line interface
+├── cli/                    # 💻 Command-line interface (7 commands, 175+ generators)
+│   └── main_cli.py         # Full-featured CLI with generator management
 ├── core/                   # Core processing modules
 │   ├── orchestrator.py     # Main processing orchestration
 │   ├── processing/         # Core data processing
 │   ├── streaming/          # Streaming and batch processing
-│   └── strategies/         # Data generation strategies
-├── generators/             # Pre-built data generators
+│   └── strategies/         # Data generation strategies (13 strategies)
+├── generators/             # 🎯 Pre-built data generators (9 domains)
+│   ├── generic_generator.json        # 25 basic generators
+│   ├── geographic_generators.json    # 24 location generators
+│   ├── iot_sensors_generators.json   # 23 IoT generators
+│   ├── education_generators.json     # 22 academic generators
+│   ├── business_generators.json      # 21 business generators
+│   ├── healthcare_generators.json    # 21 medical generators
+│   ├── technology_generators.json    # 20 tech generators
+│   ├── transportation_generators.json # 19 transport generators
+│   └── ecommerce_generators.json     # 18 ecommerce generators
 ├── utils/                  # Utility modules
 │   ├── config_utils/       # Configuration loading
 │   ├── file_utils/         # File operations
-│   └── writers/            # Output format writers
+│   ├── generator_utils.py  # Generator management and CLI utilities
+│   └── writers/            # Output format writers (7 formats)
 ├── queue/                  # Queue system implementations
 ├── examples/               # Configuration examples
 ├── frontend/               # React web interface

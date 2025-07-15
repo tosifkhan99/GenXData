@@ -3,6 +3,8 @@ import yaml
 from typing import Dict, List, Union, Any, Optional
 from pathlib import Path
 
+from exceptions.param_exceptions import InvalidConfigParamException
+
 
 
 def load_all_generators() -> Dict[str, Dict[str, Any]]:
@@ -304,6 +306,7 @@ def create_domain_configs_example():
                     "version": "1.0.0",
                     "domain": domain_name
                 }
+            )
             
             # Save both YAML and JSON versions
             save_config_as_yaml(config, f"./output/{domain_name}_config.yaml")
@@ -314,8 +317,9 @@ def create_domain_configs_example():
 
 
 def validate_generator_config(config: Dict[str, Any]) -> bool:
+    # todo: make it class based validation
     """
-    Validate that a configuration dictionary is properly formatted for GenXData.
+    Basic Validatation that a configuration dictionary is properly formatted for GenXData.
     
     Args:
         config: Configuration dictionary to validate
@@ -327,20 +331,20 @@ def validate_generator_config(config: Dict[str, Any]) -> bool:
     
     for field in required_fields:
         if field not in config:
-            raise ValueError(f"Missing required field: {field}")
+            raise InvalidConfigParamException(f"Missing required field: {field}")
     
     if not isinstance(config["configs"], list):
-        raise ValueError("'configs' must be a list")
+        raise InvalidConfigParamException("'configs' must be a list")
     
     for i, config_entry in enumerate(config["configs"]):
         if "names" not in config_entry:
-            raise ValueError(f"Config entry {i} missing 'names' field")
+            raise InvalidConfigParamException(f"Config entry {i} missing 'names' field")
         if "strategy" not in config_entry:
-            raise ValueError(f"Config entry {i} missing 'strategy' field")
+            raise InvalidConfigParamException(f"Config entry {i} missing 'strategy' field")
         if "name" not in config_entry["strategy"]:
-            raise ValueError(f"Config entry {i} strategy missing 'name' field")
+            raise InvalidConfigParamException(f"Config entry {i} strategy missing 'name' field")
         if "params" not in config_entry["strategy"]:
-            raise ValueError(f"Config entry {i} strategy missing 'params' field")
+            raise InvalidConfigParamException(f"Config entry {i} strategy missing 'params' field")
     
     return True
 

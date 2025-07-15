@@ -20,12 +20,17 @@ from utils.generator_utils import (
     generator_to_config,
     get_generator_stats,
     validate_generator_config
+)
+from utils.logging import Logger
 
+# Initialize API logger
+logger = Logger.get_logger("api")
 
 app = FastAPI(
     title="Data Generator API",
     description="Synthetic data generation API with 13+ strategies",
     version="1.0.0"
+)
 
 # Mount static files (for serving the React frontend)
 static_path = os.path.join(os.path.dirname(__file__), "static")
@@ -59,7 +64,7 @@ async def catch_all_exceptions_middleware(request: Request, call_next):
         return await call_next(request)
     except Exception as e:
         # Log the exception for debugging
-        print(f"API Error: {e}")
+        logger.error(f"API Error: {e}", exc_info=True)
         # Return a generic 500 error response
         return JSONResponse(
             status_code=500,
