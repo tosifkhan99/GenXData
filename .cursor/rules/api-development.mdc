@@ -228,8 +228,8 @@ RUN yarn build
 # Stage 2: Python backend
 FROM python:3.11-slim AS backend
 WORKDIR /app
-COPY cli-requirements.txt .
-RUN pip install --no-cache-dir -r cli-requirements.txt
+COPY pyproject.toml poetry.lock* ./
+RUN poetry install --only=main,api --no-dev
 COPY . .
 COPY --from=frontend-build /app/frontend/dist ./static
 EXPOSE 8000

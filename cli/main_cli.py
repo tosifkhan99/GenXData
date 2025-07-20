@@ -16,7 +16,7 @@ OVERVIEW:
     - stats: Display comprehensive generator statistics
 
 INSTALLATION:
-    pip install -r cli-requirements.txt
+    poetry install
 
 GLOBAL OPTIONS:
     --help          Show help message and available commands
@@ -75,14 +75,19 @@ COMMANDS:
         Examples:
             python -m cli.main_cli create-domain-configs
 
-    generate CONFIG_FILE
+    generate CONFIG_FILE [OPTIONS]
         Generate synthetic data from configuration files.
+        
+        Options:
+            --stream STREAM_CONFIG    Use streaming mode with queue integration
+            --batch BATCH_CONFIG      Use batch file mode for large datasets
         
         Examples:
             python -m cli.main_cli generate test_config.json
             python -m cli.main_cli generate examples/simple_random_number_example.yaml
-            python -m cli.main_cli --verbose generate config.yaml
-            python -m cli.main_cli --debug generate config.yaml
+            python -m cli.main_cli --log-level DEBUG generate config.yaml
+            python -m cli.main_cli generate config.yaml --stream examples/streaming_config_example.yaml
+            python -m cli.main_cli generate config.yaml --batch examples/batch_config_csv.yaml
 
     stats
         Display comprehensive generator statistics including totals, strategy distribution,
@@ -314,8 +319,21 @@ def generate_data_command(args):
         
         logger.debug("Creating data orchestrator")
         
-        # Create orchestrator and run
-        orchestrator = DataOrchestrator(config, log_level=args.log_level)
+        # Determine processing mode
+        if hasattr(args, 'stream') and args.stream:
+            logger.info(f"Running in streaming mode with config: {args.stream}")
+        elif hasattr(args, 'batch') and args.batch:
+            logger.info(f"Running in batch mode with config: {args.batch}")
+        else:
+            logger.info("Running in standard mode")
+        
+        # Create orchestrator and run with streaming/batch support
+        orchestrator = DataOrchestrator(
+            config, 
+            log_level=args.log_level,
+            stream=getattr(args, 'stream', None),
+            batch=getattr(args, 'batch', None)
+        )
         orchestrator.run()
         
         logger.info(f"Data generation completed using {args.config}")
@@ -375,6 +393,12 @@ Examples:
 
   # Generate data from configuration
   python -m cli.main_cli generate config.json
+
+  # Generate data with streaming to AMQP queue
+  python -m cli.main_cli generate config.json --stream streaming_config.yaml
+
+  # Generate data in batch files
+  python -m cli.main_cli generate config.json --batch batch_config.yaml
 
   # Show generator statistics
   python -m cli.main_cli stats
@@ -440,6 +464,10 @@ Examples:
                                            help='Generate data from configuration')
     generate_parser.add_argument('config', type=str,
                                 help='Configuration file path')
+    generate_parser.add_argument('--stream', type=str,
+                                help='Path to a configuration file for streaming mode')
+    generate_parser.add_argument('--batch', type=str,
+                                help='Path to a configuration file for batch mode')
     generate_parser.set_defaults(func=generate_data_command)
     
     # Stats command

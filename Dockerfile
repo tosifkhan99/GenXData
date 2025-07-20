@@ -18,7 +18,7 @@ COPY frontend/ ./
 RUN yarn build
 
 # Stage 2: Build the Python backend
-FROM python:3.11-slim AS backend
+FROM python:3.12-slim AS backend
 
 WORKDIR /app
 
@@ -29,9 +29,17 @@ RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
-COPY req.txt .
-RUN pip install --no-cache-dir -r req.txt
+# Install Poetry
+RUN pip install poetry
+
+# Configure Poetry: Don't create virtual env, install deps globally
+RUN poetry config virtualenvs.create false
+
+# Copy Poetry files
+COPY pyproject.toml poetry.lock* ./
+
+# Install dependencies (production only, including API group)
+RUN poetry install --only=main,api --no-dev
 
 # Copy backend source code
 COPY . .
@@ -51,4 +59,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/ping || exit 1
 
 # Start the FastAPI server
-CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["poetry", "run", "uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"] 

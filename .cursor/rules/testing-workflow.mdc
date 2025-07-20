@@ -335,7 +335,7 @@ class TestPerformance:
 ### Pre-commit Hooks
 ```bash
 # Install pre-commit hooks
-pip install pre-commit
+poetry add --group dev pre-commit
 pre-commit install
 
 # .pre-commit-config.yaml
@@ -402,8 +402,7 @@ jobs:
     
     - name: Install dependencies
       run: |
-        pip install -r cli-requirements.txt
-        pip install pytest pytest-cov
+        poetry install --with dev
     
     - name: Run tests
       run: |
