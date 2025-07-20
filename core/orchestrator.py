@@ -98,15 +98,15 @@ class DataOrchestrator:
         finally:
             # Centralized error reporting with severity-based formatting
             if self.error_handler.has_errors():
+                self.logger.error("========== Orchestrator completed with errors ==========")
                 self.error_handler.generate_error_report()
             
             # Only fail if there are critical errors
             if self.error_handler.has_critical_errors():
+                self.logger.error("========== Orchestrator completed with critical errors ==========")
                 self.logger.critical("Critical errors detected. Process cannot continue.")
                 return None
-            elif self.error_handler.has_errors():
-                self.logger.warning(f"Process completed with {len(self.error_handler.get_errors())} non-critical errors.")
             else:
-                self.logger.info("Process completed successfully with no errors.")
+                self.logger.info("========== Orchestrator completed successfully with no errors. ==========")
                 
         return df
