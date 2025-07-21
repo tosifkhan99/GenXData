@@ -14,113 +14,116 @@ from .kafka_config import KafkaConfig
 
 class KafkaProducer(QueueProducer):
     """Kafka queue producer implementation."""
-    
+
     def __init__(self, config: KafkaConfig):
         """
         Initialize Kafka producer.
-        
+
         Args:
             config: Kafka configuration instance
         """
         super().__init__(config)
         self.producer = None
-    
+
     def connect(self) -> None:
         """Establish connection to Kafka cluster."""
         if self._connected:
             return
-        
+
         try:
             # Import kafka-python here to make it optional
             from kafka import KafkaProducer as KafkaClient
-            
+
             producer_config = self.config.get_producer_config()
-            
+
             # Add value serializer for JSON
-            producer_config['value_serializer'] = lambda v: json.dumps(v, default=str).encode('utf-8')
-            
+            producer_config["value_serializer"] = lambda v: json.dumps(
+                v, default=str
+            ).encode("utf-8")
+
             self.producer = KafkaClient(**producer_config)
             self._connected = True
-            
-            
+
         except ImportError as e:
             raise ImportError(f"Kafka library not available. Install kafka-python: {e}")
-        except Exception as e:
+        except Exception:
             raise
-    
+
     def disconnect(self) -> None:
         """Close connection to Kafka cluster."""
         if not self._connected or not self.producer:
             return
-        
+
         try:
             # Flush any pending messages
             self.producer.flush(timeout=10)
             self.producer.close(timeout=10)
-            
+
             self._connected = False
-            
-        except Exception as e:
+
+        except Exception:
             pass
-    
-    def send_dataframe(self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None) -> None:
+
+    def send_dataframe(
+        self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None
+    ) -> None:
         """
         Send a DataFrame to the Kafka topic.
-        
+
         Args:
             df: DataFrame to send
             batch_info: Optional metadata about the batch
         """
         if not self._connected or not self.producer:
             raise ConnectionError("Kafka connection not established")
-        
+
         try:
             # Convert DataFrame to message format
             message_data = {
-                'batch_info': batch_info or {},
-                'data': df.to_dict(orient='records'),
-                'metadata': {
-                    'rows': len(df),
-                    'columns': list(df.columns),
-                    'dtypes': {col: str(dtype) for col, dtype in df.dtypes.items()}
-                }
+                "batch_info": batch_info or {},
+                "data": df.to_dict(orient="records"),
+                "metadata": {
+                    "rows": len(df),
+                    "columns": list(df.columns),
+                    "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()},
+                },
             }
-            
+
             # Send message to Kafka topic
             future = self.producer.send(self.config.topic, value=message_data)
-            
+
             # Optional: wait for confirmation (can be made configurable)
             record_metadata = future.get(timeout=10)
-            
-        except Exception as e:
+
+        except Exception:
             raise
-    
+
     def send_message(self, message_data: Any) -> None:
         """
         Send a custom message to the Kafka topic.
-        
+
         Args:
             message_data: Message data to send
         """
         if not self._connected or not self.producer:
             raise ConnectionError("Kafka connection not established")
-        
+
         try:
             # Send message to Kafka topic
             future = self.producer.send(self.config.topic, value=message_data)
-            
+
             # Optional: wait for confirmation
             record_metadata = future.get(timeout=10)
-            
-        except Exception as e:
+
+        except Exception:
             raise
-    
+
     def flush(self, timeout: int = 10) -> None:
         """
         Flush any pending messages.
-        
+
         Args:
             timeout: Timeout in seconds
         """
         if self.producer:
-            self.producer.flush(timeout=timeout) 
+            self.producer.flush(timeout=timeout)

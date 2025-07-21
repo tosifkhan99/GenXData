@@ -1,1 +1,1 @@
-"""Core package for the data generator.""" 
+"""Core package for the data generator."""

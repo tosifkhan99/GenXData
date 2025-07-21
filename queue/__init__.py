@@ -8,4 +8,4 @@ for different message queue systems like AMQP and Kafka.
 from .base import QueueProducer, QueueConfig
 from .factory import QueueFactory
 
-__all__ = ['QueueProducer', 'QueueConfig', 'QueueFactory'] 
+__all__ = ["QueueProducer", "QueueConfig", "QueueFactory"]

@@ -6,126 +6,129 @@ from pathlib import Path
 from exceptions.param_exceptions import InvalidConfigParamException
 
 
-
 def load_all_generators() -> Dict[str, Dict[str, Any]]:
     """Load all generators from all generator files."""
     generators = {}
     generators_dir = Path("generators")
-    
+
     if not generators_dir.exists():
         generators_dir = Path("../generators")  # Try relative path
-    
+
     if not generators_dir.exists():
         return {}
-    
+
     for json_file in generators_dir.glob("*.json"):
         try:
-            with open(json_file, 'r') as f:
+            with open(json_file, "r") as f:
                 file_generators = json.load(f)
                 generators.update(file_generators)
-        except Exception as e:
+        except Exception:
             pass
-    
+
     return generators
 
 
 def list_available_generators(filter_by: Optional[str] = None) -> List[str]:
     """
     List all available generators, optionally filtered by domain or strategy type.
-    
+
     Args:
         filter_by: Optional filter string to search in generator names
-    
+
     Returns:
         List of generator names
     """
     generators = load_all_generators()
     generator_names = list(generators.keys())
-    
+
     if filter_by:
         filter_by = filter_by.upper()
         generator_names = [name for name in generator_names if filter_by in name]
-    
+
     return sorted(generator_names)
 
 
 def get_generator_info(generator_name: str) -> Dict[str, Any]:
     """
     Get detailed information about a specific generator.
-    
+
     Args:
         generator_name: Name of the generator
-    
+
     Returns:
         Generator configuration details
     """
     generators = load_all_generators()
-    
+
     if generator_name not in generators:
         available = list_available_generators()
-        raise ValueError(f"Generator '{generator_name}' not found. Available generators: {available[:10]}...")
-    
+        raise ValueError(
+            f"Generator '{generator_name}' not found. Available generators: {available[:10]}..."
+        )
+
     return generators[generator_name]
 
 
 def get_generators_by_strategy(strategy_name: str) -> List[str]:
     """
     Get all generators that use a specific strategy implementation.
-    
+
     Args:
         strategy_name: Name of the strategy (e.g., 'RANDOM_NAME_STRATEGY')
-    
+
     Returns:
         List of generator names using that strategy
     """
     generators = load_all_generators()
     matching_generators = []
-    
+
     for gen_name, gen_config in generators.items():
         if gen_config.get("implementation") == strategy_name:
             matching_generators.append(gen_name)
-    
+
     return sorted(matching_generators)
 
 
 def create_all_example_config() -> Dict[str, Any]:
     """
     Create a configuration that matches the structure of all_example.json using generators.
-    
+
     Returns:
         Configuration dictionary matching all_example.json structure
     """
-    return generator_to_config({
-        "employee_id": "EMPLOYEE_ID",
-        "first_name": "PERSON_NAME",
-        "last_name": "LAST_NAME",
-        "email": "EMAIL_PATTERN",
-        "phone": "PHONE_NUMBER", 
-        "department": "DEPARTMENT",
-        "join_date": "RECENT_DATE",
-        "salary": "SALARY",
-        "performance_rating": "PRIORITY_LEVEL",
-        "bonus": "PERCENTAGE",
-        "project_code": "PRODUCT_SKU"
-    }, 
-    num_rows=100,
-    metadata={
-        "name": "all_example_from_generators",
-        "description": "Employee dataset generated using pre-configured generators",
-        "version": "1.0.0",
-        "author": "GenXData Generator System"
-    })
+    return generator_to_config(
+        {
+            "employee_id": "EMPLOYEE_ID",
+            "first_name": "PERSON_NAME",
+            "last_name": "LAST_NAME",
+            "email": "EMAIL_PATTERN",
+            "phone": "PHONE_NUMBER",
+            "department": "DEPARTMENT",
+            "join_date": "RECENT_DATE",
+            "salary": "SALARY",
+            "performance_rating": "PRIORITY_LEVEL",
+            "bonus": "PERCENTAGE",
+            "project_code": "PRODUCT_SKU",
+        },
+        num_rows=100,
+        metadata={
+            "name": "all_example_from_generators",
+            "description": "Employee dataset generated using pre-configured generators",
+            "version": "1.0.0",
+            "author": "GenXData Generator System",
+        },
+    )
 
 
 def generator_to_config(
     generator_mapping: Union[Dict[str, str], List[Dict[str, str]], str],
     num_rows: int = 100,
     output_config: Optional[Dict[str, Any]] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Convert generator names to valid GenXData configuration format.
-    
+
     Args:
         generator_mapping: Can be:
             - Dict mapping column names to generator names: {"name": "FULL_NAME", "age": "PERSON_AGE"}
@@ -134,14 +137,14 @@ def generator_to_config(
         num_rows: Number of rows to generate
         output_config: Optional output configuration (file writers)
         metadata: Optional metadata for the configuration
-    
+
     Returns:
         Dictionary containing valid GenXData configuration
     """
-    
+
     # Load all available generators
     all_generators = load_all_generators()
-    
+
     # Normalize input to column->generator mapping
     if isinstance(generator_mapping, str):
         # Single generator - use generator name as column name
@@ -164,20 +167,21 @@ def generator_to_config(
         column_generator_map = generator_mapping
     else:
         raise ValueError(f"Invalid generator_mapping type: {type(generator_mapping)}")
-    
+
     # Build the configuration
     config = {
-        "metadata": metadata or {
+        "metadata": metadata
+        or {
             "name": "generated_config",
             "description": "Auto-generated configuration from generators",
-            "version": "1.0.0"
+            "version": "1.0.0",
         },
         "column_name": list(column_generator_map.keys()),
         "num_of_rows": num_rows,
         "shuffle": True,
-        "configs": []
+        "configs": [],
     }
-    
+
     # Add output configuration if provided
     if output_config:
         config["file_writer"] = output_config
@@ -190,78 +194,80 @@ def generator_to_config(
                     "output_path": "./output/generated_data.json",
                     "orient": "records",
                     "date_format": "iso",
-                    "indent": 2
-                }
+                    "indent": 2,
+                },
             }
         ]
-    
+
     # Convert each generator to config format
     for column_name, generator_name in column_generator_map.items():
         if generator_name not in all_generators:
-            raise ValueError(f"Generator '{generator_name}' not found. Available generators: {list(all_generators.keys())[:10]}...")
-        
+            raise ValueError(
+                f"Generator '{generator_name}' not found. Available generators: {list(all_generators.keys())[:10]}..."
+            )
+
         generator_def = all_generators[generator_name]
-        
+
         # Convert generator format to config format
         config_entry = {
             "names": [column_name],
             "strategy": {
                 "name": generator_def["implementation"],
-                "params": generator_def["params"]
-            }
+                "params": generator_def["params"],
+            },
         }
-        
+
         config["configs"].append(config_entry)
-    
+
     return config
 
 
 def save_config_as_yaml(config: Dict[str, Any], output_path: str) -> None:
     """Save configuration as YAML file."""
     from .file_utils import ensure_output_dir
-    
+
     output_path = Path(output_path)
     ensure_output_dir(str(output_path.parent))
-    
-    with open(output_path, 'w') as f:
+
+    with open(output_path, "w") as f:
         yaml.dump(config, f, default_flow_style=False, indent=2, sort_keys=False)
 
 
 def save_config_as_json(config: Dict[str, Any], output_path: str) -> None:
     """Save configuration as JSON file."""
     from .file_utils import ensure_output_dir
-    
+
     output_path = Path(output_path)
     ensure_output_dir(str(output_path.parent))
-    
-    with open(output_path, 'w') as f:
+
+    with open(output_path, "w") as f:
         json.dump(config, f, indent=2)
 
 
 def create_domain_configs_example():
     """Create configuration files for different domains using generators."""
-    
+
     domains = {
         "healthcare": {
             "patient_id": "PATIENT_ID",
             "patient_name": "FULL_NAME",
-            "age": "PATIENT_AGE", 
+            "age": "PATIENT_AGE",
             "blood_type": "BLOOD_TYPE",
             "condition": "MEDICAL_CONDITION",
             "department": "HOSPITAL_DEPARTMENT",
             "heart_rate": "VITAL_SIGNS_HEART_RATE",
             "temperature": "BODY_TEMPERATURE",
-            "insurance": "INSURANCE_TYPE"
+            "insurance": "INSURANCE_TYPE",
         },
         "iot_sensors": {
             "sensor_id": "SENSOR_ID",
             "temperature": "TEMPERATURE_CELSIUS",
-            "humidity": "HUMIDITY_PERCENT", 
+            "humidity": "HUMIDITY_PERCENT",
             "pressure": "PRESSURE_HPA",
             "light_level": "LIGHT_LUX",
             "sound_level": "SOUND_DB",
             "battery_level": "BATTERY_LEVEL_PERCENT",
-            "device_status": "DEVICE_STATUS"
+            "device_status": "DEVICE_STATUS",
         },
         "transportation": {
             "vehicle_type": "VEHICLE_TYPE",
@@ -271,7 +277,7 @@ def create_domain_configs_example():
             "year": "VEHICLE_YEAR",
             "mileage": "MILEAGE",
             "speed": "SPEED_KMH",
-            "shipping_status": "SHIPPING_STATUS"
+            "shipping_status": "SHIPPING_STATUS",
         },
         "education": {
             "student_id": "STUDENT_ID",
@@ -281,7 +287,7 @@ def create_domain_configs_example():
             "semester": "SEMESTER",
             "major": "MAJOR",
             "class_year": "CLASS_YEAR",
-            "attendance": "ATTENDANCE_RATE"
+            "attendance": "ATTENDANCE_RATE",
         },
         "ecommerce": {
             "order_id": "ORDER_ID",
@@ -291,10 +297,10 @@ def create_domain_configs_example():
             "quantity": "ORDER_QUANTITY",
             "customer_email": "EMAIL_PATTERN",
             "payment_method": "PAYMENT_METHOD",
-            "order_status": "ORDER_STATUS"
-        }
+            "order_status": "ORDER_STATUS",
+        },
     }
-    
+
     for domain_name, generators in domains.items():
         try:
             config = generator_to_config(
@@ -304,15 +310,15 @@ def create_domain_configs_example():
                     "name": f"{domain_name}_dataset",
                     "description": f"Generated {domain_name} dataset using pre-configured generators",
                     "version": "1.0.0",
-                    "domain": domain_name
-                }
+                    "domain": domain_name,
+                },
             )
-            
+
             # Save both YAML and JSON versions
             save_config_as_yaml(config, f"./output/{domain_name}_config.yaml")
             save_config_as_json(config, f"./output/{domain_name}_config.json")
-            
-        except Exception as e:
+
+        except Exception:
             pass
 
 
@@ -320,50 +326,56 @@ def validate_generator_config(config: Dict[str, Any]) -> bool:
     # todo: make it class based validation
     """
     Basic Validatation that a configuration dictionary is properly formatted for GenXData.
-    
+
     Args:
         config: Configuration dictionary to validate
-    
+
     Returns:
         True if valid, raises ValueError if invalid
     """
     required_fields = ["column_name", "num_of_rows", "configs"]
-    
+
     for field in required_fields:
         if field not in config:
             raise InvalidConfigParamException(f"Missing required field: {field}")
-    
+
     if not isinstance(config["configs"], list):
         raise InvalidConfigParamException("'configs' must be a list")
-    
+
     for i, config_entry in enumerate(config["configs"]):
         if "names" not in config_entry:
             raise InvalidConfigParamException(f"Config entry {i} missing 'names' field")
         if "strategy" not in config_entry:
-            raise InvalidConfigParamException(f"Config entry {i} missing 'strategy' field")
+            raise InvalidConfigParamException(
+                f"Config entry {i} missing 'strategy' field"
+            )
         if "name" not in config_entry["strategy"]:
-            raise InvalidConfigParamException(f"Config entry {i} strategy missing 'name' field")
+            raise InvalidConfigParamException(
+                f"Config entry {i} strategy missing 'name' field"
+            )
         if "params" not in config_entry["strategy"]:
-            raise InvalidConfigParamException(f"Config entry {i} strategy missing 'params' field")
-    
+            raise InvalidConfigParamException(
+                f"Config entry {i} strategy missing 'params' field"
+            )
+
     return True
 
 
 def get_generator_stats() -> Dict[str, Any]:
     """
     Get statistics about available generators.
-    
+
     Returns:
         Dictionary with generator statistics
     """
     generators = load_all_generators()
-    
+
     # Count generators by strategy
     strategy_counts = {}
     for gen_config in generators.values():
         strategy = gen_config.get("implementation", "unknown")
         strategy_counts[strategy] = strategy_counts.get(strategy, 0) + 1
-    
+
     # Count generators by domain (based on naming patterns)
     domain_patterns = {
         "healthcare": ["PATIENT", "MEDICAL", "HOSPITAL", "BLOOD", "VITAL", "INSURANCE"],
@@ -373,28 +385,28 @@ def get_generator_stats() -> Dict[str, Any]:
         "geographic": ["STATE", "CITY", "COUNTRY", "ADDRESS", "COORDINATE"],
         "technology": ["API", "DEVICE", "SOFTWARE", "SERVER", "DATABASE"],
         "iot": ["SENSOR", "TEMPERATURE", "HUMIDITY", "PRESSURE", "BATTERY"],
-        "transportation": ["VEHICLE", "SHIPPING", "FLIGHT", "CARGO", "SPEED"]
+        "transportation": ["VEHICLE", "SHIPPING", "FLIGHT", "CARGO", "SPEED"],
     }
-    
+
     domain_counts = {domain: 0 for domain in domain_patterns.keys()}
     domain_counts["generic"] = 0
-    
+
     for gen_name in generators.keys():
         gen_name_upper = gen_name.upper()
         matched_domain = False
-        
+
         for domain, patterns in domain_patterns.items():
             if any(pattern in gen_name_upper for pattern in patterns):
                 domain_counts[domain] += 1
                 matched_domain = True
                 break
-        
+
         if not matched_domain:
             domain_counts["generic"] += 1
-    
+
     return {
         "total_generators": len(generators),
         "strategy_distribution": strategy_counts,
         "domain_distribution": domain_counts,
-        "available_strategies": list(strategy_counts.keys())
-    } 
+        "available_strategies": list(strategy_counts.keys()),
+    }

@@ -1,1 +1,1 @@
-"""Configs package for the data generator.""" 
+"""Configs package for the data generator."""

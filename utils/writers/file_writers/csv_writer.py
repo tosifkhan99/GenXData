@@ -1,34 +1,39 @@
 import os
 
+
 def csvWriter(df, params):
     """
     Write DataFrame to a CSV file.
-    
+
     Args:
         df (pandas.DataFrame): DataFrame to write
         params (dict): Parameters for to_csv method, must include 'path_or_buf'
-    
+
     Returns:
         None
     """
     try:
         # Support multiple path parameter names for flexibility
-        path = params.get('output_path') or params.get('path_or_buf')
+        path = params.get("output_path") or params.get("path_or_buf")
         if not path:
-            raise ValueError("Missing path parameter (use 'output_path' or 'path_or_buf') for CSV writer")
-            
+            raise ValueError(
+                "Missing path parameter (use 'output_path' or 'path_or_buf') for CSV writer"
+            )
+
         # Ensure the file has .csv extension
-        if not path.endswith('.csv'):
-            path = os.path.splitext(path)[0] + '.csv'
-            
+        if not path.endswith(".csv"):
+            path = os.path.splitext(path)[0] + ".csv"
+
         # Create a copy of params for to_csv call, removing path-related keys
-        csv_params = {k: v for k, v in params.items() if k not in ['output_path', 'path_or_buf']}
-        
+        csv_params = {
+            k: v for k, v in params.items() if k not in ["output_path", "path_or_buf"]
+        }
+
         # Default to not including the index
-        if 'index' not in csv_params:
-            csv_params['index'] = False
-            
+        if "index" not in csv_params:
+            csv_params["index"] = False
+
         df.to_csv(path, **csv_params)
-        
-    except Exception as e:
+
+    except Exception:
         raise

@@ -5,6 +5,7 @@ Intermediate columns are used for internal calculations and transformations
 but are not included in the final output.
 """
 
+
 def mark_as_intermediate(df, column_name):
     """
     Mark a column as intermediate (to be excluded from final output)
@@ -16,11 +17,12 @@ def mark_as_intermediate(df, column_name):
     Returns:
         pandas.DataFrame: The same dataframe with metadata updated
     """
-    if not hasattr(df, '_intermediate_columns'):
+    if not hasattr(df, "_intermediate_columns"):
         df._intermediate_columns = set()
-    
+
     df._intermediate_columns.add(column_name)
     return df
+
 
 def get_intermediate_columns(df):
     """
@@ -32,10 +34,11 @@ def get_intermediate_columns(df):
     Returns:
         set: Set of column names marked as intermediate
     """
-    if not hasattr(df, '_intermediate_columns'):
+    if not hasattr(df, "_intermediate_columns"):
         df._intermediate_columns = set()
-    
+
     return df._intermediate_columns
+
 
 def filter_intermediate_columns(df):
     """
@@ -47,12 +50,12 @@ def filter_intermediate_columns(df):
     Returns:
         pandas.DataFrame: A new dataframe with intermediate columns removed
     """
-    if not hasattr(df, '_intermediate_columns'):
+    if not hasattr(df, "_intermediate_columns"):
         return df
-    
+
     intermediate_cols = get_intermediate_columns(df)
     if not intermediate_cols:
         return df
-    
+
     # Filter out intermediate columns
-    return df.drop(columns=list(intermediate_cols)) 
+    return df.drop(columns=list(intermediate_cols))
