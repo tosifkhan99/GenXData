@@ -32,6 +32,7 @@ pyyaml = "6.0.2"
 rstr = "3.2.2"
 six = "1.17.0"
 tzdata = "2025.2"
+python-qpid-proton = "^0.40.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.1"

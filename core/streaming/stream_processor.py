@@ -82,6 +82,7 @@ def process_streaming_config(
         batch_config = prepare_batch_config(
             config_file, batch_size, batch_index, strategy_states
         )
+        logger.debug(f"Prepared batch config: {batch_config}")
         logger.debug(f"Prepared batch config for batch {batch_index}")
 
         try:

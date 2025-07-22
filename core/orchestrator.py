@@ -86,6 +86,9 @@ class DataOrchestrator:
             if self.stream:
                 self.logger.info("Processing streaming config")
                 stream_config = load_config(self.stream)
+                self.logger.debug("=" * 100)
+                self.logger.debug(f"Stream config: {stream_config}")
+                self.logger.debug("=" * 100 + "\n")
                 return process_streaming_config(
                     self.config, stream_config, self.error_handler, self.perf_report
                 )
@@ -120,9 +123,5 @@ class DataOrchestrator:
                     "Critical errors detected. Process cannot continue."
                 )
                 return None
-            else:
-                self.logger.info(
-                    "========== Orchestrator completed successfully with no errors. =========="
-                )
 
         return df
