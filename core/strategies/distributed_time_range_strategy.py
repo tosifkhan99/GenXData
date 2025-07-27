@@ -2,10 +2,11 @@
 Distributed time range strategy for generating time values from multiple weighted time ranges.
 """
 
+import random
+from datetime import datetime, time
+
 import numpy as np
 import pandas as pd
-from datetime import datetime, time
-import random
 
 from core.base_strategy import BaseStrategy
 from core.strategy_config import TimeRangeItem
@@ -68,6 +69,13 @@ class DistributedTimeRangeStrategy(BaseStrategy):
                 f"Distribution weights must sum to 100, got {total_distribution}"
             )
 
+        # Validate seed if provided
+        if "seed" in self.params:
+            try:
+                int(self.params["seed"])
+            except ValueError:
+                raise InvalidConfigParamException("Seed must be an integer")
+
     def _time_to_seconds(self, time_str: str, format_str: str) -> int:
         """Convert time string to seconds since midnight"""
         time_obj = datetime.strptime(time_str, format_str).time()
@@ -104,7 +112,62 @@ class DistributedTimeRangeStrategy(BaseStrategy):
 
         return self._seconds_to_time_str(random_seconds, range_item.format)
 
-    def generate_data(self, count: int) -> pd.Series:
+    def __init__(self, logger=None, **kwargs):
+        """Initialize the strategy with configuration parameters"""
+
+        super().__init__(logger, **kwargs)
+
+        # Initialize state for consistent generation
+
+        self._initialize_state()
+
+    def _initialize_state(self):
+        """Initialize internal state for stateful generation"""
+
+        # Initialize with seed if provided for consistent generation
+
+        seed = self.params.get("seed", None)
+
+        if seed is not None:
+            import random
+
+            import numpy as np
+
+            random.seed(seed)
+
+            np.random.seed(seed)
+
+        self.logger.debug(f"DistributedTimeRangeStrategy initialized with seed={seed}")
+
+    def generate_chunk(self, count: int) -> pd.Series:
+        """
+
+
+        Generate a chunk of data maintaining internal state.
+
+
+        This method is stateful and maintains consistent random sequence.
+
+
+
+        Args:
+
+
+            count: Number of values to generate
+
+
+
+        Returns:
+
+
+            pd.Series: Generated values
+
+
+        """
+
+        self.logger.debug(f"Generating chunk of {count} values")
+
+        # Use the original generation logic
         """
         Generate random time values from multiple weighted time ranges.
 
@@ -139,3 +202,60 @@ class DistributedTimeRangeStrategy(BaseStrategy):
                 all_values.append(time_value)
 
         return pd.Series(all_values)
+
+    def reset_state(self):
+        """Reset the internal state to initial values"""
+
+        self.logger.debug("Resetting DistributedTimeRangeStrategy state")
+
+        self._initialize_state()
+
+    def get_current_state(self) -> dict:
+        """Get current state information for debugging"""
+
+        return {
+            "strategy": "DistributedTimeRangeStrategy",
+            "stateful": True,
+            "column": self.col_name,
+            "seed": self.params.get("seed", None),
+        }
+
+    def generate_data(self, count: int) -> pd.Series:
+        """
+
+
+        Generate data by calling generate_chunk.
+
+
+        This ensures consistent behavior between batch and non-batch modes.
+
+
+
+        Args:
+
+
+            count: Number of values to generate
+
+
+
+        Returns:
+
+
+            pd.Series: Generated values
+
+
+        """
+
+        self.logger.debug(
+            f"Generating {count} values using unified chunk-based approach"
+        )
+
+        # For non-batch mode, reset state to ensure consistent behavior
+
+        self.reset_state()
+
+        # Generate the chunk
+
+        result = self.generate_chunk(count)
+
+        return result

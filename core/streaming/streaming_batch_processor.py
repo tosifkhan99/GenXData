@@ -4,7 +4,7 @@ Implements stateful chunked generation approach for efficient batch processing.
 """
 
 import pandas as pd
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 from abc import ABC, abstractmethod
 
 from core.strategy_factory import StrategyFactory
