@@ -1,22 +1,61 @@
 """
 Batch file processing functionality for GenXData.
+Updated to use StreamingBatchProcessor with stateful strategies.
 """
 
 import pandas as pd
+
 import configs.GENERATOR_SETTINGS as SETTINGS
-from core.batch_processing import get_batches, prepare_batch_config
-from exceptions.batch_processing_exception import BatchProcessingException
 from core.error.error_context import ErrorContextBuilder
-from core.processor.process_config import process_config
+from core.streaming.streaming_batch_processor import (
+    BatchWriter,
+    StreamingBatchProcessor,
+)
+from exceptions.batch_processing_exception import BatchProcessingException
 from utils.logging import Logger
 
 # Initialize logger for batch file processor
 logger = Logger.get_logger("batch_processing")
 
 
+class FileBatchWriter(BatchWriter):
+    """
+    Adapter for the existing BatchWriter to work with StreamingBatchProcessor
+    """
+
+    def __init__(
+        self, output_dir: str, file_prefix: str = "batch", file_format: str = "json"
+    ):
+        """Initialize the file batch writer"""
+        from writers.batch_writer import BatchWriter as LegacyBatchWriter
+
+        self.writer = LegacyBatchWriter(
+            output_dir=output_dir, file_prefix=file_prefix, file_format=file_format
+        )
+        logger.debug(
+            f"FileBatchWriter initialized: dir={output_dir}, format={file_format}"
+        )
+
+    def write_batch(self, df: pd.DataFrame, batch_info: dict) -> None:
+        """Write a batch using the legacy batch writer"""
+        logger.debug(
+            f"Writing batch {batch_info.get('batch_index', 'unknown')} with {len(df)} rows"
+        )
+        self.writer.write_batch(df, batch_info)
+
+    def finalize(self) -> dict:
+        """Get summary from the legacy batch writer"""
+        summary = self.writer.get_summary()
+        logger.info(f"Batch writing finalized: {summary}")
+        return summary
+
+
 def process_batch_config(config_file, batch_config, error_handler, perf_report=False):
     """
-    Process configuration in batch file mode.
+    Process configuration in batch file mode using StreamingBatchProcessor.
+
+    This implementation uses stateful strategies to eliminate the need for
+    manual config parameter adjustments and provides better memory efficiency.
 
     Args:
         config_file (dict): Configuration data
@@ -25,10 +64,12 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         perf_report (bool): Whether to generate a performance report
 
     Returns:
-        dict: Results with last batch data
+        dict: Results with processing summary
     """
 
-    logger.info("Starting batch file configuration processing")
+    logger.info(
+        "Starting batch file configuration processing with StreamingBatchProcessor"
+    )
     logger.debug(f"Batch config: {batch_config}")
     logger.debug(f"Total rows to process: {config_file.get('num_of_rows', 'unknown')}")
 
@@ -56,30 +97,22 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
     output_dir = writer_config["output_dir"]
     file_prefix = writer_config.get("file_prefix", "batch")
     file_format = writer_config.get("file_format", "json")
+    batch_size = writer_config.get("batch_size", SETTINGS.STREAM_BATCH_SIZE)
+    chunk_size = writer_config.get(
+        "chunk_size", 1000
+    )  # New parameter for chunk generation
 
     logger.info(f"Batch files will be written to: {output_dir}")
     logger.info(f"File prefix: {file_prefix}, format: {file_format}")
-
-    # Initialize state tracking for the entire batch session
-    strategy_states = {}
-    logger.debug("Initialized strategy states for batch session")
-
-    # Get batch size from batch config or use default
-    batch_size = writer_config.get("batch_size", SETTINGS.STREAM_BATCH_SIZE)
-    batches = get_batches(batch_size, config_file["num_of_rows"])
-
-    logger.info(f"Configured for batch processing with batch size: {batch_size}")
-    logger.info(f"Total batches to process: {len(batches)}")
+    logger.info(f"Batch size: {batch_size}, chunk size: {chunk_size}")
 
     # Initialize batch writer
     try:
-        logger.debug("Initializing batch writer")
-        from writers.batch_writer import BatchWriter
-
-        batch_writer = BatchWriter(
+        logger.debug("Initializing FileBatchWriter")
+        batch_writer = FileBatchWriter(
             output_dir=output_dir, file_prefix=file_prefix, file_format=file_format
         )
-        logger.info("Batch writer initialized successfully")
+        logger.info("FileBatchWriter initialized successfully")
 
     except Exception as e:
         error_msg = f"Failed to initialize batch writer: {e}"
@@ -88,56 +121,38 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
             error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
         )
 
-    df = None
-    for batch_index, batch_size in enumerate(batches):
-        logger.info(
-            f"Processing batch {batch_index + 1}/{len(batches)} (size: {batch_size})"
-        )
-
-        # Pre-calculate and modify config for this batch
-        batch_config_item = prepare_batch_config(
-            config_file, batch_size, batch_index, strategy_states
-        )
-        logger.debug(f"Prepared batch config for batch {batch_index}")
-
-        try:
-            df = process_config(batch_config_item, perf_report, error_handler)
-            logger.debug(
-                f"Batch {batch_index} processed successfully. Generated {len(df)} rows"
-            )
-
-            # Write batch to file
-            batch_info = {
-                "batch_index": batch_index,
-                "batch_size": batch_size,
-                "total_batches": len(batches),
-                "config_name": config_file.get("metadata", {}).get("name", "unknown"),
-                "timestamp": pd.Timestamp.now().isoformat(),
-            }
-
-            logger.debug(f"Writing batch {batch_index} to file")
-            batch_writer.write_batch(df, batch_info)
-            logger.info(f"Batch {batch_index} written to file successfully")
-
-        except Exception as e:
-            logger.error(f"Failed to process batch {batch_index}: {e}")
-            error_handler.add_error(e)
-            raise
-
-    # Get summary
+    # Initialize and run StreamingBatchProcessor
     try:
-        logger.debug("Generating batch processing summary")
-        summary = batch_writer.get_summary()
-        logger.info(f"Batch processing summary: {summary}")
+        logger.debug("Initializing StreamingBatchProcessor")
+        processor = StreamingBatchProcessor(
+            config=config_file,
+            batch_size=batch_size,
+            batch_writer=batch_writer,
+            chunk_size=chunk_size,
+        )
+        logger.info("StreamingBatchProcessor initialized successfully")
+
+        # Log initial strategy states for debugging
+        if logger.isEnabledFor(10):  # DEBUG level
+            initial_states = processor.get_strategy_states()
+            logger.debug(f"Initial strategy states: {initial_states}")
+
+        # Process the data
+        logger.info("Starting data processing with StreamingBatchProcessor")
+        result = processor.process()
+
+        # Log final strategy states for debugging
+        if logger.isEnabledFor(10):  # DEBUG level
+            final_states = processor.get_strategy_states()
+            logger.debug(f"Final strategy states: {final_states}")
+
+        logger.info("StreamingBatchProcessor completed successfully")
+        return result
 
     except Exception as e:
-        logger.warning(f"Failed to generate batch summary: {e}")
-        summary = None
-
-    logger.info(f"Batch file processing completed. Processed {len(batches)} batches")
-
-    # Return the last batch as the result
-    result_size = len(df) if df is not None else 0
-    logger.info(f"Returning final result with {result_size} records")
-
-    return {"df": df.to_dict(orient="records") if df is not None else []}
+        error_msg = f"Failed during streaming batch processing: {e}"
+        logger.error(error_msg, exc_info=True)
+        error_handler.add_error(e)
+        raise BatchProcessingException(
+            error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
+        )

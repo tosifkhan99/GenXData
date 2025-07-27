@@ -3,11 +3,12 @@ Streaming processing functionality for GenXData.
 """
 
 import pandas as pd
+
 import configs.GENERATOR_SETTINGS as SETTINGS
 from core.batch_processing import get_batches, prepare_batch_config
-from exceptions.streaming_exception import StreamingException
 from core.error.error_context import ErrorContextBuilder
 from core.processor.process_config import process_config
+from exceptions.streaming_exception import StreamingException
 from utils.logging import Logger
 
 # Initialize logger for streaming processor
@@ -53,7 +54,7 @@ def process_streaming_config(
     queue_producer = None
     try:
         logger.debug("Initializing queue producer")
-        from queue.factory import QueueFactory
+        from messaging.factory import QueueFactory
 
         queue_producer = QueueFactory.create_from_config(stream_config)
         queue_producer.connect()
