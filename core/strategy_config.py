@@ -6,8 +6,9 @@ the parameters required for that strategy.
 """
 
 from abc import ABC
-from typing import Dict, List, Any
-from dataclasses import dataclass, fields, field
+from dataclasses import dataclass, field, fields
+from typing import Any
+
 from exceptions.param_exceptions import InvalidConfigParamException
 from exceptions.strategy_exceptions import UnsupportedStrategyException
 
@@ -19,7 +20,7 @@ class BaseConfig(ABC):
     mask: str = ""
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "BaseConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "BaseConfig":
         """
         Create a configuration instance from a dictionary.
 
@@ -33,7 +34,7 @@ class BaseConfig(ABC):
         filtered_dict = {k: v for k, v in config_dict.items() if k in field_names}
         return cls(**filtered_dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """
         Convert configuration to a dictionary.
 
@@ -101,10 +102,10 @@ class RangeItem:
 class DistributedNumberRangeConfig(BaseConfig):
     """Configuration for distributed number range strategy"""
 
-    ranges: List[RangeItem] = field(default_factory=list)
+    ranges: list[RangeItem] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "DistributedNumberRangeConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "DistributedNumberRangeConfig":
         """Create from dictionary with special handling for ranges"""
         config = cls()
         if "ranges" in config_dict:
@@ -217,7 +218,7 @@ class ChoiceItem:
 class DistributedChoiceConfig(BaseConfig):
     """Configuration for distributed choice strategy"""
 
-    choices: Dict[str, int] = field(default_factory=dict)
+    choices: dict[str, int] = field(default_factory=dict)
 
     def validate(self) -> None:
         """Validate distributed choice parameters"""
@@ -339,10 +340,10 @@ class DateRangeItem:
 class DistributedTimeRangeConfig(BaseConfig):
     """Configuration for distributed time range strategy"""
 
-    ranges: List[TimeRangeItem] = field(default_factory=list)
+    ranges: list[TimeRangeItem] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "DistributedTimeRangeConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "DistributedTimeRangeConfig":
         """Create from dictionary with special handling for ranges"""
         config = cls()
         if "ranges" in config_dict:
@@ -378,10 +379,10 @@ class DistributedTimeRangeConfig(BaseConfig):
 class DistributedDateRangeConfig(BaseConfig):
     """Configuration for distributed date range strategy"""
 
-    ranges: List[DateRangeItem] = field(default_factory=list)
+    ranges: list[DateRangeItem] = field(default_factory=list)
 
     @classmethod
-    def from_dict(cls, config_dict: Dict[str, Any]) -> "DistributedDateRangeConfig":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "DistributedDateRangeConfig":
         """Create from dictionary with special handling for ranges"""
         config = cls()
         if "ranges" in config_dict:
@@ -510,7 +511,7 @@ class RandomNameConfig(BaseConfig):
 
 
 # Config factory to create the appropriate config class based on strategy name
-def create_config(strategy_name: str, params: Dict[str, Any]) -> BaseConfig:
+def create_config(strategy_name: str, params: dict[str, Any]) -> BaseConfig:
     """
     Factory function to create a configuration object for the specified strategy.
 

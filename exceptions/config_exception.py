@@ -1,7 +1,7 @@
-from exceptions.error_messages import ERROR_MESSAGES
-from exceptions.base_exception import ConfigurationError, ErrorSeverity
+
 from core.error.error_context import ErrorContext
-from typing import Optional
+from exceptions.base_exception import ConfigurationError, ErrorSeverity
+from exceptions.error_messages import ERROR_MESSAGES
 
 
 class ConfigException(ConfigurationError):
@@ -12,11 +12,11 @@ class ConfigException(ConfigurationError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        error_code: Optional[str] = None,
-        context: Optional[ErrorContext] = None,
-        severity: Optional[ErrorSeverity] = None,
+        error_code: str | None = None,
+        context: ErrorContext | None = None,
+        severity: ErrorSeverity | None = None,
     ):
         # Use provided message or fall back to error messages lookup
         resolved_message = message

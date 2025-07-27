@@ -44,44 +44,44 @@ class TestNumberRangeStrategy:
             'rows': 100,
             'params': {'min': 1, 'max': 100}
         }
-    
+
     def test_valid_parameters(self):
         strategy = NumberRangeStrategy(**self.base_kwargs)
         assert strategy.params['min'] == 1
         assert strategy.params['max'] == 100
-    
+
     def test_missing_required_parameters(self):
         invalid_kwargs = self.base_kwargs.copy()
         invalid_kwargs['params'] = {'min': 1}  # Missing 'max'
-        
+
         with pytest.raises(InvalidConfigParamException):
             NumberRangeStrategy(**invalid_kwargs)
-    
+
     def test_data_generation(self):
         strategy = NumberRangeStrategy(**self.base_kwargs)
         data = strategy.generate_data(10)
-        
+
         assert isinstance(data, pd.Series)
         assert len(data) == 10
         assert all(1 <= x <= 100 for x in data)
-    
+
     def test_unique_constraint(self):
         kwargs = self.base_kwargs.copy()
         kwargs['unique'] = True
         kwargs['params'] = {'min': 1, 'max': 5}
-        
+
         strategy = NumberRangeStrategy(**kwargs)
         data = strategy.generate_data(5)
-        
+
         assert len(data.unique()) == 5
-    
+
     def test_precision_parameter(self):
         kwargs = self.base_kwargs.copy()
         kwargs['params'] = {'min': 1, 'max': 10, 'precision': 2}
-        
+
         strategy = NumberRangeStrategy(**kwargs)
         data = strategy.generate_data(10)
-        
+
         # Check that all values have at most 2 decimal places
         for value in data:
             assert len(str(value).split('.')[-1]) <= 2
@@ -103,17 +103,17 @@ class TestGeneratorUtils:
         assert len(generators) == 175
         assert 'FULL_NAME' in generators
         assert 'EMAIL_PATTERN' in generators
-    
+
     def test_get_generator_info(self):
         info = get_generator_info('FULL_NAME')
         assert info is not None
         assert info['strategy'] == 'RANDOM_NAME_STRATEGY'
         assert 'params' in info
-    
+
     def test_invalid_generator_name(self):
         info = get_generator_info('INVALID_GENERATOR')
         assert info is None
-    
+
     def test_validate_generator_config(self):
         config = {
             'columns': {
@@ -121,17 +121,17 @@ class TestGeneratorUtils:
                 'age': {'generator': 'PERSON_AGE'}
             }
         }
-        
+
         # Should not raise exception
         validate_generator_config(config)
-    
+
     def test_invalid_generator_config(self):
         config = {
             'columns': {
                 'name': {'generator': 'INVALID_GENERATOR'}
             }
         }
-        
+
         with pytest.raises(Exception):
             validate_generator_config(config)
 ```
@@ -162,14 +162,14 @@ class TestFullPipeline:
                 {'format': 'csv', 'output_path': 'test_output.csv'}
             ]
         }
-        
+
         orchestrator = DataOrchestrator(config)
         result = orchestrator.run()
-        
+
         assert result is not None
         assert 'df' in result
         assert len(result['df']) == 100
-    
+
     def test_dependent_columns(self):
         config = {
             'name': 'Dependent Columns Test',
@@ -195,13 +195,13 @@ class TestFullPipeline:
                 {'format': 'json', 'output_path': 'dependent_test.json'}
             ]
         }
-        
+
         orchestrator = DataOrchestrator(config)
         result = orchestrator.run()
-        
+
         assert result is not None
         data = result['df']
-        
+
         # Verify email format
         for row in data:
             email = row['email']
@@ -225,19 +225,19 @@ class TestAPIEndpoints:
         response = client.get("/ping")
         assert response.status_code == 200
         assert response.json() == {"status": "healthy"}
-    
+
     def test_list_generators(self):
         response = client.get("/generators")
         assert response.status_code == 200
         data = response.json()
         assert len(data) == 175
-    
+
     def test_filter_generators(self):
         response = client.get("/generators?filter=NAME")
         assert response.status_code == 200
         data = response.json()
         assert all('NAME' in gen['name'] for gen in data)
-    
+
     def test_generate_data_endpoint(self):
         config = {
             "name": "API Test",
@@ -247,13 +247,13 @@ class TestAPIEndpoints:
             },
             "output": [{"format": "json", "output_path": "api_test.json"}]
         }
-        
+
         response = client.post("/generate", json=config)
         assert response.status_code == 200
         data = response.json()
         assert data["success"] is True
         assert len(data["data"]) == 10
-    
+
     def test_invalid_config(self):
         invalid_config = {
             "name": "Invalid Test",
@@ -263,7 +263,7 @@ class TestAPIEndpoints:
             },
             "output": [{"format": "json", "output_path": "invalid.json"}]
         }
-        
+
         response = client.post("/generate", json=invalid_config)
         assert response.status_code == 400
 ```
@@ -292,23 +292,23 @@ class TestPerformance:
                 {'format': 'csv', 'output_path': 'large_dataset.csv'}
             ]
         }
-        
+
         start_time = time.time()
         orchestrator = DataOrchestrator(config, perf_report=True)
         result = orchestrator.run()
         end_time = time.time()
-        
+
         assert result is not None
         assert len(result['df']) == 100000
         assert end_time - start_time < 60  # Should complete within 60 seconds
-    
+
     def test_memory_usage(self):
         import psutil
         import os
-        
+
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss
-        
+
         config = {
             'name': 'Memory Test',
             'rows': 50000,
@@ -319,13 +319,13 @@ class TestPerformance:
                 {'format': 'json', 'output_path': 'memory_test.json'}
             ]
         }
-        
+
         orchestrator = DataOrchestrator(config)
         result = orchestrator.run()
-        
+
         final_memory = process.memory_info().rss
         memory_increase = final_memory - initial_memory
-        
+
         # Memory increase should be reasonable (less than 500MB)
         assert memory_increase < 500 * 1024 * 1024
 ```
@@ -345,12 +345,12 @@ repos:
     hooks:
       - id: black
         language_version: python3
-  
+
   - repo: https://github.com/pycqa/flake8
     rev: 4.0.1
     hooks:
       - id: flake8
-  
+
   - repo: https://github.com/pycqa/isort
     rev: 5.10.1
     hooks:
@@ -392,22 +392,22 @@ jobs:
     strategy:
       matrix:
         python-version: [3.9, 3.10, 3.11]
-    
+
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Install dependencies
       run: |
         poetry install --with dev
-    
+
     - name: Run tests
       run: |
         pytest --cov=core --cov=utils --cov=exceptions
-    
+
     - name: Upload coverage
       uses: codecov/codecov-action@v3
 ```

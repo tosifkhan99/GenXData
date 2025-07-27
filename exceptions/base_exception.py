@@ -1,7 +1,7 @@
 from abc import ABC
 from enum import Enum
+
 from core.error.error_context import ErrorContext
-from typing import Optional
 
 
 class ErrorSeverity(Enum):
@@ -37,9 +37,9 @@ class GenXDataError(Exception, ABC):
     def __init__(
         self,
         message: str,
-        error_code: Optional[str] = None,
-        context: Optional[ErrorContext] = None,
-        severity: Optional[ErrorSeverity] = None,
+        error_code: str | None = None,
+        context: ErrorContext | None = None,
+        severity: ErrorSeverity | None = None,
     ):
         """
         Initialize GenXDataError.

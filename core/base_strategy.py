@@ -2,11 +2,11 @@
 Base strategy for all data generation strategies.
 """
 
+from abc import ABC, abstractmethod
+
+import numpy as np
 import pandas as pd
 from pandas.errors import IndexingError
-import numpy as np
-from typing import Optional
-from abc import ABC, abstractmethod
 
 from utils.logging import Logger
 
@@ -14,6 +14,7 @@ from utils.logging import Logger
 class BaseStrategy(ABC):
     """
     Base class for all data generation strategies.
+    All strategies must implement the stateful generation pattern.
     """
 
     def __init__(self, logger=None, **kwargs):
@@ -55,6 +56,7 @@ class BaseStrategy(ABC):
     def generate_data(self, count: int) -> pd.Series:
         """
         Generate the data based on strategy configuration.
+        This method should call generate_chunk() for consistent behavior.
 
         Args:
             count: Number of values to generate
@@ -64,8 +66,51 @@ class BaseStrategy(ABC):
         """
         pass
 
+    @abstractmethod
+    def generate_chunk(self, count: int) -> pd.Series:
+        """
+        Generate a chunk of data maintaining internal state.
+        All strategies must implement this method for stateful generation.
+
+        Args:
+            count: Number of values to generate
+
+        Returns:
+            pd.Series: Generated values
+        """
+        pass
+
+    @abstractmethod
+    def reset_state(self):
+        """
+        Reset the internal state to initial values.
+        All strategies must implement this method.
+        """
+        pass
+
+    @abstractmethod
+    def get_current_state(self) -> dict:
+        """
+        Get current state information for debugging.
+        All strategies must implement this method.
+
+        Returns:
+            dict: Current state information
+        """
+        pass
+
+    def is_stateful(self) -> bool:
+        """
+        Check if this strategy supports stateful generation.
+        All strategies are now stateful by design.
+
+        Returns:
+            bool: Always True since all strategies implement stateful methods
+        """
+        return True
+
     def apply_to_dataframe(
-        self, df: pd.DataFrame, column_name: str, mask: Optional[str] = None
+        self, df: pd.DataFrame, column_name: str, mask: str | None = None
     ) -> pd.DataFrame:
         """
         Apply strategy to dataframe with optional mask filtering.
@@ -202,9 +247,9 @@ class BaseStrategy(ABC):
                 "affected_rows": affected_rows,
                 "percentage": round(percentage, 2),
                 "mask_valid": True,
-                "sample_affected_rows": filtered_df.head(3).to_dict("records")
-                if affected_rows > 0
-                else [],
+                "sample_affected_rows": (
+                    filtered_df.head(3).to_dict("records") if affected_rows > 0 else []
+                ),
             }
         except Exception as e:
             self.logger.debug(f"Mask preview failed: {str(e)}")

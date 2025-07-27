@@ -1,9 +1,10 @@
 import json
+import threading
+import time
+
 from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
-import threading
-import time
 
 
 class AMQPProducer(MessagingHandler):

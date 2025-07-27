@@ -1,6 +1,6 @@
-from exceptions.base_exception import NetworkError, ErrorSeverity
+
 from core.error.error_context import ErrorContext
-from typing import Optional
+from exceptions.base_exception import ErrorSeverity, NetworkError
 
 
 class StreamingException(NetworkError):
@@ -11,11 +11,11 @@ class StreamingException(NetworkError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        error_code: Optional[str] = None,
-        context: Optional[ErrorContext] = None,
-        severity: Optional[ErrorSeverity] = None,
+        error_code: str | None = None,
+        context: ErrorContext | None = None,
+        severity: ErrorSeverity | None = None,
     ):
         resolved_message = message or "Streaming configuration or connection error"
         super().__init__(

@@ -25,11 +25,11 @@ COMMANDS:
 
     list-generators [OPTIONS]
         List available generators with optional filtering and statistics.
-        
+
         Options:
             --filter, -f PATTERN    Filter generators by name pattern
             --show-stats           Show comprehensive statistics
-        
+
         Examples:
             python -m cli.main_cli list-generators
             python -m cli.main_cli list-generators --filter NAME
@@ -38,21 +38,21 @@ COMMANDS:
 
     show-generator GENERATOR_NAME
         Show detailed information about a specific generator, including strategy and parameters.
-        
+
         Examples:
             python -m cli.main_cli show-generator PERSON_NAME
             python -m cli.main_cli show-generator EMAIL_PATTERN
 
     by-strategy STRATEGY_NAME
         List all generators using a specific strategy.
-        
+
         Examples:
             python -m cli.main_cli by-strategy RANDOM_NAME_STRATEGY
             python -m cli.main_cli by-strategy DATE_GENERATOR_STRATEGY
 
     create-config [OPTIONS]
         Create configuration files from generator mappings.
-        
+
         Options:
             --mapping, -m MAPPING       Generator mapping: "col1:gen1,col2:gen2"
             --mapping-file FILE        File containing generator mapping (JSON/YAML)
@@ -60,28 +60,28 @@ COMMANDS:
             --rows, -r NUMBER          Number of rows to generate (default: 100)
             --name NAME                Configuration name
             --description DESC         Configuration description
-        
+
         Examples:
             python -m cli.main_cli create-config \
                 --mapping "name:FULL_NAME,age:PERSON_AGE,email:EMAIL_PATTERN" \
                 --output test_config.json --rows 50
-            
+
             python -m cli.main_cli create-config \
                 --mapping-file mapping.json --output config.yaml --rows 500
 
     create-domain-configs
         Create example configurations for various domains (ecommerce, healthcare, education, etc.).
-        
+
         Examples:
             python -m cli.main_cli create-domain-configs
 
     generate CONFIG_FILE [OPTIONS]
         Generate synthetic data from configuration files.
-        
+
         Options:
             --stream STREAM_CONFIG    Use streaming mode with queue integration
             --batch BATCH_CONFIG      Use batch file mode for large datasets
-        
+
         Examples:
             python -m cli.main_cli generate test_config.json
             python -m cli.main_cli generate examples/simple_random_number_example.yaml
@@ -92,7 +92,7 @@ COMMANDS:
     stats
         Display comprehensive generator statistics including totals, strategy distribution,
         domain distribution, and available strategies.
-        
+
         Examples:
             python -m cli.main_cli stats
 
@@ -131,15 +131,15 @@ IMPORTANT NOTES:
 EXAMPLES:
     # Explore available generators
     python -m cli.main_cli list-generators --show-stats
-    
+
     # Create a user profile dataset
     python -m cli.main_cli create-config \
         --mapping "user_id:USER_ID,name:FULL_NAME,email:EMAIL_PATTERN,age:PERSON_AGE" \
         --output user_profiles.yaml --rows 1000
-    
+
     # Generate the data
     python -m cli.main_cli generate user_profiles.yaml
-    
+
     # Create domain examples and generate healthcare data with debug output
     python -m cli.main_cli create-domain-configs
     python -m cli.main_cli --debug generate output/healthcare_config.yaml
@@ -148,26 +148,27 @@ For more information, visit: https://github.com/tosifkhan99/GenXData
 """
 
 import argparse
-import sys
 import json
-import yaml
+import sys
 from pathlib import Path
+
+import yaml
 
 # Add the parent directory to the path so we can import from utils
 sys.path.append(str(Path(__file__).parent.parent))
 
+from core.orchestrator import DataOrchestrator
 from utils.generator_utils import (
-    list_available_generators,
-    get_generator_info,
-    get_generators_by_strategy,
-    generator_to_config,
-    save_config_as_yaml,
-    save_config_as_json,
     create_domain_configs_example,
+    generator_to_config,
+    get_generator_info,
     get_generator_stats,
+    get_generators_by_strategy,
+    list_available_generators,
+    save_config_as_json,
+    save_config_as_yaml,
     validate_generator_config,
 )
-from core.orchestrator import DataOrchestrator
 from utils.logging import Logger
 
 # Initialize CLI logger
@@ -240,7 +241,7 @@ def create_config_command(args):
         if args.mapping_file:
             logger.debug(f"Loading generator mapping from file: {args.mapping_file}")
             # Load from file
-            with open(args.mapping_file, "r") as f:
+            with open(args.mapping_file) as f:
                 if args.mapping_file.endswith(".json"):
                     generator_mapping = json.load(f)
                 else:
@@ -311,10 +312,10 @@ def generate_data_command(args):
 
         # Load configuration
         if args.config.endswith(".yaml") or args.config.endswith(".yml"):
-            with open(args.config, "r") as f:
+            with open(args.config) as f:
                 config = yaml.safe_load(f)
         else:
-            with open(args.config, "r") as f:
+            with open(args.config) as f:
                 config = json.load(f)
 
         # Validate configuration

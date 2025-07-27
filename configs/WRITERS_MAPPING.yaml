@@ -4,4 +4,4 @@ json: jsonWriter
 parquet: parquetWriter
 sqlite: sqliteWriter
 html: htmlWriter
-feather: featherWriter 
+feather: featherWriter

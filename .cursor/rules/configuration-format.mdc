@@ -29,7 +29,7 @@ columns:
 output:
   - format: "csv"
     output_path: "data.csv"
-  - format: "json" 
+  - format: "json"
     output_path: "data.json"
 ```
 
@@ -54,7 +54,7 @@ columns:
 - `DISTRIBUTED_NUMBER_RANGE_STRATEGY`: Numbers with custom distributions
 - `SERIES_STRATEGY`: Sequential/arithmetic series
 
-### Date/Time Strategies  
+### Date/Time Strategies
 - `DATE_GENERATOR_STRATEGY`: Date generation within ranges
 - `DISTRIBUTED_DATE_STRATEGY`: Dates with custom distributions
 - `TIME_RANGE_STRATEGY`: Time generation within ranges
@@ -151,12 +151,12 @@ columns:
     strategy: "RANDOM_NAME_STRATEGY"
     params:
       name_type: "first"
-      
+
   last_name:
     strategy: "RANDOM_NAME_STRATEGY"
     params:
       name_type: "last"
-      
+
   email:
     strategy: "CONCAT_STRATEGY"
     params:

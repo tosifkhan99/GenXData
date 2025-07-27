@@ -2,15 +2,14 @@
 Main orchestrator for GenXData processing.
 """
 
-
 import configs.GENERATOR_SETTINGS as SETTINGS
-from exceptions.invalid_running_mode_exception import InvalidRunningModeException
-from utils.config_utils import load_config, get_config_files
-from core.streaming import process_streaming_config, process_batch_config
-from core.error.error_context import ErrorContextBuilder
-from utils.logging import Logger
 from core.error.error import ErrorHandler
+from core.error.error_context import ErrorContextBuilder
 from core.processor.process_config import process_config
+from core.streaming import process_batch_config, process_streaming_config
+from exceptions.invalid_running_mode_exception import InvalidRunningModeException
+from utils.config_utils import get_config_files, load_config
+from utils.logging import Logger
 
 
 class DataOrchestrator:
@@ -51,15 +50,17 @@ class DataOrchestrator:
             dict: Processing results
         """
         self.logger.info("Starting data generation with config")
-        self.logger.info("""
-  _____           __   _______        _        
- / ____|          \ \ / /  __ \      | |       
-| |  __  ___ _ __  \ V /| |  | | __ _| |_ __ _ 
+        self.logger.info(
+            r"""
+  _____           __   _______        _
+ / ____|          \ \ / /  __ \      | |
+| |  __  ___ _ __  \ V /| |  | | __ _| |_ __ _
 | | |_ |/ _ \ '_ \  > < | |  | |/ _` | __/ _` |
 | |__| |  __/ | | |/ . \| |__| | (_| | || (_| |
  \_____|\___|_| |_/_/ \_\_____/ \__,_|\__\__,_|
-                                               
-""")
+
+"""
+        )
 
         self.logger.debug(f"Config: {self.config}")
         self.logger.debug(f"Perf report: {self.perf_report}")

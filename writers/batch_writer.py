@@ -5,9 +5,10 @@ This writer splits large datasets into multiple files for easier processing
 """
 
 import json
-import pandas as pd
-from datetime import datetime
 import os
+from datetime import datetime
+
+import pandas as pd
 
 
 class BatchWriter:
@@ -144,7 +145,7 @@ def read_batch_file(filepath):
     file_ext = os.path.splitext(filepath)[1].lower()
 
     if file_ext == ".json":
-        with open(filepath, "r") as f:
+        with open(filepath) as f:
             data = json.load(f)
 
         # Extract components
@@ -164,7 +165,7 @@ def read_batch_file(filepath):
         meta_filepath = filepath.replace(".csv", "_meta.json")
         batch_info, metadata = {}, {}
         if os.path.exists(meta_filepath):
-            with open(meta_filepath, "r") as f:
+            with open(meta_filepath) as f:
                 meta_data = json.load(f)
                 batch_info = meta_data.get("batch_info", {})
                 metadata = meta_data.get("metadata", {})
@@ -178,7 +179,7 @@ def read_batch_file(filepath):
         meta_filepath = filepath.replace(".parquet", "_meta.json")
         batch_info, metadata = {}, {}
         if os.path.exists(meta_filepath):
-            with open(meta_filepath, "r") as f:
+            with open(meta_filepath) as f:
                 meta_data = json.load(f)
                 batch_info = meta_data.get("batch_info", {})
                 metadata = meta_data.get("metadata", {})

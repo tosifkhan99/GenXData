@@ -50,7 +50,7 @@ STRATEGY_MAPPING = {
 
 ### Core Features
 - **Unique values**: Handle `unique: true` parameter
-- **Shuffle**: Support `shuffle: true` parameter  
+- **Shuffle**: Support `shuffle: true` parameter
 - **Intermediate columns**: Support `intermediate: true` for dependent columns
 - **Masking**: Support conditional generation with masking logic
 - **Null handling**: Support null/blank value generation
@@ -71,7 +71,7 @@ def _validate_params(self):
     for param in required:
         if param not in self.params:
             raise InvalidConfigParamException(f"Missing {param}")
-    
+
     # Validate parameter types and ranges
     if not isinstance(self.params['min_value'], (int, float)):
         raise InvalidConfigParamException("min_value must be numeric")
@@ -82,15 +82,15 @@ def _validate_params(self):
 def generate_data(self, count: int) -> pd.Series:
     # Generate base data
     data = self._generate_base_data(count)
-    
+
     # Apply masking if configured
     if 'mask' in self.params:
         data = self._apply_mask(data)
-    
+
     # Handle unique constraint
     if self.unique:
         data = self._ensure_unique(data)
-    
+
     return pd.Series(data)
 ```
 

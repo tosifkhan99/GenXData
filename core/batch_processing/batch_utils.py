@@ -3,8 +3,8 @@ Batch processing utilities for GenXData.
 """
 
 import copy
-import configs.GENERATOR_SETTINGS as SETTINGS
 
+import configs.GENERATOR_SETTINGS as SETTINGS
 
 # State-dependent strategies that need parameter adjustment across batches
 STATE_DEPENDENT_STRATEGIES = {
@@ -90,6 +90,11 @@ def adjust_strategy_params(config_item, col_name, cumulative_rows, strategy_stat
     """
     strategy_name = config_item["strategy"]["name"]
     params = config_item["strategy"]["params"]
+
+    print("--------------------------------")
+    print(f"Cumulative rows: {cumulative_rows}")
+    print(f"Strategy states: {strategy_states}")
+    print("--------------------------------")
 
     if strategy_name == "SERIES_STRATEGY":
         # For series strategy, adjust the start value

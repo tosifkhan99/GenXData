@@ -19,7 +19,7 @@ class MyCustomException(BaseGenXDataException):
 ```python
 class ErrorSeverity(Enum):
     INFO = "INFO"
-    WARNING = "WARNING"  
+    WARNING = "WARNING"
     ERROR = "ERROR"
     CRITICAL = "CRITICAL"
 ```
@@ -92,15 +92,15 @@ def load_config(config_path):
                     .with_config_path(config_path)
                     .build()
             )
-        
+
         # Load configuration
         config = yaml.safe_load(open(config_path))
-        
+
         # Validate configuration
         validate_config(config)
-        
+
         return config
-        
+
     except yaml.YAMLError as e:
         raise InvalidConfigFormatException(
             f"Invalid YAML format: {e}",
@@ -117,23 +117,23 @@ def generate_data(self, count: int) -> pd.Series:
     try:
         # Validate parameters
         self._validate_params()
-        
+
         # Generate data
         data = self._generate_base_data(count)
-        
+
         # Apply transformations
         if self.unique:
             data = self._ensure_unique(data)
-            
+
         return pd.Series(data)
-        
+
     except Exception as e:
         context = ErrorContextBuilder() \
             .with_strategy(self.__class__.__name__) \
             .with_column(self.col_name) \
             .with_params(self.params) \
             .build()
-            
+
         self.logger.error(f"Data generation failed: {e}")
         raise StrategyException(f"Failed to generate data: {e}", context)
 ```
@@ -148,21 +148,21 @@ from core.error.error import ErrorHandler
 class DataOrchestrator:
     def __init__(self):
         self.error_handler = ErrorHandler(self.logger)
-    
+
     def run(self):
         try:
             # Process data
             result = self.process_config()
             return result
-            
+
         except Exception as e:
             self.error_handler.add_error(e)
-            
+
         finally:
             # Generate error report
             if self.error_handler.has_errors():
                 self.error_handler.generate_error_report()
-            
+
             # Fail only on critical errors
             if self.error_handler.has_critical_errors():
                 self.logger.critical("Critical errors detected")

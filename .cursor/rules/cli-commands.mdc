@@ -89,7 +89,7 @@ python -m cli.main_cli create-domain-configs
 
 # This creates configs for:
 # - Healthcare (21 generators)
-# - Ecommerce (18 generators)  
+# - Ecommerce (18 generators)
 # - Education (22 generators)
 # - Business (21 generators)
 # - Geographic (24 generators)

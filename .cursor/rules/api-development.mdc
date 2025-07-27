@@ -84,7 +84,7 @@ async def generate_data(config: Dict[str, Any]):
         orchestrator = DataOrchestrator(config)
         result = orchestrator.run()
         return {"success": True, "data": result}
-    
+
     except BaseGenXDataException as e:
         raise HTTPException(
             status_code=400,
@@ -109,12 +109,12 @@ async def generate_and_download(config: Dict[str, Any]):
         # Generate data
         orchestrator = DataOrchestrator(config)
         result = orchestrator.run()
-        
+
         # Create temporary file
         with tempfile.NamedTemporaryFile(delete=False, suffix='.csv') as tmp:
             df = pd.DataFrame(result['data'])
             df.to_csv(tmp.name, index=False)
-            
+
             return FileResponse(
                 tmp.name,
                 filename="generated_data.csv",
@@ -136,7 +136,7 @@ async def generate_data_stream(config: Dict[str, Any]):
                 yield f"data: {json.dumps(chunk)}\n\n"
         except Exception as e:
             yield f"error: {str(e)}\n\n"
-    
+
     return StreamingResponse(
         generate_chunks(),
         media_type="text/plain"
@@ -167,11 +167,11 @@ export const apiClient = {
   async listGenerators(filter?: string) {
     const url = new URL(`${API_BASE_URL}/generators`);
     if (filter) url.searchParams.set('filter', filter);
-    
+
     const response = await fetch(url);
     return response.json();
   },
-  
+
   async generateData(config: any) {
     const response = await fetch(`${API_BASE_URL}/generate`, {
       method: 'POST',
@@ -192,15 +192,15 @@ import { apiClient } from '../utils/api';
 export function GeneratorSelector() {
   const [generators, setGenerators] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   useEffect(() => {
     apiClient.listGenerators()
       .then(setGenerators)
       .finally(() => setLoading(false));
   }, []);
-  
+
   if (loading) return <div>Loading generators...</div>;
-  
+
   return (
     <select>
       {generators.map(gen => (
@@ -284,7 +284,7 @@ def test_generate_data():
         },
         "output": [{"format": "json", "output_path": "test.json"}]
     }
-    
+
     response = client.post("/generate", json=config)
     assert response.status_code == 200
     data = response.json()
@@ -310,11 +310,11 @@ def test_large_dataset_generation():
         },
         "output": [{"format": "json", "output_path": "large.json"}]
     }
-    
+
     start_time = time.time()
     response = client.post("/generate", json=config)
     end_time = time.time()
-    
+
     assert response.status_code == 200
     assert end_time - start_time < 30  # Should complete within 30 seconds
 ```
@@ -351,7 +351,7 @@ from pydantic import BaseModel, validator
 class GenerateRequest(BaseModel):
     rows: int
     columns: Dict[str, Any]
-    
+
     @validator('rows')
     def validate_rows(cls, v):
         if v <= 0 or v > 1000000:

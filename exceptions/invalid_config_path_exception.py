@@ -1,6 +1,6 @@
-from exceptions.base_exception import ConfigurationError, ErrorSeverity
+
 from core.error.error_context import ErrorContext
-from typing import Optional
+from exceptions.base_exception import ConfigurationError, ErrorSeverity
 
 
 class InvalidConfigPathException(ConfigurationError):
@@ -11,11 +11,11 @@ class InvalidConfigPathException(ConfigurationError):
 
     def __init__(
         self,
-        message: Optional[str] = None,
+        message: str | None = None,
         *,
-        error_code: Optional[str] = None,
-        context: Optional[ErrorContext] = None,
-        severity: Optional[ErrorSeverity] = None,
+        error_code: str | None = None,
+        context: ErrorContext | None = None,
+        severity: ErrorSeverity | None = None,
     ):
         resolved_message = (
             message or "Configuration file path does not exist or is inaccessible"
