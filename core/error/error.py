@@ -1,16 +1,16 @@
 from datetime import datetime
 from logging import Logger
-from typing import Dict, Any, Union, List
+from typing import Any
 
-from exceptions.base_exception import GenXDataError, ErrorSeverity
+from exceptions.base_exception import ErrorSeverity, GenXDataError
 
 
 class ErrorHandler:
     def __init__(self, logger: Logger):
         self.logger = logger
-        self.errors: list[Dict[str, Any]] = []
+        self.errors: list[dict[str, Any]] = []
 
-    def add_error(self, error: Union[GenXDataError, Exception]):
+    def add_error(self, error: GenXDataError | Exception):
         """
         Add an error to the error handler.
         Handles both GenXDataError and built-in Python exceptions.
@@ -92,9 +92,9 @@ class ErrorHandler:
         """Check if debug mode is enabled."""
         return self.logger.level <= 10  # DEBUG level
 
-    def _generate_debug_info(self, error: Union[GenXDataError, Exception]):
+    def _generate_debug_info(self, error: GenXDataError | Exception):
         """Generate enhanced debug information for critical errors."""
-        from .debug_utils import DebugFormatter, DebugAnalyzer, DebugReporter
+        from .debug_utils import DebugAnalyzer, DebugFormatter, DebugReporter
 
         context_info = DebugFormatter.format_error_context(error)
         self.logger.debug("Enhanced Error Context:")
@@ -102,7 +102,7 @@ class ErrorHandler:
             self.logger.debug(line)
 
         analysis = DebugAnalyzer.analyze_error_pattern(error)
-        self.logger.debug(f"Error Pattern Analysis: {analysis['category']}")
+        self.logger.debug(f"Error Pattern Analysis: {analysis['error_pattern']}")
         self.logger.debug("Debugging Suggestions:")
         for suggestion in analysis["suggestions"]:
             self.logger.debug(f"  • {suggestion}")
@@ -117,7 +117,7 @@ class ErrorHandler:
                 self.logger.error(f"Failed to export debug report: {str(e)}")
 
     def _log_error_by_severity(
-        self, error: Union[GenXDataError, Exception], severity: ErrorSeverity
+        self, error: GenXDataError | Exception, severity: ErrorSeverity
     ):
         """Log errors with appropriate log level based on severity."""
         if isinstance(error, GenXDataError):
@@ -134,19 +134,19 @@ class ErrorHandler:
         elif severity == ErrorSeverity.INFO:
             self.logger.info(message)
 
-    def get_errors(self) -> List[Dict[str, Any]]:
+    def get_errors(self) -> list[dict[str, Any]]:
         """Get all errors."""
         return self.errors
 
-    def get_errors_by_severity(self, severity: ErrorSeverity) -> List[Dict[str, Any]]:
+    def get_errors_by_severity(self, severity: ErrorSeverity) -> list[dict[str, Any]]:
         """Get errors filtered by severity level."""
         return [error for error in self.errors if error.get("severity") == severity]
 
-    def get_critical_errors(self) -> List[Dict[str, Any]]:
+    def get_critical_errors(self) -> list[dict[str, Any]]:
         """Get only critical errors."""
         return self.get_errors_by_severity(ErrorSeverity.CRITICAL)
 
-    def get_recoverable_errors(self) -> List[Dict[str, Any]]:
+    def get_recoverable_errors(self) -> list[dict[str, Any]]:
         """Get only recoverable errors."""
         return [error for error in self.errors if error.get("is_recoverable", True)]
 
@@ -158,7 +158,7 @@ class ErrorHandler:
         """Check if there are any errors."""
         return len(self.errors) > 0
 
-    def get_error_summary(self) -> Dict[str, int]:
+    def get_error_summary(self) -> dict[str, int]:
         """Get a summary of errors by severity."""
         summary = {severity.value: 0 for severity in ErrorSeverity}
         for error in self.errors:
@@ -245,15 +245,21 @@ class ErrorHandler:
             serializable_error = {
                 "error_code": error_info.get("error_code"),
                 "message": error_info.get("message"),
-                "severity": error_info.get("severity").value
-                if error_info.get("severity")
-                else None,
-                "category": error_info.get("category").value
-                if error_info.get("category")
-                else None,
-                "timestamp": error_info.get("timestamp").isoformat()
-                if error_info.get("timestamp")
-                else None,
+                "severity": (
+                    error_info.get("severity").value
+                    if error_info.get("severity")
+                    else None
+                ),
+                "category": (
+                    error_info.get("category").value
+                    if error_info.get("category")
+                    else None
+                ),
+                "timestamp": (
+                    error_info.get("timestamp").isoformat()
+                    if error_info.get("timestamp")
+                    else None
+                ),
                 "file": error_info.get("file"),
                 "line": error_info.get("line"),
                 "function": error_info.get("function"),

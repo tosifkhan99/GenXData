@@ -5,9 +5,8 @@ Debug utilities for error analysis and troubleshooting.
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Any
 
-from core.error.error_context import ErrorContext
 from utils.logging import Logger
 
 # Initialize debug logger
@@ -20,68 +19,68 @@ class DebugFormatter:
     """
 
     @staticmethod
-    def format_error_context(error: ErrorContext) -> str:
+    def format_error_context(error) -> str:
         """Format error context for display"""
+        from exceptions.base_exception import GenXDataError
+
         lines = []
         lines.append("🔍 ERROR DEBUG INFORMATION")
         lines.append(f"{'=' * 50}")
-        lines.append(f"Error Type: {error.error_type}")
-        lines.append(f"Message: {error.message}")
-        lines.append(f"Severity: {error.severity.name}")
-        lines.append(f"Timestamp: {error.timestamp}")
-        lines.append(f"Component: {error.component}")
 
-        if error.strategy_name:
-            lines.append(f"Strategy: {error.strategy_name}")
+        if isinstance(error, GenXDataError):
+            lines.append(f"Error Type: {error.__class__.__name__}")
+            lines.append(f"Message: {error.message}")
+            lines.append(f"Error Code: {error.error_code}")
+            lines.append(
+                f"Severity: {error.severity.name if hasattr(error.severity, 'name') else str(error.severity)}"
+            )
+            lines.append(
+                f"Category: {error.category.value if hasattr(error.category, 'value') else str(error.category)}"
+            )
 
-        if error.column_name:
-            lines.append(f"Column: {error.column_name}")
+            # Add context information if available
+            if hasattr(error, "context") and error.context:
+                if error.context.get("strategy_name"):
+                    lines.append(f"Strategy: {error.context['strategy_name']}")
+                if error.context.get("column"):
+                    lines.append(f"Column: {error.context['column']}")
+                if error.context.get("config_path"):
+                    lines.append(f"Config Path: {error.context['config_path']}")
 
-        if error.config_path:
-            lines.append(f"Config Path: {error.config_path}")
-
-        if error.additional_context:
-            lines.append("\nAdditional Context:")
-            for key, value in error.additional_context.items():
-                lines.append(f"  {key}: {value}")
+        else:
+            # Handle built-in Python exceptions
+            lines.append(f"Error Type: {error.__class__.__name__}")
+            lines.append(f"Message: {str(error)}")
+            lines.append("Severity: ERROR")
+            lines.append("Category: SYSTEM")
 
         return "\n".join(lines)
 
     @staticmethod
-    def format_stack_trace(error: ErrorContext, include_locals: bool = False) -> str:
+    def format_stack_trace(error, include_locals: bool = False) -> str:
         """Format stack trace with optional local variables"""
+        import traceback
+
         lines = []
         lines.append("📍 STACK TRACE")
         lines.append(f"{'=' * 50}")
 
-        if error.stack_trace:
-            lines.append(error.stack_trace)
+        # Get stack trace from the exception
+        if hasattr(error, "__traceback__") and error.__traceback__:
+            tb_lines = traceback.format_exception(
+                type(error), error, error.__traceback__
+            )
+            lines.extend(tb_lines)
+        else:
+            lines.append("No traceback available")
 
-        if include_locals and error.local_variables:
-            lines.append("\n🔧 LOCAL VARIABLES")
-            lines.append(f"{'=' * 50}")
-            for var_name, var_value in error.local_variables.items():
-                try:
-                    # Safely format the variable value
-                    if isinstance(var_value, (str, int, float, bool, type(None))):
-                        formatted_value = repr(var_value)
-                    elif isinstance(var_value, (list, dict, tuple)):
-                        formatted_value = (
-                            str(var_value)[:200] + "..."
-                            if len(str(var_value)) > 200
-                            else str(var_value)
-                        )
-                    else:
-                        formatted_value = f"<{type(var_value).__name__} object>"
-
-                    lines.append(f"  {var_name}: {formatted_value}")
-                except Exception:
-                    lines.append(f"  {var_name}: <unable to format>")
+        # Note: Local variables inspection is complex and not implemented here
+        # as it requires more sophisticated error context tracking
 
         return "\n".join(lines)
 
     @staticmethod
-    def format_suggestions(suggestions: List[str]) -> str:
+    def format_suggestions(suggestions: list[str]) -> str:
         """Format debugging suggestions"""
         lines = []
         lines.append("💡 SUGGESTIONS")
@@ -99,20 +98,39 @@ class DebugAnalyzer:
     """
 
     @staticmethod
-    def analyze_error_pattern(error: ErrorContext) -> Dict[str, Any]:
+    def analyze_error_pattern(error) -> dict[str, Any]:
         """Analyze error patterns and provide suggestions"""
+        from exceptions.base_exception import GenXDataError
+
         suggestions = []
+        error_type = error.__class__.__name__
+
+        # Get strategy name and config path from error context
+        strategy_name = None
+        config_path = None
+
+        if (
+            isinstance(error, GenXDataError)
+            and hasattr(error, "context")
+            and error.context
+        ):
+            strategy_name = error.context.get("strategy_name")
+            config_path = error.context.get("config_path")
 
         # Strategy-specific suggestions
-        if error.strategy_name:
-            suggestions.extend(DebugAnalyzer._get_strategy_suggestions(error))
+        if strategy_name:
+            suggestions.extend(
+                DebugAnalyzer._get_strategy_suggestions_by_name(strategy_name)
+            )
 
         # Configuration-specific suggestions
-        if error.config_path:
-            suggestions.extend(DebugAnalyzer._get_config_suggestions(error))
+        if config_path:
+            suggestions.extend(
+                DebugAnalyzer._get_config_suggestions_by_path(config_path)
+            )
 
         # General suggestions based on error type
-        if "param" in error.error_type.lower():
+        if "param" in error_type.lower():
             suggestions.extend(
                 [
                     "Check parameter names and types in your configuration",
@@ -121,7 +139,7 @@ class DebugAnalyzer:
                 ]
             )
 
-        if "validation" in error.error_type.lower():
+        if "validation" in error_type.lower():
             suggestions.extend(
                 [
                     "Review configuration file format and structure",
@@ -130,7 +148,7 @@ class DebugAnalyzer:
                 ]
             )
 
-        if "file" in error.error_type.lower() or "path" in error.error_type.lower():
+        if "file" in error_type.lower() or "path" in error_type.lower():
             suggestions.extend(
                 [
                     "Verify file paths exist and are accessible",
@@ -140,7 +158,11 @@ class DebugAnalyzer:
             )
 
         # Add severity-based suggestions
-        if hasattr(error, "severity") and error.severity:
+        if (
+            isinstance(error, GenXDataError)
+            and hasattr(error, "severity")
+            and error.severity
+        ):
             severity_name = (
                 error.severity.name
                 if hasattr(error.severity, "name")
@@ -157,16 +179,16 @@ class DebugAnalyzer:
 
         return {
             "suggestions": suggestions,
-            "error_pattern": error.error_type,
+            "error_pattern": error_type,
             "confidence": 0.8,  # Placeholder confidence score
         }
 
     @staticmethod
-    def _get_strategy_suggestions(error: ErrorContext) -> List[str]:
+    def _get_strategy_suggestions_by_name(strategy_name: str) -> list[str]:
         """Get strategy-specific debugging suggestions"""
         suggestions = []
 
-        strategy_name = error.strategy_name.lower()
+        strategy_name = strategy_name.lower()
 
         if "random_name" in strategy_name:
             suggestions.extend(
@@ -216,12 +238,12 @@ class DebugAnalyzer:
         return suggestions
 
     @staticmethod
-    def _get_config_suggestions(error: ErrorContext) -> List[str]:
+    def _get_config_suggestions_by_path(config_path: str) -> list[str]:
         """Get configuration-specific debugging suggestions"""
         suggestions = []
 
-        if error.config_path:
-            config_path = error.config_path.lower()
+        if config_path:
+            config_path = config_path.lower()
 
             if config_path.endswith(".yaml") or config_path.endswith(".yml"):
                 suggestions.extend(
@@ -250,7 +272,7 @@ class DebugReporter:
     """
 
     @staticmethod
-    def export_debug_report(error: ErrorContext, output_dir: str = "output") -> str:
+    def export_debug_report(error, output_dir: str = "output") -> str:
         """Export detailed debug report to file"""
 
         # Create output directory if it doesn't exist
@@ -296,7 +318,7 @@ class DebugReporter:
         return str(filepath)
 
 
-def debug_error(error: ErrorContext, export_report: bool = True) -> None:
+def debug_error(error, export_report: bool = True) -> None:
     """
     Debug an error by displaying formatted information and suggestions.
 
