@@ -33,6 +33,11 @@ class QueueConfig(ABC):
         """Return the queue type identifier."""
         pass
 
+    @abstractmethod
+    def get_producer_config(self) -> Dict[str, Any]:
+        """Get the producer configuration dictionary."""
+        pass
+
 
 class QueueProducer(ABC):
     """Abstract base class for queue producers."""

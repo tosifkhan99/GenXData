@@ -90,10 +90,7 @@ class KafkaProducer(QueueProducer):
             }
 
             # Send message to Kafka topic
-            future = self.producer.send(self.config.topic, value=message_data)
-
-            # Optional: wait for confirmation (can be made configurable)
-            record_metadata = future.get(timeout=10)
+            self.producer.send(self.config.topic, value=message_data)
 
         except Exception:
             raise
@@ -110,10 +107,7 @@ class KafkaProducer(QueueProducer):
 
         try:
             # Send message to Kafka topic
-            future = self.producer.send(self.config.topic, value=message_data)
-
-            # Optional: wait for confirmation
-            record_metadata = future.get(timeout=10)
+            self.producer.send(self.config.topic, value=message_data)
 
         except Exception:
             raise

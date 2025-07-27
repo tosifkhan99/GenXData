@@ -31,7 +31,7 @@ const SelectInput: React.FC<SelectInputProps> = ({
     'mt-1 block w-full py-2 px-3 border border-gray-300 bg-white dark:bg-gray-800 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-900 dark:text-gray-100';
   const errorStyles = 'border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 dark:text-red-400 dark:border-red-400';
   const disabledStyles = 'bg-gray-100 cursor-not-allowed dark:bg-gray-700 dark:text-gray-400';
-  
+
   const hasError = 'error' in props && !!props.error;
 
   return (
@@ -49,9 +49,9 @@ const SelectInput: React.FC<SelectInputProps> = ({
         </option>
       )}
       {options.map((option) => (
-        <option 
-          key={option.value} 
-          value={option.value} 
+        <option
+          key={option.value}
+          value={option.value}
           disabled={option.disabled}
           className="text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-800"
         >
@@ -62,4 +62,4 @@ const SelectInput: React.FC<SelectInputProps> = ({
   );
 };
 
-export default SelectInput; 
+export default SelectInput;

@@ -22,4 +22,4 @@ const FormGroup: React.FC<FormGroupProps> = ({ label, htmlFor, error, children, 
   );
 };
 
-export default FormGroup; 
+export default FormGroup;

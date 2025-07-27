@@ -58,4 +58,4 @@ export const DeleteForm: React.FC<DeleteFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

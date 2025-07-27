@@ -21,7 +21,7 @@ export const NumberRangeForm: React.FC<NumberRangeFormProps> = ({
   return (
     <div className="space-y-4 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
       <h4 className="text-md font-semibold text-gray-700 dark:text-gray-200">Number Range Parameters</h4>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <FormGroup label="Start Value" htmlFor={`config-${configIndex}-start`} required>
           <TextInput
@@ -93,4 +93,4 @@ export const NumberRangeForm: React.FC<NumberRangeFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

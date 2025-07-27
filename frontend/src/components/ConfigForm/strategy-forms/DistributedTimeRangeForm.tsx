@@ -43,11 +43,11 @@ export const DistributedTimeRangeForm: React.FC<DistributedTimeRangeFormProps> =
   const ranges = getRangesArray();
 
   const handleAddRange = () => {
-    const newRanges = [...ranges, { 
-      start: '00:00:00', 
-      end: '23:59:59', 
-      format: '%H:%M:%S', 
-      distribution: 0 
+    const newRanges = [...ranges, {
+      start: '00:00:00',
+      end: '23:59:59',
+      format: '%H:%M:%S',
+      distribution: 0
     }];
     updateRanges(newRanges);
   };
@@ -165,7 +165,7 @@ export const DistributedTimeRangeForm: React.FC<DistributedTimeRangeFormProps> =
 
           <div className="p-2 bg-gray-50 rounded-md">
             <p className="text-xs text-gray-600">
-              <strong>Overnight ranges supported:</strong> For ranges that cross midnight (e.g., 22:00:00 to 06:00:00), 
+              <strong>Overnight ranges supported:</strong> For ranges that cross midnight (e.g., 22:00:00 to 06:00:00),
               the system will generate times from 22:00 to 23:59, then from 00:00 to 06:00.
             </p>
           </div>
@@ -202,4 +202,4 @@ export const DistributedTimeRangeForm: React.FC<DistributedTimeRangeFormProps> =
       </div>
     </div>
   );
-}; 
+};

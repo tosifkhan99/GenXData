@@ -152,4 +152,4 @@ export const DistributedNumberRangeForm: React.FC<DistributedNumberRangeFormProp
       )}
     </div>
   );
-}; 
+};

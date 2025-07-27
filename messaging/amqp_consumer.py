@@ -28,17 +28,17 @@ class AMQPConsumer(MessagingHandler):
         super().__init__()
         self.config = config
         self.message_handler = message_handler or self._default_message_handler
-        
+
         self.conn = None
         self.receiver = None
         self.messages = []
         self.running = False
-        
+
         # Threading for container
         self.connection_ready = threading.Event()
         self.container = None
         self.container_thread = None
-        
+
         # Statistics
         self.messages_received = 0
         self.start_time = None
@@ -52,7 +52,7 @@ class AMQPConsumer(MessagingHandler):
             print(f"🔗 Connecting to AMQP broker at {self.config.url}")
             print(f"🔗 Queue: {self.config.queue}")
             print(f"🔗 Username: {self.config.username}")
-            
+
             self.container = Container(self)
             self.container_thread = threading.Thread(
                 target=self.container.run, daemon=True
@@ -78,68 +78,74 @@ class AMQPConsumer(MessagingHandler):
 
         print("🔌 Disconnecting from AMQP broker")
         self.running = False
-        
+
         if self.conn:
             self.conn.close()
-        
+
         if self.container_thread and self.container_thread.is_alive():
             self.container_thread.join(timeout=5)
-        
+
         print("✅ Successfully disconnected from AMQP broker")
 
-    def consume_messages(self, max_messages: Optional[int] = None, timeout: Optional[float] = None) -> List[Dict[str, Any]]:
+    def consume_messages(
+        self, max_messages: Optional[int] = None, timeout: Optional[float] = None
+    ) -> List[Dict[str, Any]]:
         """
         Consume messages from the queue.
-        
+
         Args:
             max_messages: Maximum number of messages to consume (None for unlimited)
             timeout: Timeout in seconds (None for no timeout)
-            
+
         Returns:
             List of received messages
         """
         if not self.running:
             self.connect()
-        
-        print(f"📥 Starting to consume messages...")
+
+        print("📥 Starting to consume messages...")
         if max_messages:
             print(f"📥 Will consume up to {max_messages} messages")
         if timeout:
             print(f"📥 Timeout: {timeout} seconds")
-        
+
         start_time = time.time()
-        
+
         while self.running:
             # Check timeout
             if timeout and (time.time() - start_time) > timeout:
                 print(f"⏰ Timeout reached after {timeout} seconds")
                 break
-                
+
             # Check max messages
             if max_messages and self.messages_received >= max_messages:
                 print(f"✅ Received {max_messages} messages, stopping")
                 break
-                
+
             time.sleep(0.1)  # Small sleep to prevent busy waiting
-        
+
         return self.messages.copy()
 
-    def _default_message_handler(self, message_data: Dict[str, Any], raw_message: Message) -> None:
+    def _default_message_handler(
+        self, message_data: Dict[str, Any], raw_message: Message
+    ) -> None:
         """Default message handler that just prints and stores messages."""
         print(f"📨 Received message #{self.messages_received + 1}")
         print(f"   Size: {len(str(message_data))} characters")
-        
+
         # Show preview of data
-        if 'data' in message_data and isinstance(message_data['data'], list):
-            row_count = len(message_data['data'])
+        if "data" in message_data and isinstance(message_data["data"], list):
+            row_count = len(message_data["data"])
             print(f"   Data rows: {row_count}")
-            
-        if 'batch_info' in message_data:
-            batch_info = message_data['batch_info']
-            print(f"   Batch: {batch_info.get('batch_index', '?')} of {batch_info.get('total_batches', '?')}")
-            
-        if 'timestamp' in message_data:
-            timestamp = message_data['timestamp']
+
+        if "batch_info" in message_data:
+            batch_info = message_data["batch_info"]
+            print(
+                f"   Batch: {batch_info.get('batch_index', '?')} of {batch_info.get('total_batches', '?')}"
+            )
+
+        if "timestamp" in message_data:
+            timestamp = message_data["timestamp"]
             print(f"   Timestamp: {time.ctime(timestamp)}")
 
     # Proton event handlers
@@ -162,22 +168,22 @@ class AMQPConsumer(MessagingHandler):
         """Called when a message is received."""
         try:
             message = event.message
-            
+
             # Parse message body
-            if hasattr(message.body, 'decode'):
-                body_str = message.body.decode('utf-8')
+            if hasattr(message.body, "decode"):
+                body_str = message.body.decode("utf-8")
             else:
                 body_str = str(message.body)
-                
+
             message_data = json.loads(body_str)
-            
+
             # Store message
             self.messages.append(message_data)
             self.messages_received += 1
-            
+
             # Call message handler
             self.message_handler(message_data, message)
-            
+
         except Exception as e:
             print(f"❌ Error processing message: {e}")
 
@@ -189,13 +195,15 @@ class AMQPConsumer(MessagingHandler):
     def on_link_error(self, event):
         """Called when link error occurs."""
         print(f"❌ Link error: {event.link.remote_condition}")
-        
+
     def get_stats(self) -> Dict[str, Any]:
         """Get consumer statistics."""
         elapsed_time = time.time() - self.start_time if self.start_time else 0
         return {
-            'messages_received': self.messages_received,
-            'elapsed_time': elapsed_time,
-            'messages_per_second': self.messages_received / elapsed_time if elapsed_time > 0 else 0,
-            'running': self.running
-        } 
+            "messages_received": self.messages_received,
+            "elapsed_time": elapsed_time,
+            "messages_per_second": (
+                self.messages_received / elapsed_time if elapsed_time > 0 else 0
+            ),
+            "running": self.running,
+        }

@@ -18,4 +18,4 @@ export interface StrategySchema {
 // Example of what the API might return for /get_strategy_schemas
 export interface StrategyCollection {
   [key: string]: StrategySchema;
-} 
+}

@@ -44,4 +44,4 @@ export const STRATEGY_FORM_MAPPING = {
   DELETE_STRATEGY: DeleteForm,
 } as const;
 
-export type StrategyName = keyof typeof STRATEGY_FORM_MAPPING; 
+export type StrategyName = keyof typeof STRATEGY_FORM_MAPPING;

@@ -45,12 +45,12 @@ export const DistributedDateRangeForm: React.FC<DistributedDateRangeFormProps> =
   const ranges = getRangesArray();
 
   const handleAddRange = () => {
-    const newRanges = [...ranges, { 
-      start_date: '2020-01-01', 
-      end_date: '2020-12-31', 
+    const newRanges = [...ranges, {
+      start_date: '2020-01-01',
+      end_date: '2020-12-31',
       format: '%Y-%m-%d',
       output_format: '%Y-%m-%d',
-      distribution: 0 
+      distribution: 0
     }];
     updateRanges(newRanges);
   };
@@ -224,4 +224,4 @@ export const DistributedDateRangeForm: React.FC<DistributedDateRangeFormProps> =
       </div>
     </div>
   );
-}; 
+};

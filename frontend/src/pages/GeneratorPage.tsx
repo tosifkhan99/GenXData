@@ -8,4 +8,4 @@ const GeneratorPage = () => {
   );
 };
 
-export default GeneratorPage; 
+export default GeneratorPage;

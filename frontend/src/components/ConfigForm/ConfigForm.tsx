@@ -135,16 +135,16 @@ const ConfigForm: React.FC = () => {
       setFormData(prev => ({
         ...prev,
         column_name: prev.column_name.map((name, i) => i === index ? value : name),
-        configs: prev.configs.map((config, i) => 
+        configs: prev.configs.map((config, i) =>
           i === index ? { ...config, names: [value] } : config
         )
       }));
     } else if (field === 'strategy_name') {
       setFormData(prev => ({
         ...prev,
-        configs: prev.configs.map((config, i) => 
-          i === index ? { 
-            ...config, 
+        configs: prev.configs.map((config, i) =>
+          i === index ? {
+            ...config,
             strategy: { name: value, params: {} } // Reset params when strategy changes
           } : config
         )
@@ -152,7 +152,7 @@ const ConfigForm: React.FC = () => {
     } else if (field === 'mask') {
       setFormData(prev => ({
         ...prev,
-        configs: prev.configs.map((config, i) => 
+        configs: prev.configs.map((config, i) =>
           i === index ? { ...config, mask: value } : config
         )
       }));
@@ -202,7 +202,7 @@ const ConfigForm: React.FC = () => {
 
   const handleRemoveColumn = (indexToRemove: number) => {
     if (formData.column_name.length <= 1) return; // Don't remove if only one column
-    
+
     setFormData(prev => ({
       ...prev,
       column_name: prev.column_name.filter((_, i) => i !== indexToRemove),
@@ -229,7 +229,7 @@ const ConfigForm: React.FC = () => {
       'PARQUET_WRITER': 'parquet',
       'FEATHER_WRITER': 'feather'
     };
-    
+
     const ext = outputExtensions[backendWriterType] || 'csv';
     const safeName = formData.metadata.name.replace(/[^a-zA-Z0-9_-]/g, '_').toLowerCase() || 'data';
 
@@ -279,18 +279,18 @@ const ConfigForm: React.FC = () => {
       alert("Error generating YAML file. Check console for details.");
     }
   };
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsGenerating(true);
-    
+
     try {
       const backendConfig = generateBackendConfig();
-      
-  
-      
+
+
+
       // Call the new generate_and_download endpoint
-      const apiUrl = import.meta.env.DEV 
+      const apiUrl = import.meta.env.DEV
         ? (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000')
         : '';
       const response = await fetch(`${apiUrl}/generate_and_download`, {
@@ -312,7 +312,7 @@ const ConfigForm: React.FC = () => {
       // Handle the file download
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      
+
       // Get filename from response headers or use default
       const contentDisposition = response.headers.get('Content-Disposition');
       let filename = 'generated_data.zip';
@@ -322,20 +322,20 @@ const ConfigForm: React.FC = () => {
           filename = filenameMatch[1];
         }
       }
-      
+
       // Create download link and trigger download
       const link = document.createElement('a');
       link.href = url;
       link.download = filename;
       document.body.appendChild(link);
       link.click();
-      
+
       // Clean up
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       alert('Data generated and download started successfully!');
-      
+
     } catch (error) {
       console.error('Error generating data:', error);
       alert(`Error generating data: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -347,7 +347,7 @@ const ConfigForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-4 md:p-6 lg:p-8 bg-white dark:bg-gray-900 shadow-xl rounded-lg space-y-8">
       <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-10 text-center">Data Generator Configuration</h1>
-      
+
       {/* Demo Banner */}
       <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md">
         <div className="flex items-center">
@@ -356,7 +356,7 @@ const ConfigForm: React.FC = () => {
           </div>
           <div className="ml-3">
             <p className="text-blue-700 dark:text-blue-300 text-sm">
-              <strong>Synthetic Data Generator:</strong> Create realistic datasets with 13+ generation strategies. 
+              <strong>Synthetic Data Generator:</strong> Create realistic datasets with 13+ generation strategies.
               Configure columns, choose formats, and download your data instantly.
             </p>
           </div>
@@ -374,11 +374,11 @@ const ConfigForm: React.FC = () => {
             <TextInput name="version" value={formData.metadata.version} onChange={handleMetadataChange} placeholder="e.g., 1.0.0" required />
           </FormGroup>
           <FormGroup label="Description" htmlFor="description" className="md:col-span-2" required>
-            <textarea 
+            <textarea
                 id="description"
-                name="description" 
-                value={formData.metadata.description} 
-                onChange={handleMetadataChange} 
+                name="description"
+                value={formData.metadata.description}
+                onChange={handleMetadataChange}
                 rows={3}
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 required
@@ -401,13 +401,13 @@ const ConfigForm: React.FC = () => {
         <legend className="text-xl font-semibold text-gray-700 dark:text-gray-200 px-2">General Settings</legend>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1 mt-4">
           <FormGroup label="Number of Rows" htmlFor="num_of_rows" required>
-            <TextInput 
-              name="num_of_rows" 
-              type="number" 
-              value={formData.num_of_rows} 
-              onChange={handleInputChange} 
+            <TextInput
+              name="num_of_rows"
+              type="number"
+              value={formData.num_of_rows}
+              onChange={handleInputChange}
               min="1"
-              required 
+              required
             />
           </FormGroup>
           <FormGroup label="Shuffle Data" htmlFor="shuffle" className="flex items-center mt-5 md:mt-auto">
@@ -421,28 +421,28 @@ const ConfigForm: React.FC = () => {
         <legend className="text-xl font-semibold text-gray-700 dark:text-gray-200 px-2">File Writer</legend>
         <div className="mt-4">
           <FormGroup label="Output Format" htmlFor="file_writer_type" required>
-            <SelectInput 
-                name="file_writer_type" 
-                value={formData.file_writer_type} 
-                onChange={handleInputChange} 
-                options={fileWriterOptions} 
+            <SelectInput
+                name="file_writer_type"
+                value={formData.file_writer_type}
+                onChange={handleInputChange}
+                options={fileWriterOptions}
                 required
             />
           </FormGroup>
         </div>
       </fieldset>
-      
+
       {/* Columns Configuration Section */}
       <fieldset className="p-6 border border-gray-300 dark:border-gray-700 rounded-lg shadow-sm bg-gray-50 dark:bg-gray-800 space-y-6">
         <legend className="text-xl font-semibold text-gray-700 dark:text-gray-200 px-2">Column Configuration</legend>
-        
+
         {isLoadingStrategies && (
           <div className="flex items-center justify-center py-8">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
             <span className="ml-3 text-gray-600 dark:text-gray-300">Loading strategies...</span>
           </div>
         )}
-        
+
         {errorStrategies && (
           <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
             <p className="text-red-600 dark:text-red-400 text-center">{errorStrategies}</p>
@@ -451,7 +451,7 @@ const ConfigForm: React.FC = () => {
             </p>
           </div>
         )}
-        
+
         {!isLoadingStrategies && !errorStrategies && (
           <div className="space-y-6">
             {formData.configs.map((config, index) => (
@@ -486,26 +486,26 @@ const ConfigForm: React.FC = () => {
 
       {/* Action Buttons */}
       <div className="mt-10 pt-6 border-t border-gray-200 space-y-4 md:space-y-0 md:flex md:items-center md:justify-end md:space-x-3">
-        <button 
-            type="button" 
-            onClick={handleDownloadJson} 
+        <button
+            type="button"
+            onClick={handleDownloadJson}
             className="w-full md:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
         >
             Download Config (JSON)
         </button>
-        <button 
-            type="button" 
-            onClick={handleDownloadYaml} 
+        <button
+            type="button"
+            onClick={handleDownloadYaml}
             className="w-full md:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 hover:bg-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
         >
             Download Config (YAML)
         </button>
-        <button 
-            type="submit" 
+        <button
+            type="submit"
             disabled={isGenerating}
             className={`w-full md:w-auto px-6 py-3 text-base font-medium text-white rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 ${
-              isGenerating 
-                ? 'bg-gray-400 cursor-not-allowed' 
+              isGenerating
+                ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-green-600 hover:bg-green-700'
             }`}
         >

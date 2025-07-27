@@ -17,7 +17,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside 
+    <aside
       className={`h-screen flex flex-col justify-between bg-muted/40 border-r transition-all duration-300 ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}
@@ -59,15 +59,15 @@ const Sidebar = () => {
       </div>
 
       <div className="p-4">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          onClick={toggleTheme} 
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={toggleTheme}
           className={`mb-4 ${isCollapsed ? 'w-full' : 'w-full'}`}
           title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
-          {theme === 'dark' ? 
-            <Sun className={`${isCollapsed ? 'h-7 w-7' : 'h-[1.2rem] w-[1.2rem]'}`} /> : 
+          {theme === 'dark' ?
+            <Sun className={`${isCollapsed ? 'h-7 w-7' : 'h-[1.2rem] w-[1.2rem]'}`} /> :
             <Moon className={`${isCollapsed ? 'h-7 w-7' : 'h-[1.2rem] w-[1.2rem]'}`} />
           }
           {!isCollapsed && <span className="ml-2">Toggle Theme</span>}
@@ -114,4 +114,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar; 
+export default Sidebar;

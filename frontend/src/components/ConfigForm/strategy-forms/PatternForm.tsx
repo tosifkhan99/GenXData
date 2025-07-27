@@ -47,4 +47,4 @@ export const PatternForm: React.FC<PatternFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

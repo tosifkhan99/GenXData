@@ -30,7 +30,7 @@ This is already set up! The workflow in `.github/workflows/deploy.yml` will auto
      - Render: https://render.com/
      - Heroku: https://heroku.com/
      - AWS/Google Cloud/Azure
-   
+
 3. **Set your backend URL:**
    - In your repo, go to Settings → Secrets and variables → Actions
    - Click "New repository secret"
@@ -168,4 +168,4 @@ If you have a custom domain:
 2. Update the GitHub Actions workflow to include your domain
 3. Configure DNS to point to GitHub Pages
 
-Your app is now ready for GitHub Pages deployment! 🚀 
+Your app is now ready for GitHub Pages deployment! 🚀

@@ -49,4 +49,4 @@ const CheckboxInput: React.FC<CheckboxInputProps> = ({
   );
 };
 
-export default CheckboxInput; 
+export default CheckboxInput;

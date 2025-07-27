@@ -92,4 +92,4 @@ export const ConcatForm: React.FC<ConcatFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

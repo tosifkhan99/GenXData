@@ -39,10 +39,10 @@ export const DistributedChoiceForm: React.FC<DistributedChoiceFormProps> = ({
 
   // Convert UI array format to backend object format
   const updateChoices = (choices: Choice[]) => {
-    // If we have any choices that are still being edited (empty value), 
+    // If we have any choices that are still being edited (empty value),
     // store as array for UI purposes
     const hasEmptyChoices = choices.some(choice => choice.value === '');
-    
+
     if (hasEmptyChoices) {
       // Store as array to maintain UI state during editing
       onParamsChange(configIndex, 'choices', choices);
@@ -162,4 +162,4 @@ export const DistributedChoiceForm: React.FC<DistributedChoiceFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

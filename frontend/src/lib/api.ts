@@ -1,7 +1,7 @@
 import type { StrategyCollection, StrategySchema } from '../types/strategy';
 
 // Environment-based API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
   (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 // For Docker deployment, use relative URLs in production
@@ -118,11 +118,11 @@ export const getStrategySchemas = async (): Promise<StrategyCollection> => {
       throw new Error(`Error fetching strategy schemas: ${response.statusText}`);
     }
     const data = await response.json();
-    
+
 
     // Transform the backend response into the expected format
     const transformedStrategies: StrategyCollection = {};
-    
+
     Object.entries(data.strategies).forEach(([strategyName, description]) => {
       transformedStrategies[strategyName] = {
         strategy_name: strategyName,
@@ -131,7 +131,7 @@ export const getStrategySchemas = async (): Promise<StrategyCollection> => {
       };
     });
 
-    
+
     return transformedStrategies;
   } catch (error) {
     console.error('Failed to get strategy schemas:', error);

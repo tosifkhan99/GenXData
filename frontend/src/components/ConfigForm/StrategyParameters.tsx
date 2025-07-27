@@ -31,7 +31,7 @@ export const StrategyParameters: React.FC<StrategyParametersProps> = ({
 
   // Check if there's a specialized form component for this strategy
   const SpecializedForm = STRATEGY_FORM_MAPPING[selectedStrategyName as keyof typeof STRATEGY_FORM_MAPPING];
-  
+
   if (SpecializedForm) {
     return (
       <div className="space-y-4 mt-4 pt-4 border-t border-gray-200">
@@ -53,4 +53,4 @@ export const StrategyParameters: React.FC<StrategyParametersProps> = ({
       <p className="text-sm text-gray-500">This strategy has no configurable parameters.</p>
     </div>
   );
-}; 
+};

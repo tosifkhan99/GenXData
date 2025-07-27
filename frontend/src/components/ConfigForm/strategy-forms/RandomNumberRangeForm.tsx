@@ -117,7 +117,7 @@ export const RandomNumberRangeForm: React.FC<RandomNumberRangeFormProps> = ({
           labelClassName="text-gray-700 dark:text-gray-200"
         />
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          When enabled, each generated number will be unique within the range. 
+          When enabled, each generated number will be unique within the range.
           Maximum possible unique values: <strong>{maxUniqueValues}</strong>
         </p>
       </FormGroup>
@@ -133,11 +133,11 @@ export const RandomNumberRangeForm: React.FC<RandomNumberRangeFormProps> = ({
               </h5>
               <div className="text-xs text-yellow-700 dark:text-yellow-300 space-y-2">
                 <div>
-                  <strong>Current Implementation Limitation:</strong> The backend strategy currently uses 
-                  <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">np.random.uniform()</code> 
+                  <strong>Current Implementation Limitation:</strong> The backend strategy currently uses
+                  <code className="bg-yellow-100 dark:bg-yellow-800 px-1 rounded">np.random.uniform()</code>
                   which does NOT enforce uniqueness - it may generate duplicates even when unique=true.
                 </div>
-                
+
                 <div>
                   <strong>Performance Impact:</strong> True unique generation would require:
                   <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
@@ -146,7 +146,7 @@ export const RandomNumberRangeForm: React.FC<RandomNumberRangeFormProps> = ({
                     <li>Memory usage proportional to range size</li>
                   </ul>
                 </div>
-                
+
                 <div>
                   <strong>Potential Issues:</strong>
                   <ul className="list-disc list-inside ml-2 mt-1 space-y-1">
@@ -155,7 +155,7 @@ export const RandomNumberRangeForm: React.FC<RandomNumberRangeFormProps> = ({
                     <li>Decimal precision affects the actual number of possible unique values</li>
                   </ul>
                 </div>
-                
+
                 <div className="bg-yellow-100 dark:bg-yellow-800 p-2 rounded text-xs">
                   <strong>Recommendation:</strong> For guaranteed unique values, consider using:
                   <ul className="list-disc list-inside ml-2 mt-1">
@@ -181,4 +181,4 @@ export const RandomNumberRangeForm: React.FC<RandomNumberRangeFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

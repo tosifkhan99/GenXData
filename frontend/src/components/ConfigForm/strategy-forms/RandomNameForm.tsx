@@ -96,4 +96,4 @@ export const RandomNameForm: React.FC<RandomNameFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

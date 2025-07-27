@@ -59,4 +59,4 @@ export const SeriesForm: React.FC<SeriesFormProps> = ({
       </div>
     </div>
   );
-}; 
+};

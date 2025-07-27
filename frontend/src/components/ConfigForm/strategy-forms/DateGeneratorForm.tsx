@@ -106,4 +106,4 @@ export const DateGeneratorForm: React.FC<DateGeneratorFormProps> = ({
       </div>
     </div>
   );
-}; 
+};
