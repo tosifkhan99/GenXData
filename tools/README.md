@@ -7,7 +7,7 @@ This directory contains tools to verify that your AMQP queue messaging is workin
 ### 1. Message Consumer (verify_queue_messages.py)
 Connects to your queue and consumes existing messages to verify delivery.
 
-### 2. Round-Trip Test (test_queue_roundtrip.py)  
+### 2. Round-Trip Test (test_queue_roundtrip.py)
 Sends a test message and then verifies it can be consumed - complete end-to-end test.
 
 ### 3. Artemis Console Checker (check_artemis_console.py)
