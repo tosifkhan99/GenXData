@@ -1,4 +1,3 @@
-
 from core.error.error_context import ErrorContext
 from exceptions.base_exception import ErrorSeverity, NetworkError
 
