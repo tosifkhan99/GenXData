@@ -1,9 +1,9 @@
 """
 GenXData Command-Line Interface
 
-A comprehensive CLI tool for managing generators, creating configurations, and generating synthetic data.
-This interface provides easy access to GenXData's 175+ generators across 9 domains, with support for
-13 different data generation strategies.
+A comprehensive CLI tool for managing generators, creating configurations, and generating
+synthetic data. This interface provides easy access to GenXData's 175+ generators across
+9 domains, with support for 13 different data generation strategies.
 
 OVERVIEW:
     The CLI is organized into several subcommands, each serving a specific purpose:
@@ -86,12 +86,14 @@ COMMANDS:
             python -m cli.main_cli generate test_config.json
             python -m cli.main_cli generate examples/simple_random_number_example.yaml
             python -m cli.main_cli --log-level DEBUG generate config.yaml
-            python -m cli.main_cli generate config.yaml --stream examples/streaming_config_example.yaml
-            python -m cli.main_cli generate config.yaml --batch examples/batch_config_csv.yaml
+            python -m cli.main_cli generate config.yaml \
+                --stream examples/streaming_config_example.yaml
+            python -m cli.main_cli generate config.yaml \
+                --batch examples/batch_config_csv.yaml
 
     stats
-        Display comprehensive generator statistics including totals, strategy distribution,
-        domain distribution, and available strategies.
+        Display comprehensive generator statistics including totals, strategy
+        distribution, domain distribution, and available strategies.
 
         Examples:
             python -m cli.main_cli stats

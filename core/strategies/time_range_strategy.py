@@ -31,14 +31,16 @@ class TimeRangeStrategy(BaseStrategy):
                 )
                 datetime.strptime(self.params["end_time"], self.params["input_format"])
             except ValueError as e:
-                raise InvalidConfigParamException(f"Invalid time format: {str(e)}")
+                raise InvalidConfigParamException(
+                    f"Invalid time format: {str(e)}"
+                ) from e
 
         # Validate seed if provided
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def __init__(self, logger=None, **kwargs):
         """Initialize the strategy with configuration parameters"""

@@ -139,7 +139,7 @@ class Logger:
             log_level = "INFO"
 
         # Update all existing loggers
-        for logger_name, logger in cls._loggers.items():
+        for _logger_name, logger in cls._loggers.items():
             logger.setLevel(cls.VALID_LOG_LEVELS[log_level.upper()])
 
             # Update or add handlers

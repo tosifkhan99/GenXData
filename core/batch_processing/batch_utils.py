@@ -59,11 +59,10 @@ def prepare_batch_config(original_config, batch_size, batch_index, strategy_stat
     batch_config["write_output"] = False
 
     # Calculate cumulative rows processed so far
-    cumulative_rows = sum(
-        get_batches(SETTINGS.STREAM_BATCH_SIZE, original_config["num_of_rows"])[
-            :batch_index
-        ]
+    batch_sizes = get_batches(
+        SETTINGS.STREAM_BATCH_SIZE, original_config["num_of_rows"]
     )
+    cumulative_rows = sum(batch_sizes[:batch_index])
 
     # Adjust parameters for state-dependent strategies
     for config_item in batch_config["configs"]:

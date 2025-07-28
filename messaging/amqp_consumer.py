@@ -5,7 +5,8 @@ AMQP consumer implementation for reading messages from the queue.
 import json
 import threading
 import time
-from typing import Dict, Any, List, Optional, Callable
+from collections.abc import Callable
+from typing import Any
 
 from proton import Message
 from proton.handlers import MessagingHandler
@@ -17,7 +18,7 @@ from .amqp_config import AMQPConfig
 class AMQPConsumer(MessagingHandler):
     """AMQP queue consumer implementation."""
 
-    def __init__(self, config: AMQPConfig, message_handler: Optional[Callable] = None):
+    def __init__(self, config: AMQPConfig, message_handler: Callable | None = None):
         """
         Initialize AMQP consumer.
 
@@ -88,8 +89,8 @@ class AMQPConsumer(MessagingHandler):
         print("✅ Successfully disconnected from AMQP broker")
 
     def consume_messages(
-        self, max_messages: Optional[int] = None, timeout: Optional[float] = None
-    ) -> List[Dict[str, Any]]:
+        self, max_messages: int | None = None, timeout: float | None = None
+    ) -> list[dict[str, Any]]:
         """
         Consume messages from the queue.
 
@@ -127,7 +128,7 @@ class AMQPConsumer(MessagingHandler):
         return self.messages.copy()
 
     def _default_message_handler(
-        self, message_data: Dict[str, Any], raw_message: Message
+        self, message_data: dict[str, Any], raw_message: Message
     ) -> None:
         """Default message handler that just prints and stores messages."""
         print(f"📨 Received message #{self.messages_received + 1}")
@@ -196,7 +197,7 @@ class AMQPConsumer(MessagingHandler):
         """Called when link error occurs."""
         print(f"❌ Link error: {event.link.remote_condition}")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get consumer statistics."""
         elapsed_time = time.time() - self.start_time if self.start_time else 0
         return {

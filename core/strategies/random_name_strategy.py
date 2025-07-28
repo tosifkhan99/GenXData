@@ -77,8 +77,8 @@ class RandomNameStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def generate_chunk(self, count: int) -> pd.Series:
         """

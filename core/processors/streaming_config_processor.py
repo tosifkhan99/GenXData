@@ -5,12 +5,14 @@ Handles chunked data generation where data is generated in batches/chunks
 and written incrementally. This handles both streaming and batch scenarios.
 """
 
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
-from .base_config_processor import BaseConfigProcessor
 from core.writers.batch_writer import BatchWriter
-from utils.performance_timer import measure_time, get_performance_report
+from utils.performance_timer import get_performance_report, measure_time
+
+from .base_config_processor import BaseConfigProcessor
 
 
 class StreamingConfigProcessor(BaseConfigProcessor):
@@ -23,7 +25,7 @@ class StreamingConfigProcessor(BaseConfigProcessor):
 
     def __init__(
         self,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         writer,
         error_handler,
         batch_size: int = 1000,
@@ -81,7 +83,7 @@ class StreamingConfigProcessor(BaseConfigProcessor):
 
         return chunk_df
 
-    def process(self) -> Dict[str, Any]:
+    def process(self) -> dict[str, Any]:
         """
         Process the configuration using streaming/batch generation.
 
@@ -107,7 +109,8 @@ class StreamingConfigProcessor(BaseConfigProcessor):
 
                 self.logger.debug(
                     f"Processing chunk {batch_count + 1}: size={chunk_size}, "
-                    f"total_generated={total_generated}, remaining={remaining_rows}"
+                    f"total_generated={total_generated}, "
+                    f"remaining={remaining_rows}"
                 )
 
                 # Process chunk following the same steps as normal processor

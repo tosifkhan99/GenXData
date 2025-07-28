@@ -2,11 +2,11 @@
 Factory for creating queue producers based on configuration.
 """
 
-from typing import Dict, Any
+from typing import Any
 
-from .base import QueueProducer, QueueConfig
 from .amqp_config import AMQPConfig
 from .amqp_producer import AMQPProducer
+from .base import QueueConfig, QueueProducer
 from .kafka_config import KafkaConfig
 from .kafka_producer import KafkaProducer
 
@@ -26,7 +26,7 @@ class QueueFactory:
     }
 
     @classmethod
-    def create_config(cls, queue_type: str, config_data: Dict[str, Any]) -> QueueConfig:
+    def create_config(cls, queue_type: str, config_data: dict[str, Any]) -> QueueConfig:
         """
         Create a queue configuration instance.
 
@@ -75,7 +75,7 @@ class QueueFactory:
         return producer_class(config)
 
     @classmethod
-    def create_from_config(cls, stream_config: Dict[str, Any]) -> QueueProducer:
+    def create_from_config(cls, stream_config: dict[str, Any]) -> QueueProducer:
         """
         Create a queue producer directly from a streaming configuration.
 

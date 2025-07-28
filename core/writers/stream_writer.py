@@ -4,12 +4,14 @@ Stream writer implementation for GenXData.
 Handles writing DataFrames to message queues (AMQP, Kafka, etc.).
 """
 
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
-from .base_writer import BaseWriter
 from messaging.factory import QueueFactory
 from utils.logging import Logger
+
+from .base_writer import BaseWriter
 
 
 class StreamWriter(BaseWriter):
@@ -19,7 +21,7 @@ class StreamWriter(BaseWriter):
     Uses the messaging module to send data to various message queue systems.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the stream writer.
 
@@ -74,8 +76,8 @@ class StreamWriter(BaseWriter):
             raise
 
     def write(
-        self, df: pd.DataFrame, metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, df: pd.DataFrame, metadata: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         Write DataFrame to message queue.
 
@@ -128,7 +130,7 @@ class StreamWriter(BaseWriter):
             self.logger.error(f"Error sending DataFrame to message queue: {e}")
             return {"status": "error", "error": str(e), "metadata": metadata}
 
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """
         Finalize stream writing operations and cleanup.
 

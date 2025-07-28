@@ -1,5 +1,6 @@
 """
-Distributed date range strategy for generating date values from multiple weighted date ranges.
+Distributed date range strategy for generating date values from multiple weighted
+date ranges.
 """
 
 import random
@@ -50,15 +51,16 @@ class DistributedDateRangeStrategy(BaseStrategy):
             except ValueError as e:
                 raise InvalidConfigParamException(
                     f"Invalid date format for range at index {i}: {str(e)}"
-                )
+                ) from e
 
             # Validate distribution
             if (
-                not isinstance(range_item.distribution, (int, float))
+                not isinstance(range_item.distribution, int | float)
                 or range_item.distribution <= 0
             ):
                 raise InvalidConfigParamException(
-                    f"Distribution for range at index {i} must be positive, got {range_item.distribution}"
+                    f"Distribution for range at index {i} must be positive, "
+                    f"got {range_item.distribution}"
                 )
 
             total_distribution += range_item.distribution
@@ -73,8 +75,8 @@ class DistributedDateRangeStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def _generate_random_date_in_range(self, range_item: DateRangeItem) -> str:
         """Generate a single random date within the specified range"""

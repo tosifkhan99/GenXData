@@ -17,18 +17,17 @@ Usage:
 """
 
 import argparse
-import os
+import json
 import sys
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 import warnings
+from pathlib import Path
+from typing import Any
 
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 from scipy import stats
-import json
 
 # Add project root to path for imports
 project_root = Path(__file__).parent.parent
@@ -73,14 +72,15 @@ class DataAnalyzer:
             print(f"📊 Loading data from {self.csv_path}")
             self.df = pd.read_csv(self.csv_path)
             print(
-                f"✅ Successfully loaded {len(self.df)} rows and {len(self.df.columns)} columns"
+                f"✅ Successfully loaded {len(self.df)} rows and "
+                f"{len(self.df.columns)} columns"
             )
             return self.df
         except Exception as e:
             print(f"❌ Error loading CSV file: {e}")
             sys.exit(1)
 
-    def basic_info(self) -> Dict[str, Any]:
+    def basic_info(self) -> dict[str, Any]:
         """Generate basic dataset information."""
         print("\n📋 Analyzing basic dataset information...")
 
@@ -109,7 +109,7 @@ class DataAnalyzer:
         self.analysis_results["basic_info"] = info
         return info
 
-    def analyze_numeric_columns(self) -> Dict[str, Dict[str, Any]]:
+    def analyze_numeric_columns(self) -> dict[str, dict[str, Any]]:
         """Analyze numeric columns with descriptive statistics."""
         print("\n🔢 Analyzing numeric columns...")
 
@@ -167,9 +167,9 @@ class DataAnalyzer:
                     "is_normal": p_value > 0.05,
                     "p_value": float(p_value),
                 }
-            except:
+            except Exception as e:
                 analysis["normality_test"] = {
-                    "error": "Could not perform normality test"
+                    "error": f"Could not perform normality test: {str(e)}"
                 }
 
             numeric_analysis[col] = analysis
@@ -177,7 +177,7 @@ class DataAnalyzer:
         self.analysis_results["numeric_analysis"] = numeric_analysis
         return numeric_analysis
 
-    def analyze_categorical_columns(self) -> Dict[str, Dict[str, Any]]:
+    def analyze_categorical_columns(self) -> dict[str, dict[str, Any]]:
         """Analyze categorical columns with frequency analysis."""
         print("\n📝 Analyzing categorical columns...")
 
@@ -326,7 +326,7 @@ class DataAnalyzer:
                 )
                 plt.close()
 
-    def generate_correlation_analysis(self) -> Dict[str, Any]:
+    def generate_correlation_analysis(self) -> dict[str, Any]:
         """Generate correlation analysis for numeric columns."""
         print("\n🔗 Analyzing correlations...")
 
@@ -391,7 +391,7 @@ class DataAnalyzer:
         self.analysis_results["correlation_analysis"] = correlation_analysis
         return correlation_analysis
 
-    def generate_data_quality_report(self) -> Dict[str, Any]:
+    def generate_data_quality_report(self) -> dict[str, Any]:
         """Generate data quality assessment."""
         print("\n🔍 Assessing data quality...")
 

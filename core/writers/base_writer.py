@@ -3,7 +3,8 @@ Abstract base writer for GenXData output operations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
 
@@ -15,7 +16,7 @@ class BaseWriter(ABC):
     in various formats and destinations.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the writer with configuration.
 
@@ -26,8 +27,8 @@ class BaseWriter(ABC):
 
     @abstractmethod
     def write(
-        self, df: pd.DataFrame, metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, df: pd.DataFrame, metadata: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         Write a DataFrame to the output destination.
 
@@ -41,7 +42,7 @@ class BaseWriter(ABC):
         pass
 
     @abstractmethod
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """
         Finalize the writing process and cleanup resources.
 

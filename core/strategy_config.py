@@ -125,7 +125,7 @@ class DistributedNumberRangeConfig(BaseConfig):
             except InvalidConfigParamException as e:
                 raise InvalidConfigParamException(
                     f"Invalid range at index {i}: {str(e)}"
-                )
+                ) from e
 
         # Check that weights sum to 100
         total_distribution = sum(r.distribution for r in self.ranges)
@@ -169,7 +169,7 @@ class DateRangeConfig(BaseConfig):
             ):
                 raise InvalidConfigParamException(
                     f"Invalid date format. Expected {self.format}"
-                )
+                ) from e
             raise e
 
 
@@ -185,10 +185,10 @@ class PatternConfig(BaseConfig):
 
         try:
             re.compile(self.regex)
-        except re.error:
+        except re.error as e:
             raise InvalidConfigParamException(
                 f"Invalid regular expression: {self.regex}"
-            )
+            ) from e
 
 
 @dataclass
@@ -276,7 +276,7 @@ class TimeRangeItem:
             ):
                 raise InvalidConfigParamException(
                     f"Invalid time format. Expected {self.format}"
-                )
+                ) from e
             raise e
 
         if self.distribution <= 0 or self.distribution > 100:
@@ -327,7 +327,7 @@ class DateRangeItem:
             ):
                 raise InvalidConfigParamException(
                     f"Invalid date format. Expected {self.format}"
-                )
+                ) from e
             raise e
 
         if self.distribution <= 0 or self.distribution > 100:
@@ -365,7 +365,7 @@ class DistributedTimeRangeConfig(BaseConfig):
             except InvalidConfigParamException as e:
                 raise InvalidConfigParamException(
                     f"Invalid time range at index {i}: {str(e)}"
-                )
+                ) from e
 
         # Check that weights sum to 100
         total_distribution = sum(r.distribution for r in self.ranges)
@@ -404,7 +404,7 @@ class DistributedDateRangeConfig(BaseConfig):
             except InvalidConfigParamException as e:
                 raise InvalidConfigParamException(
                     f"Invalid date range at index {i}: {str(e)}"
-                )
+                ) from e
 
         # Check that weights sum to 100
         total_distribution = sum(r.distribution for r in self.ranges)
@@ -440,7 +440,7 @@ class TimeRangeConfig(BaseConfig):
             ):
                 raise InvalidConfigParamException(
                     f"Invalid time format. Expected {self.format}"
-                )
+                ) from e
             raise e
 
 

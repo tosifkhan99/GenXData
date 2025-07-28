@@ -48,7 +48,8 @@ class BaseStrategy(ABC):
     def _validate_params(self):
         """
         Validate the parameters required by this strategy.
-        Raises InvalidConfigParamException if required parameters are missing or invalid.
+        Raises InvalidConfigParamException if required parameters are missing or
+        invalid.
         """
         pass
 
@@ -124,7 +125,8 @@ class BaseStrategy(ABC):
             Updated dataframe
         """
         self.logger.debug(
-            f"Applying {self.__class__.__name__} to column '{column_name}' with {len(df)} rows"
+            f"Applying {self.__class__.__name__} to column '{column_name}' "
+            f"with {len(df)} rows"
         )
 
         # todo: check if this is needed. #optimizations.
@@ -140,7 +142,8 @@ class BaseStrategy(ABC):
                 filtered_df = df_copy.query(mask)
                 if len(filtered_df) > 0:
                     self.logger.debug(
-                        f"Mask filtered {len(filtered_df)} rows out of {len(df_copy)} total rows"
+                        f"Mask filtered {len(filtered_df)} rows out of "
+                        f"{len(df_copy)} total rows"
                     )
                     # Generate data only for filtered rows
                     values = self.generate_data(len(filtered_df))
@@ -160,7 +163,8 @@ class BaseStrategy(ABC):
 
             except IndexingError as e:
                 self.logger.warning(
-                    f"IndexError applying mask to column '{column_name}': {e}. Applying to all rows as fallback."
+                    f"IndexError applying mask to column '{column_name}': {e}. "
+                    f"Applying to all rows as fallback."
                 )
                 # Fallback: apply to all rows
                 values = self.generate_data(len(df_copy))
@@ -239,7 +243,8 @@ class BaseStrategy(ABC):
             percentage = (affected_rows / total_rows * 100) if total_rows > 0 else 0
 
             self.logger.debug(
-                f"Mask preview: {affected_rows}/{total_rows} rows ({percentage:.2f}%) would be affected"
+                f"Mask preview: {affected_rows}/{total_rows} rows "
+                f"({percentage:.2f}%) would be affected"
             )
 
             return {

@@ -5,7 +5,8 @@ Contains common functionality shared across all processor implementations.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
 import configs.GENERATOR_SETTINGS as SETTINGS
@@ -26,7 +27,7 @@ class BaseConfigProcessor(ABC):
     and configuration validation.
     """
 
-    def __init__(self, config: Dict[str, Any], writer: BaseWriter, error_handler):
+    def __init__(self, config: dict[str, Any], writer: BaseWriter, error_handler):
         """
         Initialize the base config processor.
 
@@ -91,7 +92,8 @@ class BaseConfigProcessor(ABC):
         num_rows = size if size is not None else self.rows
         df = pd.DataFrame(index=range(num_rows), columns=self.column_names)
         self.logger.debug(
-            f"Created base DataFrame with {num_rows} rows and columns: {self.column_names}"
+            f"Created base DataFrame with {num_rows} rows and "
+            f"columns: {self.column_names}"
         )
         return df
 
@@ -114,7 +116,7 @@ class BaseConfigProcessor(ABC):
         return df
 
     def _process_single_config(
-        self, df: pd.DataFrame, cur_config: Dict[str, Any]
+        self, df: pd.DataFrame, cur_config: dict[str, Any]
     ) -> pd.DataFrame:
         """
         Process a single column configuration.
@@ -157,7 +159,7 @@ class BaseConfigProcessor(ABC):
         self,
         df: pd.DataFrame,
         col_name: str,
-        cur_config: Dict[str, Any],
+        cur_config: dict[str, Any],
         is_intermediate: bool,
     ) -> pd.DataFrame:
         """
@@ -248,7 +250,7 @@ class BaseConfigProcessor(ABC):
         return df
 
     @abstractmethod
-    def process(self) -> Dict[str, Any]:
+    def process(self) -> dict[str, Any]:
         """
         Process the configuration and generate data.
 

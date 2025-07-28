@@ -4,12 +4,14 @@ File writer implementation for GenXData.
 Handles writing DataFrames to various file formats (CSV, JSON, Excel, etc.).
 """
 
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
-from .base_writer import BaseWriter
 from utils.file_utils import write_output_files
 from utils.logging import Logger
+
+from .base_writer import BaseWriter
 
 
 class FileWriter(BaseWriter):
@@ -19,7 +21,7 @@ class FileWriter(BaseWriter):
     Supports various file formats through the existing file_utils module.
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         """
         Initialize the file writer.
 
@@ -66,8 +68,8 @@ class FileWriter(BaseWriter):
         return True
 
     def write(
-        self, df: pd.DataFrame, metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, df: pd.DataFrame, metadata: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         Write DataFrame to file(s) based on configuration.
 
@@ -120,7 +122,7 @@ class FileWriter(BaseWriter):
             self.logger.error(f"Error writing DataFrame to file: {e}")
             return {"status": "error", "error": str(e), "metadata": metadata}
 
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """
         Finalize file writing operations.
 

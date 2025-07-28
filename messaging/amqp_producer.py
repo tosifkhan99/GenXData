@@ -5,7 +5,7 @@ AMQP producer implementation.
 import json
 import threading
 import time
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -13,8 +13,8 @@ from proton import Message
 from proton.handlers import MessagingHandler
 from proton.reactor import Container
 
-from .base import QueueProducer
 from .amqp_config import AMQPConfig
+from .base import QueueProducer
 
 
 class AMQPProducer(QueueProducer, MessagingHandler):
@@ -83,7 +83,7 @@ class AMQPProducer(QueueProducer, MessagingHandler):
             pass
 
     def send_dataframe(
-        self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None
+        self, df: "pd.DataFrame", batch_info: dict[str, Any] | None = None
     ) -> None:
         """
         Send a DataFrame to the AMQP queue.
