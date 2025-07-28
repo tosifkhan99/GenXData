@@ -12,3 +12,6 @@ TODO
 node_modules
 examples
 new-outputoutput
+.vscode
+bandit-report.json
+analysis_output

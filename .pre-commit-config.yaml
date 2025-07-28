@@ -1,0 +1,53 @@
+repos:
+  # Basic pre-commit hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        exclude: ^frontend/tsconfig.*\.json$
+      - id: check-toml
+      - id: check-merge-conflict
+      - id: check-added-large-files
+      - id: debug-statements
+      - id: check-docstring-first
+      - id: check-case-conflict
+      - id: mixed-line-ending
+      - id: requirements-txt-fixer
+
+  # Python linting, formatting, and import sorting with Ruff (replaces Black + isort + flake8)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.12.4
+    hooks:
+      - id: ruff
+        name: ruff-linting
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        name: ruff-formatting
+
+  # Type checking with mypy
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.17.0
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-PyYAML, types-python-dateutil]
+        args: [--ignore-missing-imports, --no-strict-optional, --explicit-package-bases]
+        exclude: ^(frontend/|tools/|tests/)
+
+  # Poetry dependency management
+  - repo: https://github.com/python-poetry/poetry
+    rev: 1.8.5
+    hooks:
+      - id: poetry-check
+      - id: poetry-lock
+        args: [--no-update]
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.8.0
+    hooks:
+      - id: bandit
+        args: [-r, --format, json, --output, bandit-report.json]
+        exclude: ^(tests/|frontend/)
