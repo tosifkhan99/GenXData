@@ -50,11 +50,11 @@ class DistributedTimeRangeStrategy(BaseStrategy):
             except ValueError as e:
                 raise InvalidConfigParamException(
                     f"Invalid time format for range at index {i}: {str(e)}"
-                )
+                ) from e
 
             # Validate distribution
             if (
-                not isinstance(range_item.distribution, (int, float))
+                not isinstance(range_item.distribution, (int | float))
                 or range_item.distribution <= 0
             ):
                 raise InvalidConfigParamException(
@@ -73,8 +73,8 @@ class DistributedTimeRangeStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def _time_to_seconds(self, time_str: str, format_str: str) -> int:
         """Convert time string to seconds since midnight"""

@@ -65,13 +65,13 @@ def process_streaming_config(
         logger.error(error_msg)
         raise StreamingException(
             error_msg, context=ErrorContextBuilder().with_config(stream_config).build()
-        )
+        ) from e
     except Exception as e:
         error_msg = f"Could not connect to queue: {e}"
         logger.error(error_msg)
         raise StreamingException(
             error_msg, context=ErrorContextBuilder().with_config(stream_config).build()
-        )
+        ) from e
 
     df = None
     for batch_index, batch_size in enumerate(batches):

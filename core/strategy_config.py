@@ -5,7 +5,7 @@ Each strategy has its own configuration class that defines and validates
 the parameters required for that strategy.
 """
 
-from abc import ABC
+from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, fields
 from typing import Any
 
@@ -43,6 +43,7 @@ class BaseConfig(ABC):
         """
         return {f.name: getattr(self, f.name) for f in fields(self)}
 
+    @abstractmethod
     def validate(self) -> None:
         """
         Validate the configuration parameters.
@@ -67,8 +68,8 @@ class NumberRangeConfig(BaseConfig):
             raise InvalidConfigParamException(
                 f"start ({self.start}) must be less than end ({self.end})"
             )
-        if not isinstance(self.start, (int, float)) or not isinstance(
-            self.end, (int, float)
+        if not isinstance(self.start, (int | float)) or not isinstance(
+            self.end, (int | float)
         ):
             raise InvalidConfigParamException("Bounds must be numeric values")
 
@@ -200,8 +201,8 @@ class SeriesConfig(BaseConfig):
 
     def validate(self) -> None:
         """Validate series parameters"""
-        if not isinstance(self.start, (int, float)) or not isinstance(
-            self.step, (int, float)
+        if not isinstance(self.start, (int | float)) or not isinstance(
+            self.step, (int | float)
         ):
             raise InvalidConfigParamException("Start and step must be numeric values")
 

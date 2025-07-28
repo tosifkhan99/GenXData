@@ -67,7 +67,7 @@ class StrategyFactory:
                 .with_strategy_name(strategy_name)
                 .with_strategy_params(params)
                 .build(),
-            )
+            ) from e
 
     def execute_strategy(self, strategy: BaseStrategy) -> pd.DataFrame:
         """

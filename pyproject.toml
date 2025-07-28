@@ -89,6 +89,7 @@ per-file-ignores = { "tools/*.py" = ["E402"] }  # Allow module imports not at to
 # Ignore some common issues
 ignore = [
     "F841",  # Local variable assigned but never used (can be useful for debugging)
+    "E501"
 ]
 
 [tool.ruff.format]

@@ -53,7 +53,7 @@ class SeriesStrategy(BaseStrategy):
             raise InvalidConfigParamException("Missing required parameter: start")
 
         # Validate that start is numeric
-        if not isinstance(self.params["start"], (int, float)):
+        if not isinstance(self.params["start"], (int | float)):
             raise InvalidConfigParamException("Start value must be numeric")
 
         # Validate step if provided

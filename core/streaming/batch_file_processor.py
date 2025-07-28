@@ -119,7 +119,7 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         logger.error(error_msg)
         raise BatchProcessingException(
             error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
-        )
+        ) from e
 
     # Initialize and run StreamingBatchProcessor
     try:
@@ -155,4 +155,4 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         error_handler.add_error(e)
         raise BatchProcessingException(
             error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
-        )
+        ) from e

@@ -51,8 +51,8 @@ class NumberRangeStrategy(BaseStrategy):
         try:
             lower = float(self.params["start"])
             upper = float(self.params["end"])
-        except ValueError:
-            raise InvalidConfigParamException("Bounds must be numeric")
+        except ValueError as e:
+            raise InvalidConfigParamException("Bounds must be numeric") from e
 
         # Validate that start is less than end
         if lower >= upper:
@@ -64,8 +64,8 @@ class NumberRangeStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def generate_chunk(self, count: int) -> pd.Series:
         """
