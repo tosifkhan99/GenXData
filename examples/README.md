@@ -19,7 +19,7 @@ All example files in this directory have been checked and updated to work with t
 - **Features**: Multiple related columns with distributed strategies
 
 #### **2. Random Number Range Strategy**
-- **Files**: 
+- **Files**:
   - `simple_random_number_example.yaml` - Basic usage
   - `random_number_range_example.yaml` - Comprehensive examples
   - `random_number_with_masking_example.yaml` - Conditional generation with masking
@@ -31,7 +31,7 @@ All example files in this directory have been checked and updated to work with t
 - **Description**: Generate data matching regex patterns
 - **Examples**: Product codes, phone numbers
 
-#### **4. Random Name Strategy** 
+#### **4. Random Name Strategy**
 - **File**: `random_name_strategy.yaml`
 - **Description**: Generate realistic first/last names
 - **Features**: Combined with concat strategy for emails
@@ -75,7 +75,7 @@ All example files in this directory have been checked and updated to work with t
 ### Utility Strategies
 
 #### **11. Concatenation Strategy**
-- **Files**: 
+- **Files**:
   - `concate_strategy.yaml` - Basic concatenation
   - Multiple other files use this for email generation
 - **Description**: Combine column values with separators
@@ -120,7 +120,7 @@ The following issues were identified and fixed across all example files:
 ### 1. File Writer Parameters
 - **Issue**: Examples using deprecated `path_or_buf` parameter
 - **Fix**: Updated to use `output_path` parameter
-- **Files Fixed**: 
+- **Files Fixed**:
   - `all_example.yaml`
   - `random_number_range_example.yaml`
   - `pattern_strategy.yaml`
@@ -135,7 +135,7 @@ The following issues were identified and fixed across all example files:
   - `delete.yaml`
 
 ### 3. Missing Parameters
-- **Issue**: Some strategies missing required `params: {}` 
+- **Issue**: Some strategies missing required `params: {}`
 - **Fix**: Added empty params objects where needed
 - **Files Fixed**: Various strategy configurations
 
@@ -188,8 +188,8 @@ python main.py examples/any_example.yaml --perf
 
 ## 🔄 Validation Status
 
-**Last Updated**: May 31, 2025  
-**Validation Status**: ✅ All examples validated and working  
+**Last Updated**: May 31, 2025
+**Validation Status**: ✅ All examples validated and working
 **Application Version**: Latest (with distributed date/time strategies)
 
-All example files have been tested and confirmed to work with the current application version. The examples demonstrate realistic use cases and best practices for each strategy type. 
+All example files have been tested and confirmed to work with the current application version. The examples demonstrate realistic use cases and best practices for each strategy type.
