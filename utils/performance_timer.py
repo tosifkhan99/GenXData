@@ -3,8 +3,8 @@ Utility for measuring and reporting performance in data generation.
 """
 
 import time
-from functools import wraps
 from contextlib import contextmanager
+from functools import wraps
 
 
 class PerformanceTracker:

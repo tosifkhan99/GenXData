@@ -1,10 +1,11 @@
+from typing import Literal
+
 import names
-from typing import Optional, Literal
 
 
 def get_name(
     name_type: Literal["first", "last", "full"] = "first",
-    gender: Optional[Literal["male", "female"]] = None,
+    gender: Literal["male", "female"] | None = None,
 ) -> str:
     """
     Get a random name using the names package.
@@ -33,7 +34,7 @@ def get_name(
 def get_names(
     size: int,
     name_type: Literal["first", "last", "full"] = "first",
-    gender: Optional[Literal["male", "female"]] = None,
+    gender: Literal["male", "female"] | None = None,
 ) -> list[str]:
     """
     Get a list of random names using the names package.

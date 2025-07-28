@@ -1,8 +1,8 @@
 # Handles error states and stores them
 
-from logging import Logger
 from datetime import datetime
-from typing import Dict, Any, Union
+from logging import Logger
+from typing import Any
 
 from exceptions.base_exception import GenXDataError
 
@@ -10,9 +10,9 @@ from exceptions.base_exception import GenXDataError
 class ErrorHandler:
     def __init__(self, logger: Logger):
         self.logger = logger
-        self.errors: list[Dict[str, Any]] = []
+        self.errors: list[dict[str, Any]] = []
 
-    def add_error(self, error: Union[GenXDataError, Exception]):
+    def add_error(self, error: GenXDataError | Exception):
         """
         Add an error to the error handler.
         Handles both GenXDataError and built-in Python exceptions.

@@ -1,5 +1,5 @@
-from datetime import datetime
 import random
+from datetime import datetime
 
 
 def timeGenerator(end_time_str, start_time_str, format_str="%H:%M:%S"):

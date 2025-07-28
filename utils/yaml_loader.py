@@ -21,7 +21,7 @@ def read_yaml(file_path):
         yaml.YAMLError: If the file is not valid YAML
     """
     try:
-        with open(file_path, "r") as file:
+        with open(file_path) as file:
             return yaml.safe_load(file)
     except FileNotFoundError:
         raise

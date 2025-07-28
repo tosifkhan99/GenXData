@@ -1,21 +1,21 @@
-from typing import TypedDict, Optional, Any, Dict
+from typing import Any, TypedDict
 
 
 class ErrorContext(TypedDict, total=False):
     """Type definition for error context options"""
 
-    generator: Optional[str]
-    strategy_name: Optional[str]
-    strategy_params: Optional[Dict[str, Any]]
-    config: Optional[Dict[str, Any]]
-    batch: Optional[Dict[str, Any]]
-    stream: Optional[Dict[str, Any]]
-    perf_report: Optional[Dict[str, Any]]
-    log_level: Optional[str]
-    column: Optional[str]
-    row: Optional[int]
-    value: Optional[Any]
-    config_path: Optional[str]
+    generator: str | None
+    strategy_name: str | None
+    strategy_params: dict[str, Any] | None
+    config: dict[str, Any] | None
+    batch: dict[str, Any] | None
+    stream: dict[str, Any] | None
+    perf_report: dict[str, Any] | None
+    log_level: str | None
+    column: str | None
+    row: int | None
+    value: Any | None
+    config_path: str | None
 
 
 class ErrorContextBuilder:

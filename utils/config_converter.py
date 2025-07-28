@@ -3,8 +3,9 @@ Utility for converting between different configuration formats (JSON/YAML).
 """
 
 import json
-import yaml
 from pathlib import Path
+
+import yaml
 
 
 def json_to_yaml(json_path, yaml_path=None):
@@ -25,7 +26,7 @@ def json_to_yaml(json_path, yaml_path=None):
             yaml_path = str(Path(json_path).with_suffix(".yaml"))
 
         # Read the JSON file
-        with open(json_path, "r") as json_file:
+        with open(json_path) as json_file:
             config_data = json.load(json_file)
 
         # Write as YAML
@@ -56,7 +57,7 @@ def yaml_to_json(yaml_path, json_path=None):
             json_path = str(Path(yaml_path).with_suffix(".json"))
 
         # Read the YAML file
-        with open(yaml_path, "r") as yaml_file:
+        with open(yaml_path) as yaml_file:
             config_data = yaml.safe_load(yaml_file)
 
         # Write as JSON

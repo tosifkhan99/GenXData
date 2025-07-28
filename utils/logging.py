@@ -1,7 +1,7 @@
 import logging
 import os
 import sys
-from typing import Dict, Any, Optional
+from typing import Any
 
 
 class Logger:
@@ -24,14 +24,14 @@ class Logger:
     }
 
     # Store logger instances
-    _loggers: Dict[str, logging.Logger] = {}
+    _loggers: dict[str, logging.Logger] = {}
 
     @classmethod
     def get_logger(
         cls,
-        name: Optional[str] = None,
+        name: str | None = None,
         log_level: str = "INFO",
-        log_file: Optional[str] = None,
+        log_file: str | None = None,
         format_detailed: bool = False,
     ) -> logging.Logger:
         """
@@ -66,7 +66,7 @@ class Logger:
 
     @classmethod
     def _create_logger(
-        cls, name: str, log_level: str, log_file: Optional[str], format_detailed: bool
+        cls, name: str, log_level: str, log_file: str | None, format_detailed: bool
     ) -> logging.Logger:
         """
         Create and configure a new logger.
@@ -122,7 +122,7 @@ class Logger:
         return logger
 
     @classmethod
-    def configure_all_loggers(cls, config: Dict[str, Any]) -> None:
+    def configure_all_loggers(cls, config: dict[str, Any]) -> None:
         """
         Configure all existing loggers with new settings.
 

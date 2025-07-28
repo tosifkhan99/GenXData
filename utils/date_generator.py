@@ -1,5 +1,5 @@
-from datetime import timedelta
 import random
+from datetime import timedelta
 
 
 def generate_random_date(start_date, end_date, output_format):

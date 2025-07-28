@@ -1,12 +1,13 @@
 import json
-import yaml
-from typing import Dict, List, Union, Any, Optional
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 from exceptions.param_exceptions import InvalidConfigParamException
 
 
-def load_all_generators() -> Dict[str, Dict[str, Any]]:
+def load_all_generators() -> dict[str, dict[str, Any]]:
     """Load all generators from all generator files."""
     generators = {}
     generators_dir = Path("generators")
@@ -19,7 +20,7 @@ def load_all_generators() -> Dict[str, Dict[str, Any]]:
 
     for json_file in generators_dir.glob("*.json"):
         try:
-            with open(json_file, "r") as f:
+            with open(json_file) as f:
                 file_generators = json.load(f)
                 generators.update(file_generators)
         except Exception:
@@ -28,7 +29,7 @@ def load_all_generators() -> Dict[str, Dict[str, Any]]:
     return generators
 
 
-def list_available_generators(filter_by: Optional[str] = None) -> List[str]:
+def list_available_generators(filter_by: str | None = None) -> list[str]:
     """
     List all available generators, optionally filtered by domain or strategy type.
 
@@ -48,7 +49,7 @@ def list_available_generators(filter_by: Optional[str] = None) -> List[str]:
     return sorted(generator_names)
 
 
-def get_generator_info(generator_name: str) -> Dict[str, Any]:
+def get_generator_info(generator_name: str) -> dict[str, Any]:
     """
     Get detailed information about a specific generator.
 
@@ -69,7 +70,7 @@ def get_generator_info(generator_name: str) -> Dict[str, Any]:
     return generators[generator_name]
 
 
-def get_generators_by_strategy(strategy_name: str) -> List[str]:
+def get_generators_by_strategy(strategy_name: str) -> list[str]:
     """
     Get all generators that use a specific strategy implementation.
 
@@ -89,7 +90,7 @@ def get_generators_by_strategy(strategy_name: str) -> List[str]:
     return sorted(matching_generators)
 
 
-def create_all_example_config() -> Dict[str, Any]:
+def create_all_example_config() -> dict[str, Any]:
     """
     Create a configuration that matches the structure of all_example.json using generators.
 
@@ -121,11 +122,11 @@ def create_all_example_config() -> Dict[str, Any]:
 
 
 def generator_to_config(
-    generator_mapping: Union[Dict[str, str], List[Dict[str, str]], str],
+    generator_mapping: dict[str, str] | list[dict[str, str]] | str,
     num_rows: int = 100,
-    output_config: Optional[Dict[str, Any]] = None,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    output_config: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Convert generator names to valid GenXData configuration format.
 
@@ -222,7 +223,7 @@ def generator_to_config(
     return config
 
 
-def save_config_as_yaml(config: Dict[str, Any], output_path: str) -> None:
+def save_config_as_yaml(config: dict[str, Any], output_path: str) -> None:
     """Save configuration as YAML file."""
     from .file_utils import ensure_output_dir
 
@@ -233,7 +234,7 @@ def save_config_as_yaml(config: Dict[str, Any], output_path: str) -> None:
         yaml.dump(config, f, default_flow_style=False, indent=2, sort_keys=False)
 
 
-def save_config_as_json(config: Dict[str, Any], output_path: str) -> None:
+def save_config_as_json(config: dict[str, Any], output_path: str) -> None:
     """Save configuration as JSON file."""
     from .file_utils import ensure_output_dir
 
@@ -322,7 +323,7 @@ def create_domain_configs_example():
             pass
 
 
-def validate_generator_config(config: Dict[str, Any]) -> bool:
+def validate_generator_config(config: dict[str, Any]) -> bool:
     # todo: make it class based validation
     """
     Basic Validatation that a configuration dictionary is properly formatted for GenXData.
@@ -361,7 +362,7 @@ def validate_generator_config(config: Dict[str, Any]) -> bool:
     return True
 
 
-def get_generator_stats() -> Dict[str, Any]:
+def get_generator_stats() -> dict[str, Any]:
     """
     Get statistics about available generators.
 
@@ -388,7 +389,7 @@ def get_generator_stats() -> Dict[str, Any]:
         "transportation": ["VEHICLE", "SHIPPING", "FLIGHT", "CARGO", "SPEED"],
     }
 
-    domain_counts = {domain: 0 for domain in domain_patterns.keys()}
+    domain_counts = dict.fromkeys(domain_patterns.keys(), 0)
     domain_counts["generic"] = 0
 
     for gen_name in generators.keys():
