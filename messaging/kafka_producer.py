@@ -3,7 +3,7 @@ Kafka producer implementation.
 """
 
 import json
-from typing import Dict, Any, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -45,7 +45,7 @@ class KafkaProducer(QueueProducer):
             self._connected = True
 
         except ImportError as e:
-            raise ImportError(f"Kafka library not available. Install kafka-python: {e}")
+            raise ImportError(f"Kafka library not available. Install kafka-python: {e}") from e
         except Exception:
             raise
 
@@ -65,7 +65,7 @@ class KafkaProducer(QueueProducer):
             pass
 
     def send_dataframe(
-        self, df: "pd.DataFrame", batch_info: Optional[Dict[str, Any]] = None
+        self, df: "pd.DataFrame", batch_info: dict[str, Any] | None = None
     ) -> None:
         """
         Send a DataFrame to the Kafka topic.

@@ -3,7 +3,8 @@
 Command-line utility for converting configuration files between JSON and YAML formats.
 
 Usage:
-    python convert_configs.py [--format yaml|json] [--recursive] [--backup] directory1 [directory2 ...]
+    python convert_configs.py [--format yaml|json] [--recursive] [--backup] \
+        directory1 [directory2 ...]
 """
 
 import argparse
@@ -60,17 +61,17 @@ def main():
                 os.makedirs(backup_dir, exist_ok=True)
 
                 if args.format == "yaml":
-                    files = list(
+                    files = [
                         os.path.join(directory, f)
                         for f in os.listdir(directory)
                         if f.endswith(".json")
-                    )
+                    ]
                 else:
-                    files = list(
+                    files = [
                         os.path.join(directory, f)
                         for f in os.listdir(directory)
                         if f.endswith(".yaml") or f.endswith(".yml")
-                    )
+                    ]
 
                 for file in files:
                     if os.path.isfile(file):

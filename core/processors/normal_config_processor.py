@@ -5,10 +5,11 @@ Handles traditional data generation where all data is generated at once
 and then written to output. This replaces the functionality from process_config.py.
 """
 
-from typing import Dict, Any
+from typing import Any
+
+from utils.performance_timer import get_performance_report, measure_time
 
 from .base_config_processor import BaseConfigProcessor
-from utils.performance_timer import measure_time, get_performance_report
 
 
 class NormalConfigProcessor(BaseConfigProcessor):
@@ -20,7 +21,7 @@ class NormalConfigProcessor(BaseConfigProcessor):
     """
 
     def __init__(
-        self, config: Dict[str, Any], writer, error_handler, perf_report: bool = False
+        self, config: dict[str, Any], writer, error_handler, perf_report: bool = False
     ):
         """
         Initialize the normal config processor.
@@ -36,7 +37,7 @@ class NormalConfigProcessor(BaseConfigProcessor):
 
         self.logger.info(f"NormalConfigProcessor initialized for {self.rows} rows")
 
-    def process(self) -> Dict[str, Any]:
+    def process(self) -> dict[str, Any]:
         """
         Process the configuration using normal (all-at-once) generation.
 

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 
 from core.base_strategy import BaseStrategy
+from core.error.error_context import ErrorContextBuilder
 from exceptions.param_exceptions import InvalidConfigParamException
 
 
@@ -25,7 +26,7 @@ class DistributedChoiceStrategy(BaseStrategy):
 
         # Validate that weights are positive
         for choice, weight in choices.items():
-            if not isinstance(weight, (int, float)) or weight <= 0:
+            if not isinstance(weight, int | float) or weight <= 0:
                 raise InvalidConfigParamException(
                     f"Weight for choice '{choice}' must be positive, got {weight}"
                 )
@@ -34,7 +35,7 @@ class DistributedChoiceStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
+            except ValueError as e:
                 raise InvalidConfigParamException(
                     "Seed must be an integer",
                     context=ErrorContextBuilder()
@@ -42,7 +43,7 @@ class DistributedChoiceStrategy(BaseStrategy):
                     .with_column(self.col_name)
                     .with_strategy_params(self.params)
                     .build(),
-                )
+                ) from e
 
         total_weight = sum(choices.values())
         if total_weight != 100:

@@ -31,12 +31,16 @@ class DebugFormatter:
             lines.append(f"Error Type: {error.__class__.__name__}")
             lines.append(f"Message: {error.message}")
             lines.append(f"Error Code: {error.error_code}")
-            lines.append(
-                f"Severity: {error.severity.name if hasattr(error.severity, 'name') else str(error.severity)}"
+            severity_str = (
+                error.severity.name if hasattr(error.severity, "name")
+                else str(error.severity)
             )
-            lines.append(
-                f"Category: {error.category.value if hasattr(error.category, 'value') else str(error.category)}"
+            lines.append(f"Severity: {severity_str}")
+            category_str = (
+                error.category.value if hasattr(error.category, "value")
+                else str(error.category)
             )
+            lines.append(f"Category: {category_str}")
 
             # Add context information if available
             if hasattr(error, "context") and error.context:

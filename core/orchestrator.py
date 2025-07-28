@@ -6,7 +6,7 @@ import configs.GENERATOR_SETTINGS as SETTINGS
 from core.error.error import ErrorHandler
 from core.error.error_context import ErrorContextBuilder
 from core.processors import NormalConfigProcessor, StreamingConfigProcessor
-from core.writers import FileWriter, StreamWriter
+from core.writers import BaseWriter, FileWriter, StreamWriter
 from exceptions.invalid_running_mode_exception import InvalidRunningModeException
 from utils.config_utils import load_config
 from utils.logging import Logger
@@ -146,22 +146,25 @@ class DataOrchestrator:
 
         except Exception as e:
             self.error_handler.add_error(e)
-            return {"status": "error", "error": str(e), "processor_type": "unknown"}
+            result = {"status": "error", "error": str(e), "processor_type": "unknown"}
+        else:
+            result = None
 
-        finally:
-            # Centralized error reporting with severity-based formatting
-            if self.error_handler.has_errors():
-                self.logger.error(
-                    "========== Orchestrator completed with errors =========="
-                )
-                self.error_handler.generate_error_report()
+        # Centralized error reporting with severity-based formatting
+        if self.error_handler.has_errors():
+            self.logger.error(
+                "========== Orchestrator completed with errors =========="
+            )
+            self.error_handler.generate_error_report()
 
-            # Only fail if there are critical errors
-            if self.error_handler.has_critical_errors():
-                self.logger.error(
-                    "========== Orchestrator completed with critical errors =========="
-                )
-                self.logger.critical(
-                    "Critical errors detected. Process cannot continue."
-                )
-                return None
+        # Only fail if there are critical errors
+        if self.error_handler.has_critical_errors():
+            self.logger.error(
+                "========== Orchestrator completed with critical errors =========="
+            )
+            self.logger.critical(
+                "Critical errors detected. Process cannot continue."
+            )
+            return None
+
+        return result

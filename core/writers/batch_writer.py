@@ -5,11 +5,13 @@ This is a compatibility wrapper that implements the BaseWriter interface
 for use with batch processing scenarios.
 """
 
-from typing import Dict, Any
+from typing import Any
+
 import pandas as pd
 
-from .base_writer import BaseWriter
 from utils.logging import Logger
+
+from .base_writer import BaseWriter
 
 
 class BatchWriter(BaseWriter):
@@ -20,7 +22,7 @@ class BatchWriter(BaseWriter):
     used by streaming_batch_processor to the new BaseWriter interface.
     """
 
-    def __init__(self, config: Dict[str, Any], actual_writer: BaseWriter = None):
+    def __init__(self, config: dict[str, Any], actual_writer: BaseWriter = None):
         """
         Initialize the batch writer.
 
@@ -44,7 +46,7 @@ class BatchWriter(BaseWriter):
             f"BatchWriter initialized with {type(self.actual_writer).__name__}"
         )
 
-    def write_batch(self, df: pd.DataFrame, batch_info: Dict[str, Any]) -> None:
+    def write_batch(self, df: pd.DataFrame, batch_info: dict[str, Any]) -> None:
         """
         Write a batch (compatibility method for streaming_batch_processor).
 
@@ -66,8 +68,8 @@ class BatchWriter(BaseWriter):
         self.logger.debug(f"Batch write result: {result}")
 
     def write(
-        self, df: pd.DataFrame, metadata: Dict[str, Any] = None
-    ) -> Dict[str, Any]:
+        self, df: pd.DataFrame, metadata: dict[str, Any] = None
+    ) -> dict[str, Any]:
         """
         Write DataFrame (BaseWriter interface).
 
@@ -97,7 +99,7 @@ class BatchWriter(BaseWriter):
             "metadata": metadata,
         }
 
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """
         Finalize batch writing operations.
 

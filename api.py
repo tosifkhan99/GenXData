@@ -1,22 +1,24 @@
-from typing import Dict, Any
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse, StreamingResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+import os
+import tempfile
+import zipfile
+from io import BytesIO
+from typing import Any
+
+import pandas as pd
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+
 from core.strategy_mapping import get_all_strategy_names, get_all_strategy_schemas
 from exceptions.param_exceptions import InvalidConfigParamException
 from main import start
-import tempfile
-import zipfile
-import pandas as pd
-import os
-from io import BytesIO
 from utils.generator_utils import (
-    list_available_generators,
-    get_generator_info,
-    get_generators_by_strategy,
     generator_to_config,
+    get_generator_info,
     get_generator_stats,
+    get_generators_by_strategy,
+    list_available_generators,
     validate_generator_config,
 )
 from utils.logging import Logger
@@ -126,14 +128,15 @@ async def get_strategy_schemas():
 
 
 @app.post("/generate_data")
-async def generate_data(config: Dict[str, Any]):
+async def generate_data(config: dict[str, Any]):
     return {"data": start(config)}
 
 
 @app.post("/generate_and_download")
-async def generate_and_download(config: Dict[str, Any]):
+async def generate_and_download(config: dict[str, Any]):
     """
-    Generate data based on config and return as a zip file containing the generated files.
+    Generate data based on config and return as a zip file containing the
+    generated files.
     """
     try:
         # Force write_output to True to generate files
@@ -224,7 +227,7 @@ async def list_generators_api(filter_by: str = None):
         return {"generators": generators, "count": len(generators), "filter": filter_by}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/generators/{generator_name}")
@@ -236,9 +239,9 @@ async def get_generator_api(generator_name: str):
         return {"name": generator_name, "generator": generator_info}
 
     except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/generators/by-strategy/{strategy_name}")
@@ -254,7 +257,7 @@ async def get_generators_by_strategy_api(strategy_name: str):
         }
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/generators/stats")
@@ -265,7 +268,7 @@ async def get_generator_stats_api():
         return stats
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/api/config/from-generators")
@@ -294,7 +297,7 @@ async def create_config_from_generators_api(data: dict):
         return {"status": "success", "config": config}
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.post("/api/config/validate")
@@ -307,9 +310,9 @@ async def validate_config_api(config: dict):
         return {"valid": is_valid, "message": "Configuration is valid"}
 
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @app.get("/api/schemas/config")

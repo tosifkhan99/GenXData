@@ -3,9 +3,10 @@ Streaming batch processor for GenXData.
 Implements stateful chunked generation approach for efficient batch processing.
 """
 
-import pandas as pd
-from typing import Dict, List, Any
 from abc import ABC, abstractmethod
+from typing import Any
+
+import pandas as pd
 
 from core.strategy_factory import StrategyFactory
 from utils.logging import Logger
@@ -15,12 +16,12 @@ class BatchWriter(ABC):
     """Abstract base class for batch writers"""
 
     @abstractmethod
-    def write_batch(self, df: pd.DataFrame, batch_info: Dict[str, Any]) -> None:
+    def write_batch(self, df: pd.DataFrame, batch_info: dict[str, Any]) -> None:
         """Write a batch to the output destination"""
         pass
 
     @abstractmethod
-    def finalize(self) -> Dict[str, Any]:
+    def finalize(self) -> dict[str, Any]:
         """Finalize writing and return summary information"""
         pass
 
@@ -36,7 +37,7 @@ class StreamingBatchProcessor:
 
     def __init__(
         self,
-        config: Dict[str, Any],
+        config: dict[str, Any],
         batch_size: int,
         batch_writer: BatchWriter,
         chunk_size: int = 1000,
@@ -71,7 +72,7 @@ class StreamingBatchProcessor:
             f"batch_size={self.batch_size}, chunk_size={self.chunk_size}"
         )
 
-    def _initialize_strategies(self) -> Dict[str, Any]:
+    def _initialize_strategies(self) -> dict[str, Any]:
         """Initialize stateful strategies for each column"""
         strategies = {}
         strategy_factory = StrategyFactory(
@@ -107,7 +108,7 @@ class StreamingBatchProcessor:
 
         return strategies
 
-    def _generate_chunk_data(self, chunk_size: int) -> List[Dict[str, Any]]:
+    def _generate_chunk_data(self, chunk_size: int) -> list[dict[str, Any]]:
         """
         Generate a chunk of data using stateful strategies.
 
@@ -170,7 +171,7 @@ class StreamingBatchProcessor:
 
         self.logger.debug(f"Buffer cleared, batch count: {self.batch_count}")
 
-    def process(self) -> Dict[str, Any]:
+    def process(self) -> dict[str, Any]:
         """
         Process the entire dataset using streaming batch approach.
 
@@ -233,7 +234,7 @@ class StreamingBatchProcessor:
             self.logger.error(f"Error during streaming batch processing: {e}")
             raise
 
-    def get_strategy_states(self) -> Dict[str, Dict[str, Any]]:
+    def get_strategy_states(self) -> dict[str, dict[str, Any]]:
         """Get current state of all strategies for debugging"""
         states = {}
         for col_name, strategy in self.strategies.items():

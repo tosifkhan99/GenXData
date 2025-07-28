@@ -60,8 +60,8 @@ class SeriesStrategy(BaseStrategy):
         if "step" in self.params:
             try:
                 float(self.params["step"])
-            except ValueError:
-                raise InvalidConfigParamException("Step value must be numeric")
+            except ValueError as e:
+                raise InvalidConfigParamException("Step value must be numeric") from e
 
     def generate_chunk(self, count: int) -> pd.Series:
         """

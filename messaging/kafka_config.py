@@ -2,7 +2,8 @@
 Kafka-specific configuration implementation.
 """
 
-from typing import Dict, Any
+from typing import Any
+
 from .base import QueueConfig
 
 
@@ -52,7 +53,7 @@ class KafkaConfig(QueueConfig):
         """Return the queue type identifier."""
         return "kafka"
 
-    def get_producer_config(self) -> Dict[str, Any]:
+    def get_producer_config(self) -> dict[str, Any]:
         """Get the producer configuration dictionary for kafka-python."""
         config = {
             "bootstrap_servers": self.bootstrap_servers,

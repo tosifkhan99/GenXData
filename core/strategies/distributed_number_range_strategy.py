@@ -1,5 +1,6 @@
 """
-Distributed number range strategy for generating numeric values from multiple weighted ranges.
+Distributed number range strategy for generating numeric values from multiple
+weighted ranges.
 """
 
 import numpy as np
@@ -45,7 +46,7 @@ class DistributedNumberRangeStrategy(BaseStrategy):
             ub = range_item.end
             dist = range_item.distribution
 
-            if not isinstance(lb, (int, float)) or not isinstance(ub, (int, float)):
+            if not isinstance(lb, int | float) or not isinstance(ub, int | float):
                 raise InvalidConfigParamException(
                     f"Bounds for range at index {i} must be numeric"
                 )
@@ -56,7 +57,7 @@ class DistributedNumberRangeStrategy(BaseStrategy):
                 )
 
             # Validate distribution
-            if not isinstance(dist, (int, float)) or dist <= 0:
+            if not isinstance(dist, int | float) or dist <= 0:
                 raise InvalidConfigParamException(
                     f"Distribution for range at index {i} must be positive, got {dist}"
                 )
@@ -73,8 +74,8 @@ class DistributedNumberRangeStrategy(BaseStrategy):
         if "seed" in self.params:
             try:
                 int(self.params["seed"])
-            except ValueError:
-                raise InvalidConfigParamException("Seed must be an integer")
+            except ValueError as e:
+                raise InvalidConfigParamException("Seed must be an integer") from e
 
     def __init__(self, logger=None, **kwargs):
         """Initialize the strategy with configuration parameters"""
