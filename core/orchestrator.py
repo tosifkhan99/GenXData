@@ -5,10 +5,10 @@ Main orchestrator for GenXData processing.
 import configs.GENERATOR_SETTINGS as SETTINGS
 from core.error.error import ErrorHandler
 from core.error.error_context import ErrorContextBuilder
-from core.processor.process_config import process_config
-from core.streaming import process_batch_config, process_streaming_config
+from core.processors import NormalConfigProcessor, StreamingConfigProcessor
+from core.writers import FileWriter, StreamWriter
 from exceptions.invalid_running_mode_exception import InvalidRunningModeException
-from utils.config_utils import get_config_files, load_config
+from utils.config_utils import load_config
 from utils.logging import Logger
 
 
@@ -42,9 +42,29 @@ class DataOrchestrator:
         self.logger = Logger.get_logger(__name__, log_level)
         self.error_handler = ErrorHandler(self.logger)
 
+    def _create_writer(self, config: dict, stream_config: dict = None) -> "BaseWriter":
+        """
+        Create appropriate writer based on configuration.
+
+        Args:
+            config: Main configuration
+            stream_config: Optional streaming configuration
+
+        Returns:
+            Writer instance
+        """
+        if stream_config:
+            # Create stream writer for streaming/batch scenarios
+            self.logger.debug("Creating StreamWriter for streaming/batch processing")
+            return StreamWriter(stream_config)
+        else:
+            # Create file writer for normal processing
+            self.logger.debug("Creating FileWriter for normal processing")
+            return FileWriter(config)
+
     def run(self):
         """
-        Run the data generation process.
+        Run the data generation process using the new processor architecture.
 
         Returns:
             dict: Processing results
@@ -69,6 +89,7 @@ class DataOrchestrator:
         self.logger.debug(f"Log level: {self.log_level}")
 
         try:
+            # Validate running mode
             if self.stream and self.batch:
                 raise InvalidRunningModeException(
                     context=ErrorContextBuilder()
@@ -78,34 +99,54 @@ class DataOrchestrator:
                     .build()
                 )
 
-            # todo: do we need this ?
-            if isinstance(self.config, str):
-                config_files = get_config_files(self.config)
-            else:
-                config_files = [self.config]
+            # Determine processing mode and create appropriate processor
+            if self.stream or self.batch:
+                # Streaming/Batch processing
+                stream_config_path = self.stream or self.batch
+                stream_config = load_config(stream_config_path)
 
-            if self.stream:
-                self.logger.info("Processing streaming config")
-                stream_config = load_config(self.stream)
-                self.logger.debug("=" * 100)
-                self.logger.debug(f"Stream config: {stream_config}")
-                self.logger.debug("=" * 100 + "\n")
-                return process_streaming_config(
-                    self.config, stream_config, self.error_handler, self.perf_report
+                self.logger.info(
+                    f"Processing {'streaming' if self.stream else 'batch'} config"
                 )
-            elif self.batch:
-                self.logger.info("Processing batch config")
-                batch_config = load_config(self.batch)
-                return process_batch_config(
-                    self.config, batch_config, self.error_handler, self.perf_report
+                self.logger.debug(f"Stream/Batch config: {stream_config}")
+
+                # Create writer and processor
+                writer = self._create_writer(self.config, stream_config)
+                processor = StreamingConfigProcessor(
+                    config=self.config,
+                    writer=writer,
+                    error_handler=self.error_handler,
+                    batch_size=stream_config.get("batch_size", 1000),
+                    chunk_size=stream_config.get("chunk_size", 1000),
+                    perf_report=self.perf_report,
                 )
+
+                return processor.process()
+
             else:
-                self.logger.info("Processing config")
-                df = process_config(self.config, self.perf_report, self.error_handler)
-                return {"df": df.to_dict(orient="records")}
+                # Normal processing
+                self.logger.info("Processing normal config")
+
+                # Create writer and processor
+                writer = self._create_writer(self.config)
+                processor = NormalConfigProcessor(
+                    config=self.config,
+                    writer=writer,
+                    error_handler=self.error_handler,
+                    perf_report=self.perf_report,
+                )
+
+                result = processor.process()
+
+                # For backward compatibility, convert DataFrame to records
+                if "df" in result and hasattr(result["df"], "to_dict"):
+                    result["df"] = result["df"].to_dict(orient="records")
+
+                return result
 
         except Exception as e:
             self.error_handler.add_error(e)
+            return {"status": "error", "error": str(e), "processor_type": "unknown"}
 
         finally:
             # Centralized error reporting with severity-based formatting
@@ -124,5 +165,3 @@ class DataOrchestrator:
                     "Critical errors detected. Process cannot continue."
                 )
                 return None
-
-        return df

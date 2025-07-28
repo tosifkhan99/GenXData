@@ -122,18 +122,8 @@ class StreamingBatchProcessor:
         # Generate data for each column
         chunk_data = {}
         for col_name, strategy in self.strategies.items():
-            if hasattr(strategy, "generate_chunk"):
-                # Use stateful generation
-                values = strategy.generate_chunk(chunk_size)
-                self.logger.debug(
-                    f"Generated {len(values)} values for column '{col_name}' using stateful method"
-                )
-            else:
-                # Fallback to traditional generation (for non-stateful strategies)
-                values = strategy.generate_data(chunk_size)
-                self.logger.debug(
-                    f"Generated {len(values)} values for column '{col_name}' using traditional method"
-                )
+            values = strategy.generate_data(chunk_size)
+            self.logger.debug(f"Generated {len(values)} values for column '{col_name}'")
 
             chunk_data[col_name] = values.tolist()
 

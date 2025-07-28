@@ -27,9 +27,9 @@ class FileBatchWriter(BatchWriter):
         self, output_dir: str, file_prefix: str = "batch", file_format: str = "json"
     ):
         """Initialize the file batch writer"""
-        from writers.batch_writer import BatchWriter as LegacyBatchWriter
+        from writers.batch_writer import BatchWriter
 
-        self.writer = LegacyBatchWriter(
+        self.writer = BatchWriter(
             output_dir=output_dir, file_prefix=file_prefix, file_format=file_format
         )
         logger.debug(
