@@ -32,6 +32,7 @@ class FileWriter(BaseWriter):
         self.logger = Logger.get_logger("file_writer")
         self.files_written = []
         self.total_rows_written = 0
+        self.is_batch_writer = "batch" in config
 
         # Validate configuration
         self.validate_config()
@@ -54,16 +55,15 @@ class FileWriter(BaseWriter):
             raise ValueError("file_writer configuration is required")
 
         file_writer_config = self.config["file_writer"]
-        if not isinstance(file_writer_config, list) or len(file_writer_config) == 0:
-            raise ValueError("file_writer must be a non-empty list")
+        if not isinstance(file_writer_config, dict):
+            raise ValueError("file_writer must be a non-empty dictionary")
 
         # Validate each file writer configuration
-        for writer_config in file_writer_config:
-            if "type" not in writer_config:
-                raise ValueError("Each file writer must have a 'type' field")
+        if "type" not in file_writer_config:
+            raise ValueError("file writer must have a 'type' field")
 
-            if "params" not in writer_config:
-                raise ValueError("Each file writer must have a 'params' field")
+        if "params" not in file_writer_config:
+                raise ValueError("file writer must have a 'params' field")
 
         return True
 
@@ -89,8 +89,14 @@ class FileWriter(BaseWriter):
         )
 
         try:
-            # Use existing file_utils functionality
-            write_result = write_output_files(df, self.config["file_writer"])
+            writer_config = self.config["file_writer"].copy()
+            if self.is_batch_writer:
+                filename = writer_config["params"]["output_path"].split("/")[-1]
+                batch_filename = f"{filename.split('.')[0]}_{metadata['batch_index']}.{filename.split('.')[1]}"
+                writer_config["params"]["output_path"] = writer_config["params"]["output_path"].replace(filename, batch_filename)
+            
+            # todo: support multiple file writers for batch writing
+            write_result = write_output_files(df, [writer_config])
 
             # Track written files and rows
             self.total_rows_written += len(df)

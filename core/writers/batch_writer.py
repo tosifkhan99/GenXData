@@ -22,7 +22,7 @@ class BatchWriter(BaseWriter):
     used by streaming_batch_processor to the new BaseWriter interface.
     """
 
-    def __init__(self, config: dict[str, Any], actual_writer: BaseWriter = None):
+    def __init__(self, config: dict[str, Any], writer_implementation: BaseWriter = None):
         """
         Initialize the batch writer.
 
@@ -32,40 +32,19 @@ class BatchWriter(BaseWriter):
         """
         super().__init__(config)
         self.logger = Logger.get_logger("batch_writer")
-        self.actual_writer = actual_writer
+        self.writer_implementation = writer_implementation
         self.batches_written = 0
         self.total_rows_written = 0
 
         # If no actual writer provided, default to file writer
-        if not self.actual_writer:
+        if not self.writer_implementation:
             from .file_writer import FileWriter
 
-            self.actual_writer = FileWriter(config)
+            self.writer_implementation = FileWriter(config)
 
         self.logger.debug(
-            f"BatchWriter initialized with {type(self.actual_writer).__name__}"
+            f"BatchWriter initialized with {type(self.writer_implementation).__name__}"
         )
-
-    def write_batch(self, df: pd.DataFrame, batch_info: dict[str, Any]) -> None:
-        """
-        Write a batch (compatibility method for streaming_batch_processor).
-
-        Args:
-            df: DataFrame batch to write
-            batch_info: Information about the batch
-        """
-        self.logger.debug(
-            f"Writing batch {batch_info.get('batch_index', 'unknown')} with {len(df)} rows"
-        )
-
-        # Delegate to the actual writer
-        result = self.actual_writer.write(df, batch_info)
-
-        # Update counters
-        self.batches_written += 1
-        self.total_rows_written += len(df)
-
-        self.logger.debug(f"Batch write result: {result}")
 
     def write(
         self, df: pd.DataFrame, metadata: dict[str, Any] = None
@@ -89,13 +68,20 @@ class BatchWriter(BaseWriter):
 
         if metadata:
             batch_info.update(metadata)
+        
+        # Delegate to the actual writer
+        result = self.writer_implementation.write(df, batch_info)
 
-        self.write_batch(df, batch_info)
+        # Update counters
+        self.batches_written += 1
+        self.total_rows_written += len(df)
+
+        self.logger.debug(f"Batch write result: {result}")
 
         return {
             "status": "success",
             "rows_written": len(df),
-            "batch_index": self.batches_written - 1,
+            "batch_index": self.batches_written,
             "metadata": metadata,
         }
 
@@ -111,14 +97,14 @@ class BatchWriter(BaseWriter):
         )
 
         # Finalize the actual writer
-        actual_summary = self.actual_writer.finalize()
+        actual_summary = self.writer_implementation.finalize()
 
         summary = {
             "total_rows_written": self.total_rows_written,
             "total_batches_written": self.batches_written,
             "writer_type": "batch",
-            "actual_writer_type": type(self.actual_writer).__name__,
-            "actual_writer_summary": actual_summary,
+            "writer_implementation_type": type(self.writer_implementation).__name__,
+            "writer_implementation_summary": actual_summary,
         }
 
         self.logger.debug(f"Batch writer summary: {summary}")

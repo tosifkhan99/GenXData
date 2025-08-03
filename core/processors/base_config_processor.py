@@ -27,18 +27,16 @@ class BaseConfigProcessor(ABC):
     and configuration validation.
     """
 
-    def __init__(self, config: dict[str, Any], writer: BaseWriter, error_handler):
+    def __init__(self, config: dict[str, Any], writer: BaseWriter):
         """
         Initialize the base config processor.
 
         Args:
             config: Configuration dictionary
             writer: Writer instance for output
-            error_handler: Error handler for collecting errors
         """
         self.config = config
         self.writer = writer
-        self.error_handler = error_handler
         self.logger = Logger.get_logger(self.__class__.__name__.lower())
 
         # Initialize common configuration values
@@ -76,7 +74,6 @@ class BaseConfigProcessor(ABC):
             return True
         except InvalidConfigParamException as e:
             self.logger.error(f"Configuration validation failed: {e}")
-            self.error_handler.add_error(e)
             raise
 
     def create_base_dataframe(self, size: int = None) -> pd.DataFrame:
@@ -150,7 +147,6 @@ class BaseConfigProcessor(ABC):
                 )
             except Exception as e:
                 self.logger.error(f"Column {col_name} - Error: {e}")
-                self.error_handler.add_error(e)
                 raise
 
         return df

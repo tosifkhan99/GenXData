@@ -359,9 +359,7 @@ config = {
             "strategy": {"name": "NUMBER_RANGE_STRATEGY", "params": {"min_value": 18, "max_value": 65}}
         }
     ],
-    "file_writer": [
-        {"type": "CSV_WRITER", "params": {"output_path": "users.csv"}}
-    ]
+    "file_writer": {"type": "CSV_WRITER", "params": {"output_path": "users.csv"}}
 }
 
 response = requests.post("http://localhost:8000/generate_data", json=config)
@@ -682,9 +680,9 @@ configs:
         regex: "[a-z]{5}@example.com"
 
 file_writer:
-  - type: "CSV_WRITER"
-    params:
-      output_path: "users.csv"
+  type: "CSV_WRITER"
+  params:
+    output_path: "users.csv"
 ```
 
 ---

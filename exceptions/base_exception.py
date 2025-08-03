@@ -47,7 +47,7 @@ class GenXDataError(Exception, ABC):
         Args:
             message: Human-readable error message
             error_code: Unique error code string (uses default if not provided)
-            context: Optional structured context built via ErrorContextBuilder
+            context: Optional structured context dictionary
             severity: Error severity level (uses class default if not provided)
         """
         super().__init__(message)

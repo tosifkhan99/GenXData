@@ -6,7 +6,7 @@ import pandas as pd
 
 import configs.GENERATOR_SETTINGS as SETTINGS
 from core.batch_processing import get_batches, prepare_batch_config
-from core.error.error_context import ErrorContextBuilder
+
 from core.processor.process_config import process_config
 from exceptions.streaming_exception import StreamingException
 from utils.logging import Logger
@@ -16,7 +16,7 @@ logger = Logger.get_logger("streaming")
 
 
 def process_streaming_config(
-    config_file, stream_config, error_handler, perf_report=False
+    config_file, stream_config, perf_report=False
 ):
     """
     Process configuration in streaming mode.
@@ -24,7 +24,6 @@ def process_streaming_config(
     Args:
         config_file (dict): Configuration data
         stream_config (dict): Streaming configuration
-        error_handler: Error handler instance for collecting errors
         perf_report (bool): Whether to generate a performance report
 
     Returns:
@@ -64,13 +63,13 @@ def process_streaming_config(
         error_msg = f"Queue library not available: {e}"
         logger.error(error_msg)
         raise StreamingException(
-            error_msg, context=ErrorContextBuilder().with_config(stream_config).build()
+            error_msg, 
         ) from e
     except Exception as e:
         error_msg = f"Could not connect to queue: {e}"
         logger.error(error_msg)
         raise StreamingException(
-            error_msg, context=ErrorContextBuilder().with_config(stream_config).build()
+            error_msg, 
         ) from e
 
     df = None
@@ -87,7 +86,7 @@ def process_streaming_config(
         logger.debug(f"Prepared batch config for batch {batch_index}")
 
         try:
-            df = process_config(batch_config, perf_report, error_handler)
+            df = process_config(batch_config, perf_report)
             logger.debug(
                 f"Batch {batch_index} processed successfully. Generated {len(df)} rows"
             )
@@ -117,7 +116,6 @@ def process_streaming_config(
 
         except Exception as e:
             logger.error(f"Failed to process batch {batch_index}: {e}")
-            error_handler.add_error(e)
             raise
 
     # Clean up queue producer

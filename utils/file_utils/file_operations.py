@@ -48,23 +48,21 @@ def write_output_files(df, file_writers, debug_mode=False):
 
     WRITERS, WRITERS_MAPPING = load_writers_and_mappings()
 
-    if len(file_writers) != 0:
-        for i in file_writers:
-            writer_type = normalize_writer_type(i["type"])
+    writer_type = normalize_writer_type(file_writers["type"])
 
-            try:
-                # Use the strategy_module util to load the writer module
-                writer_module = load_strategy_module(WRITERS[writer_type])
-                writer = getattr(writer_module, WRITERS_MAPPING[writer_type])
+    try:
+        # Use the strategy_module util to load the writer module
+        writer_module = load_strategy_module(WRITERS[writer_type])
+        writer = getattr(writer_module, WRITERS_MAPPING[writer_type])
 
-                # Ensure output directory exists
-                if "output_path" in i.get("params", {}):
-                    ensure_output_dir(i["params"]["output_path"])
+        # Ensure output directory exists
+        if "output_path" in file_writers.get("params", {}):
+            ensure_output_dir(file_writers["params"]["output_path"])
 
-                writer(df, i.get("params", {}))
-            except KeyError:
-                if debug_mode:
-                    raise
-            except Exception:
-                if debug_mode:
-                    raise
+        writer(df, file_writers.get("params", {}))
+    except KeyError:
+        if debug_mode:
+            raise
+    except Exception:
+        if debug_mode:
+            raise

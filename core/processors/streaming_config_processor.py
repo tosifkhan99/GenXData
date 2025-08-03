@@ -27,7 +27,6 @@ class StreamingConfigProcessor(BaseConfigProcessor):
         self,
         config: dict[str, Any],
         writer,
-        error_handler,
         batch_size: int = 1000,
         chunk_size: int = 1000,
         perf_report: bool = False,
@@ -38,12 +37,11 @@ class StreamingConfigProcessor(BaseConfigProcessor):
         Args:
             config: Configuration dictionary
             writer: Writer instance for output
-            error_handler: Error handler for collecting errors
             batch_size: Size of each batch to write
             chunk_size: Size of chunks to generate at once
             perf_report: Whether to generate performance report
         """
-        super().__init__(config, writer, error_handler)
+        super().__init__(config, writer)
         self.batch_size = batch_size
         self.chunk_size = min(chunk_size, batch_size)  # Don't exceed batch size
         self.perf_report = perf_report
@@ -121,9 +119,15 @@ class StreamingConfigProcessor(BaseConfigProcessor):
                 self.logger.debug(
                     f"Writing chunk {batch_count + 1} with {len(chunk_df)} rows"
                 )
-                with measure_time("chunk_writing", rows_processed=len(chunk_df)):
-                    write_result = self.writer.write(chunk_df)
-                    self.logger.debug(f"Chunk write result: {write_result}")
+                # with measure_time("chunk_writing", rows_processed=len(chunk_df)):
+                batch_info = {
+                    "batch_index": batch_count,
+                    "batch_size": len(chunk_df),
+                    "timestamp": pd.Timestamp.now().isoformat(),
+                }
+
+                write_result = self.writer.write(chunk_df, batch_info)
+                self.logger.debug(f"Chunk write result: {write_result}")
 
                 # Update counters
                 total_generated += chunk_size

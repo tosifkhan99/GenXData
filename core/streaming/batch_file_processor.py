@@ -6,7 +6,7 @@ Updated to use StreamingBatchProcessor with stateful strategies.
 import pandas as pd
 
 import configs.GENERATOR_SETTINGS as SETTINGS
-from core.error.error_context import ErrorContextBuilder
+
 from core.streaming.streaming_batch_processor import (
     BatchWriter,
     StreamingBatchProcessor,
@@ -50,7 +50,7 @@ class FileBatchWriter(BatchWriter):
         return summary
 
 
-def process_batch_config(config_file, batch_config, error_handler, perf_report=False):
+def process_batch_config(config_file, batch_config, perf_report=False):
     """
     Process configuration in batch file mode using StreamingBatchProcessor.
 
@@ -60,7 +60,6 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
     Args:
         config_file (dict): Configuration data
         batch_config (dict): Batch configuration
-        error_handler: Error handler instance for collecting errors
         perf_report (bool): Whether to generate a performance report
 
     Returns:
@@ -80,7 +79,7 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         )
         logger.error(error_msg)
         raise BatchProcessingException(
-            error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
+            error_msg, 
         )
 
     writer_config = batch_config["batch_writer"]
@@ -91,7 +90,7 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         error_msg = "Batch writer config must contain 'output_dir' setting"
         logger.error(error_msg)
         raise BatchProcessingException(
-            error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
+            error_msg, 
         )
 
     output_dir = writer_config["output_dir"]
@@ -118,7 +117,7 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
         error_msg = f"Failed to initialize batch writer: {e}"
         logger.error(error_msg)
         raise BatchProcessingException(
-            error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
+            error_msg, 
         ) from e
 
     # Initialize and run StreamingBatchProcessor
@@ -152,7 +151,4 @@ def process_batch_config(config_file, batch_config, error_handler, perf_report=F
     except Exception as e:
         error_msg = f"Failed during streaming batch processing: {e}"
         logger.error(error_msg, exc_info=True)
-        error_handler.add_error(e)
-        raise BatchProcessingException(
-            error_msg, context=ErrorContextBuilder().with_config(batch_config).build()
-        ) from e
+        raise BatchProcessingException(error_msg) from e

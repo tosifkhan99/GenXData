@@ -21,7 +21,7 @@ class NormalConfigProcessor(BaseConfigProcessor):
     """
 
     def __init__(
-        self, config: dict[str, Any], writer, error_handler, perf_report: bool = False
+        self, config: dict[str, Any], writer, perf_report: bool = False
     ):
         """
         Initialize the normal config processor.
@@ -29,10 +29,9 @@ class NormalConfigProcessor(BaseConfigProcessor):
         Args:
             config: Configuration dictionary
             writer: Writer instance for output
-            error_handler: Error handler for collecting errors
             perf_report: Whether to generate performance report
         """
-        super().__init__(config, writer, error_handler)
+        super().__init__(config, writer)
         self.perf_report = perf_report
 
         self.logger.info(f"NormalConfigProcessor initialized for {self.rows} rows")
@@ -89,7 +88,7 @@ class NormalConfigProcessor(BaseConfigProcessor):
                 "rows_generated": len(df),
                 "columns_generated": len(df.columns),
                 "column_names": list(df.columns),
-                "df": df,  # Return the DataFrame for backward compatibility
+                "df": df,
                 "writer_summary": writer_summary,
                 "performance_report": perf_summary,
                 "config_name": self.config.get("metadata", {}).get("name", "unknown"),

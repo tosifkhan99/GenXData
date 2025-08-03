@@ -15,14 +15,13 @@ from utils.performance_timer import get_performance_report, measure_time
 logger = Logger.get_logger("processor")
 
 
-def process_config(config, perf_report, error_handler):
+def process_config(config, perf_report):
     """
     Process a single configuration file.
 
     Args:
         config_file (dict): Configuration data
         perf_report (bool): Whether to generate a performance report
-        error_handler: Error handler instance for collecting errors
 
     Returns:
         pd.DataFrame: Generated data
@@ -62,7 +61,7 @@ def process_config(config, perf_report, error_handler):
         logger.debug("Configuration validation passed")
     except InvalidConfigParamException as e:
         logger.error(f"Configuration validation failed: {e}")
-        error_handler.add_error(e)
+        raise
 
     with measure_time("data_generation", rows_processed=rows):
         for cur_config in configs:
@@ -126,16 +125,14 @@ def process_config(config, perf_report, error_handler):
                             logger.error(
                                 f"Column {col_name} - Unsupported strategy '{strategy_name}': {e}"
                             )
-                            error_handler.add_error(e)
+                            raise
 
                 except ConfigException as e:
                     logger.error(f"Column {col_name} - Configuration error: {e}")
-                    error_handler.add_error(e)
                     raise
 
                 except Exception as e:
                     logger.error(f"Column {col_name} - Unexpected error: {e}")
-                    error_handler.add_error(e)
                     raise
 
     # Apply shuffle if enabled

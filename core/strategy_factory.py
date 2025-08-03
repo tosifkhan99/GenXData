@@ -5,7 +5,7 @@ Factory for creating strategy instances based on strategy name.
 import pandas as pd
 
 from core.base_strategy import BaseStrategy
-from core.error.error_context import ErrorContextBuilder
+
 from core.strategy_mapping import get_config_class, get_strategy_class
 from exceptions.strategy_exceptions import UnsupportedStrategyException
 from utils.intermediate_column import mark_as_intermediate
@@ -62,11 +62,7 @@ class StrategyFactory:
         except Exception as e:
             self.logger.debug(f"Error creating strategy {strategy_name}: {str(e)}")
             raise UnsupportedStrategyException(
-                f"Could not create strategy {strategy_name}: {str(e)}",
-                context=ErrorContextBuilder()
-                .with_strategy_name(strategy_name)
-                .with_strategy_params(params)
-                .build(),
+                f"Could not create strategy {strategy_name}: {str(e)}"
             ) from e
 
     def execute_strategy(self, strategy: BaseStrategy) -> pd.DataFrame:

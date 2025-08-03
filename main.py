@@ -12,8 +12,11 @@ This application has been refactored into a modular structure:
 - utils/ - Various utility modules
 - cli/ - Command-line interface
 
-For programmatic use, import the 'start' function:
-    from main import start
+For programmatic use, use the DataOrchestrator class:
+    from core.orchestrator import DataOrchestrator
+
+    orchestrator = DataOrchestrator(config)
+    result = orchestrator.run()
 
 For CLI use, run this file directly:
     python main.py <config_path> [options]

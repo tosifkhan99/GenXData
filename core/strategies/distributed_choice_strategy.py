@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 from core.base_strategy import BaseStrategy
-from core.error.error_context import ErrorContextBuilder
+
 from exceptions.param_exceptions import InvalidConfigParamException
 
 
@@ -37,12 +37,7 @@ class DistributedChoiceStrategy(BaseStrategy):
                 int(self.params["seed"])
             except ValueError as e:
                 raise InvalidConfigParamException(
-                    "Seed must be an integer",
-                    context=ErrorContextBuilder()
-                    .with_strategy_name("DistributedChoiceStrategy")
-                    .with_column(self.col_name)
-                    .with_strategy_params(self.params)
-                    .build(),
+                    "Seed must be an integer"
                 ) from e
 
         total_weight = sum(choices.values())

@@ -150,15 +150,8 @@ class DateRangeConfig(BaseConfig):
         from datetime import datetime
 
         try:
-            if isinstance(self.start_date, str):
-                start = datetime.strptime(self.start_date, self.format)
-            else:
-                start = self.start_date
-
-            if isinstance(self.end_date, str):
-                end = datetime.strptime(self.end_date, self.format)
-            else:
-                end = self.end_date
+            start = datetime.strptime(self.start_date, self.format)
+            end = datetime.strptime(self.end_date, self.format)
 
             if start >= end:
                 raise InvalidConfigParamException(
@@ -171,7 +164,8 @@ class DateRangeConfig(BaseConfig):
                 raise InvalidConfigParamException(
                     f"Invalid date format. Expected {self.format}"
                 ) from e
-            raise e
+            # Re-raise the original exception for other ValueError cases
+            raise
 
 
 @dataclass
@@ -278,7 +272,8 @@ class TimeRangeItem:
                 raise InvalidConfigParamException(
                     f"Invalid time format. Expected {self.format}"
                 ) from e
-            raise e
+            # Re-raise the original exception for other ValueError cases
+            raise
 
         if self.distribution <= 0 or self.distribution > 100:
             raise InvalidConfigParamException(
@@ -329,7 +324,8 @@ class DateRangeItem:
                 raise InvalidConfigParamException(
                     f"Invalid date format. Expected {self.format}"
                 ) from e
-            raise e
+            # Re-raise the original exception for other ValueError cases
+            raise
 
         if self.distribution <= 0 or self.distribution > 100:
             raise InvalidConfigParamException(
@@ -442,7 +438,8 @@ class TimeRangeConfig(BaseConfig):
                 raise InvalidConfigParamException(
                     f"Invalid time format. Expected {self.format}"
                 ) from e
-            raise e
+            # Re-raise the original exception for other ValueError cases
+            raise
 
 
 @dataclass

@@ -334,7 +334,7 @@ def validate_generator_config(config: dict[str, Any]) -> bool:
     Returns:
         True if valid, raises ValueError if invalid
     """
-    required_fields = ["column_name", "num_of_rows", "configs"]
+    required_fields = ["column_name", "num_of_rows", "configs", "file_writer"]
 
     for field in required_fields:
         if field not in config:
@@ -358,6 +358,11 @@ def validate_generator_config(config: dict[str, Any]) -> bool:
             raise InvalidConfigParamException(
                 f"Config entry {i} strategy missing 'params' field"
             )
+
+    if not isinstance(config["file_writer"], dict):
+        raise InvalidConfigParamException("'file_writer' must be a dictionary")
+    if "type" not in config["file_writer"]:
+        raise InvalidConfigParamException("'file_writer' must be a dictionary with a 'type' field")
 
     return True
 
