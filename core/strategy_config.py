@@ -508,46 +508,4 @@ class RandomNameConfig(BaseConfig):
             )
 
 
-# Config factory to create the appropriate config class based on strategy name
-def create_config(strategy_name: str, params: dict[str, Any]) -> BaseConfig:
-    """
-    Factory function to create a configuration object for the specified strategy.
-
-    Args:
-        strategy_name: Name of the strategy
-        params: Dictionary of parameters for the strategy
-
-    Returns:
-        Configuration object for the strategy
-
-    Raises:
-        UnsupportedStrategyException: If the strategy is not supported
-    """
-    strategy_config_map = {
-        "RANDOM_NUMBER_RANGE_STRATEGY": lambda p: NumberRangeConfig.from_dict(p),
-        "DISTRIBUTED_NUMBER_RANGE_STRATEGY": lambda p: DistributedNumberRangeConfig.from_dict(
-            p
-        ),
-        "DATE_GENERATOR_STRATEGY": lambda p: DateRangeConfig.from_dict(p),
-        "DISTRIBUTED_DATE_RANGE_STRATEGY": lambda p: DistributedDateRangeConfig.from_dict(
-            p
-        ),
-        "PATTERN_STRATEGY": lambda p: PatternConfig.from_dict(p),
-        "SERIES_STRATEGY": lambda p: SeriesConfig.from_dict(p),
-        "DISTRIBUTED_CHOICE_STRATEGY": lambda p: DistributedChoiceConfig.from_dict(p),
-        "TIME_RANGE_STRATEGY": lambda p: TimeRangeConfig.from_dict(p),
-        "DISTRIBUTED_TIME_RANGE_STRATEGY": lambda p: DistributedTimeRangeConfig.from_dict(
-            p
-        ),
-        "REPLACEMENT_STRATEGY": lambda p: ReplacementConfig.from_dict(p),
-        "CONCAT_STRATEGY": lambda p: ConcatConfig.from_dict(p),
-        "RANDOM_NAME_STRATEGY": lambda p: RandomNameConfig.from_dict(p),
-        "DELETE_STRATEGY": lambda p: DeleteConfig.from_dict(p),
-    }
-
-    if strategy_name not in strategy_config_map:
-        raise UnsupportedStrategyException(f"Unsupported strategy: {strategy_name}")
-
-    config = strategy_config_map[strategy_name](params)
-    config.validate()
-    return config
+# Example: config_class = get_config_class(strategy_name); config = config_class.from_dict(params)
